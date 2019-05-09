@@ -1,7 +1,7 @@
 %% Startme
 
-cd ../../../GitHub/cobratoolbox;
+cd ../cobratoolbox;
 initCobraToolbox;
 
-addpath(genpath('../../MATLAB/Code/PcLactis_Matlab/')); %add to path
-cd ../../MATLAB/Code/PcLactis_Matlab;
+addpath(genpath('../pcLactis/')); %add to path
+cd ../pcLactis;
