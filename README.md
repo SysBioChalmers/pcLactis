@@ -12,6 +12,5 @@ This repository contains files for proteome-constrained model of _Lactococcus la
 Main contributors
 -------------------------------
 
-* Yu Chen (<https://github.com/Yu-sysbio>), Chalmers University of Technology, Gothenburg, Sweden
-* Eunice van Pelt-Kleinjan (<https://github.com/EunicevPK>), Vrije Universiteit Amsterdam, Amsterdam, The Netherlands
-
+* Yu Chen ([@Yu-sysbio](https://github.com/Yu-sysbio)), Chalmers University of Technology, Gothenburg, Sweden
+* Eunice van Pelt-Kleinjan ([@EunicevPK](https://github.com/EunicevPK)), Vrije Universiteit Amsterdam, Amsterdam, The Netherlands
