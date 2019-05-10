@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 6800 s
+% Timing: ~ 12200 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -66,7 +66,7 @@ model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 %% Main part.
 
-D_list = 0.1:0.1:0.7;%unit: /h
+D_list = 0.1:0.05:0.7;%unit: /h
 
 % without saturation factor
 factor_k = 1;%global saturation factor
