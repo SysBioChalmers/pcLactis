@@ -305,7 +305,6 @@ h.EdgeColor = 'k';
 h.LineWidth = 1;
 h.FaceColor = 'k';
 h.FaceAlpha = 0.6;
-title('Growth rate & saturation factor','FontSize',14,'FontName','Helvetica','fontweight','bold');
 xlabel('Pearson correlation coefficient','FontSize',14,'FontName','Helvetica');
 ylabel('Density','FontSize',14,'FontName','Helvetica');
 
@@ -316,8 +315,22 @@ xlim([-1 1]);
 set(gcf,'position',[0 0 250 230]);
 set(gca,'position',[0.14 0.15 0.85 0.75]);
 
+
 figure();
-ecdf(cmp_pcLactis.corr_coef);
+hold on;
+box on;
+[f,x] = ecdf(cmp_pcLactis.corr_coef);
+plot(x,f,'LineWidth',1);
+clear x f;
+set(gca,'FontSize',12,'FontName','Helvetica');
+
+number = ['N = ',num2str(length(cmp_pcLactis.corr_coef))];
+text(-0.9,0.9,number,'FontSize',14,'FontName','Helvetica','Color','k');
+
+xlabel('Pearson correlation coefficient','FontSize',14,'FontName','Helvetica');
+ylabel('Cumulative frequency','FontSize',14,'FontName','Helvetica');
+set(gcf,'position',[500 300 300 300]);
+set(gca,'position',[0.2 0.22 0.75 0.75]);
 
 %% Figure distribution of slopes
 % hold on;
