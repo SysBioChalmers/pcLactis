@@ -1,11 +1,8 @@
-%% Calculates changes with growth rate. (without sf) 
+%% This function calculates proteome allocation for exp data.
 
-% Timing: < 10 s
+load('Cfd1_fluxes_without_sf.mat');
 
-%% Main part
-load('Sglc1_fluxes_without_sf.mat');
-
-flux_res = fluxes_simulated_without_sf;
+flux_res = fluxes_global_saturation_factor_unchanged;
 
 [~, excel_input, ~] = xlsread('Allocation.xlsx');
 load('Info_enzyme.mat');
@@ -76,7 +73,7 @@ allocation_percentage = allocation_value./total_proteome;
 %% Figure
 figure('Name','1');
 hold on;
-b = bar(transpose(mu_list),transpose(allocation_percentage),'stacked');
+b = bar(transpose(allocation_percentage),'stacked');
 b(1).FaceColor = [228,26,28]/256;
 b(2).FaceColor = [55,126,184]/256;
 b(3).FaceColor = [255,255,51]/256;
@@ -91,51 +88,8 @@ set(gca,'FontSize',12,'FontName','Helvetica');
 legend(allocation_pathway,'FontSize',12,'FontName','Helvetica','location','se');
 legend('boxoff');
 ylim([0 1]);
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+set(gca,'XTick',1:1:10);
 ylabel('Proteome fraction','FontSize',14,'FontName','Helvetica');
 
-set(gcf,'position',[0 0 420 300]);
+set(gcf,'position',[0 0 420 160]);
 set(gca,'position',[0.11 0.13 0.5 0.85]);
-
-color = [178,24,43]/255;
-% color = [221,28,119]/255;
-
-figure('Name','2');
-plot(mu_list,q_glc,'LineWidth',0.75,'Color',color);
-ylim([0 28]);
-xlim([0 0.75]);
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ylabel(['Glucose uptake rate',char(13,10)','(mmol/gCDW/h)'],'FontSize',14,'FontName','Helvetica');
-set(gcf,'position',[0 0 270 110]);
-set(gca,'position',[0.25 0.28 0.7 0.7]);
-
-figure('Name','3');
-plot(mu_list,total_RNA./total_proteome,'LineWidth',0.75,'Color',color);
-ylim([0.09 0.24]);
-xlim([0 0.75]);
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ylabel(['RNA/Protein',char(13,10)','(g/g)'],'FontSize',14,'FontName','Helvetica');
-set(gcf,'position',[300 0 270 110]);
-set(gca,'position',[0.25 0.28 0.7 0.7]);
-
-figure('Name','4');
-plot(mu_list,allocation_value(2,:),'LineWidth',0.75,'Color',color);
-ylim([0 0.037]);
-xlim([0 0.75]);
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ylabel(['Glycolytic enzymes',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','Helvetica');
-set(gcf,'position',[600 0 270 110]);
-set(gca,'position',[0.25 0.28 0.7 0.7]);
-
-figure('Name','5');
-plot(mu_list,total_inactive_enzyme,'LineWidth',0.75,'Color',color);
-ylim([0 0.25]);
-xlim([0 0.75]);
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ylabel(['Inactive enzymes',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','Helvetica');
-set(gcf,'position',[900 0 270 110]);
-set(gca,'position',[0.25 0.28 0.7 0.7]);
