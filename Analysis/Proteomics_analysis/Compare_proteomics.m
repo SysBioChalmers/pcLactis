@@ -351,7 +351,7 @@ clear I;
 
 figure();
 cdata = [common.withoutsf_rmse common.withsf_rmse];
-xvalues = {'Before','After'};
+xvalues = {'Unchanged','Changed'};
 yvalues = common.pathway;
 map = colormap(heatmap(xvalues,yvalues,cdata,'Colormap',bone));
 map = sort(map,'descend');
@@ -364,7 +364,7 @@ clear cdata h map xvalues yvalues;
 
 figure();
 cdata = [common.withoutsf_R common.withsf_R];
-xvalues = {'Before','After'};
+xvalues = {'Unchanged','Changed'};
 yvalues = common.pathway;
 map = colormap(heatmap(xvalues,yvalues,cdata,'Colormap',pink));
 map = sort(map,'descend');
