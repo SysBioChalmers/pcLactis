@@ -1,10 +1,13 @@
 %% This function calculates proteome allocation for exp data.
 
-load('Cfd1_fluxes_without_sf.mat');
+% After changing saturation factor.
 
-flux_res = fluxes_global_saturation_factor_unchanged;
+load('Egsf1_fluxes.mat');
+
+flux_res = fluxes_global_saturation_factor_changed;
 
 [~, excel_input, ~] = xlsread('Allocation.xlsx');
+excel_input = excel_input(:,2);
 load('Info_enzyme.mat');
 load('Info_mRNA.mat');
 load('Info_ribosome.mat');
@@ -23,7 +26,7 @@ clear pcLactis_Model GAM NGAM f_unmodeled;
 
 [~, n] = size(flux_res);
 
-allocation_value = zeros(5,n);
+allocation_value = zeros(1,n);
 total_proteome = zeros(1,n);
 total_RNA = zeros(1,n);
 total_rProtein = zeros(1,n);
@@ -71,8 +74,7 @@ allocation_percentage = allocation_value./total_proteome;
 
 
 %% Figure
-figure('Name','1');
-hold on;
+
 perc_015 = allocation_percentage(:,1:3);
 perc_030 = allocation_percentage(:,4:6);
 perc_045 = allocation_percentage(:,7);
@@ -93,17 +95,16 @@ res_mean = [mean_015 mean_030 mean_045 mean_050 mean_060];
 res_error = [error_015 error_030 error_045 error_050 error_060];
 x = categorical({'0.15','0.30','0.45','0.50','0.60',});
 
+figure('Name','1');
+hold on;
 b = bar(x,res_mean','stacked');
-b(1).FaceColor = [228,26,28]/256;
-b(2).FaceColor = [55,126,184]/256;
-b(3).FaceColor = [255,255,51]/256;
-b(4).FaceColor = [152,78,163]/256;
-b(5).FaceColor = [255,127,0]/256;
-b(6).FaceColor = [77,175,74]/256;
-b(7).FaceColor = [166,86,40]/256;
-b(8).FaceColor = [247,129,191]/256;
-b(9).FaceColor = [153,153,153]/256;
-errorbar(cumsum(res_mean)',res_error','k','Marker','none','LineStyle','none','LineWidth',0.5,'CapSize',10);
+
+b(4).FaceColor = [253,191,111]/255;
+b(1).FaceColor = [178,223,138]/255;
+b(2).FaceColor = [251,154,153]/255;
+b(3).FaceColor = [166,206,227]/255;
+b(5).FaceColor = [178,178,178]/255;
+errorbar(cumsum(res_mean)',res_error','k','Marker','none','LineStyle','none','LineWidth',0.5,'CapSize',5);
 
 set(gca,'FontSize',12,'FontName','Helvetica');
 legend(allocation_pathway,'FontSize',12,'FontName','Helvetica','location','se');
@@ -112,5 +113,5 @@ ylim([0 1]);
 ylabel('Proteome fraction','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 
-set(gcf,'position',[0 0 420 160]);
-set(gca,'position',[0.11 0.13 0.5 0.85]);
+set(gcf,'position',[0 0 250 300]);
+set(gca,'position',[0.2 0.13 0.7 0.51]);

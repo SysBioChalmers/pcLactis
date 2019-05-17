@@ -1,5 +1,7 @@
 %% This function calculates proteome allocation for exp data.
 
+% Before changing saturation factor.
+
 load('Cfd1_fluxes_without_sf.mat');
 
 flux_res = fluxes_global_saturation_factor_unchanged;
@@ -59,13 +61,13 @@ for i = 1:n
     total_inactive_enzyme(1,i) = f_enzyme_inact;
     
 end
-allocation_pathway = [pathway;'Ribosomal protein';'Inactive enzyme'];
+allocation_pathway = [pathway;'Ribosomal proteins';'Inactive enzymes'];
 allocation_value = [allocation_value;total_rProtein;total_inactive_enzyme];
 
-allocation_pathway = [allocation_pathway;'Other modeled protein'];
+allocation_pathway = [allocation_pathway;'Other modeled proteins'];
 allocation_value = [allocation_value;total_proteome-sum(allocation_value)-unmodeled_weight];
 
-allocation_pathway = [allocation_pathway;'Unmodeled protein'];
+allocation_pathway = [allocation_pathway;'Unmodeled proteins'];
 allocation_value = [allocation_value;unmodeled_weight*ones(1,n)];
 
 allocation_percentage = allocation_value./total_proteome;
