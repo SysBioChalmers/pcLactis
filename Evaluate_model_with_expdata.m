@@ -26,7 +26,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 factor_k = 1;%global saturation factor
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -52,6 +52,10 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
+
+% Block other glucose transporters
+model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
 
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
@@ -92,7 +96,7 @@ for i = 1:length(mu_list)
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+        [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
         
         tf_res = [tf_res;strcmp(solME_status,'optimal')];
         

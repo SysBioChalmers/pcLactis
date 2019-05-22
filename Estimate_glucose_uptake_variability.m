@@ -23,7 +23,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.001;%fraction of glucose transporter in total proteome
 
 % obtain the global saturation factor
 load('Egsf2_result.mat');
@@ -67,6 +67,10 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
+
+% Block other glucose transporters
+model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
 
 %% Main part.
 load('Sglc_result_with_sf.mat');

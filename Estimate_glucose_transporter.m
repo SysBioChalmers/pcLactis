@@ -64,6 +64,10 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
+% Block other glucose transporters
+model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+
 %% Main simulations.
 
 f_transporter_range = [0.002:0.002:0.01,0.02,0.05,0.1,0.2];

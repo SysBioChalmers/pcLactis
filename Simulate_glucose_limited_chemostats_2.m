@@ -28,7 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -63,6 +63,10 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
+
+% Block other glucose transporters
+model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
 
 %% Main part.
 
@@ -224,24 +228,24 @@ load('Sglc2_fluxes_with_sf.mat');
 load('Sglc2_result_without_sf.mat');
 load('Sglc2_result_with_sf.mat');
 
-% %Glucose concentration and growth rate
-% figure('Name','1');
-% hold on;
-% box on;
-% y1 = glc_conc_without_sf(:,1);
-% x1 = glc_conc_without_sf(:,2);
-% plot(x1,y1,'-o','LineWidth',1,'Color',[69,117,180]/255,'MarkerSize',8,'MarkerEdgeColor',[69,117,180]/255);
-% y2 = glc_conc_with_sf(:,1);
-% x2 = glc_conc_with_sf(:,2);
-% plot(x2,y2,'-o','LineWidth',1,'Color',[215,48,39]/255,'MarkerSize',8,'MarkerEdgeColor',[215,48,39]/255);
-% legend({'Before','After'},'FontSize',12,'FontName','Helvetica','location','north');
-% set(gca,'FontSize',12,'FontName','Helvetica');
-% xlabel('Glucose concentration (uM)','FontSize',14,'FontName','Helvetica');
-% ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-% 
-% set(gcf,'position',[0 300 230 130]);
-% set(gca,'position',[0.23 0.25 0.72 0.7]);
-% clear x1 x2 y1 y2;
+%Glucose concentration and growth rate
+figure('Name','1');
+hold on;
+box on;
+y1 = glc_conc_without_sf(:,1);
+x1 = glc_conc_without_sf(:,2);
+plot(x1,y1,'-o','LineWidth',1,'Color',[69,117,180]/255,'MarkerSize',8,'MarkerEdgeColor',[69,117,180]/255);
+y2 = glc_conc_with_sf(:,1);
+x2 = glc_conc_with_sf(:,2);
+plot(x2,y2,'-o','LineWidth',1,'Color',[215,48,39]/255,'MarkerSize',8,'MarkerEdgeColor',[215,48,39]/255);
+legend({'Before','After'},'FontSize',12,'FontName','Helvetica','location','north');
+set(gca,'FontSize',12,'FontName','Helvetica');
+xlabel('Glucose concentration (uM)','FontSize',14,'FontName','Helvetica');
+ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+
+set(gcf,'position',[0 300 230 130]);
+set(gca,'position',[0.23 0.25 0.72 0.7]);
+clear x1 x2 y1 y2;
 
 %Metabolic shift
 % Experimental data
