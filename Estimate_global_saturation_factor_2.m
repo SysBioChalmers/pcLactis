@@ -1,6 +1,6 @@
 %% Estimate a global saturation factor 2.
 
-% Timing: ~  s
+% Timing: ~ 4800 s
 
 % Consider glucose transporter
 

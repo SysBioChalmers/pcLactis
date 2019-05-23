@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 12200 s
+% Timing: ~  s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -137,8 +137,7 @@ end
 
 % with saturation factor
 % obtain the global saturation factor
-load('Egsf2_result.mat');
-global_saturation_factor_list(2,2) = 1;
+load('Egsf1_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
 x = x(y ~= 1);
