@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~  s
+% Timing: ~ 11000 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -227,24 +227,24 @@ load('Sglc2_fluxes_with_sf.mat');
 load('Sglc2_result_without_sf.mat');
 load('Sglc2_result_with_sf.mat');
 
-%Glucose concentration and growth rate
-figure('Name','1');
-hold on;
-box on;
-y1 = glc_conc_without_sf(:,1);
-x1 = glc_conc_without_sf(:,2);
-plot(x1,y1,'-o','LineWidth',1,'Color',[69,117,180]/255,'MarkerSize',8,'MarkerEdgeColor',[69,117,180]/255);
-y2 = glc_conc_with_sf(:,1);
-x2 = glc_conc_with_sf(:,2);
-plot(x2,y2,'-o','LineWidth',1,'Color',[215,48,39]/255,'MarkerSize',8,'MarkerEdgeColor',[215,48,39]/255);
-legend({'Before','After'},'FontSize',12,'FontName','Helvetica','location','north');
-set(gca,'FontSize',12,'FontName','Helvetica');
-xlabel('Glucose concentration (uM)','FontSize',14,'FontName','Helvetica');
-ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-
-set(gcf,'position',[0 300 230 130]);
-set(gca,'position',[0.23 0.25 0.72 0.7]);
-clear x1 x2 y1 y2;
+% %Glucose concentration and growth rate
+% figure('Name','1');
+% hold on;
+% box on;
+% y1 = glc_conc_without_sf(:,1);
+% x1 = glc_conc_without_sf(:,2);
+% plot(x1,y1,'-o','LineWidth',1,'Color',[69,117,180]/255,'MarkerSize',8,'MarkerEdgeColor',[69,117,180]/255);
+% y2 = glc_conc_with_sf(:,1);
+% x2 = glc_conc_with_sf(:,2);
+% plot(x2,y2,'-o','LineWidth',1,'Color',[215,48,39]/255,'MarkerSize',8,'MarkerEdgeColor',[215,48,39]/255);
+% legend({'Before','After'},'FontSize',12,'FontName','Helvetica','location','north');
+% set(gca,'FontSize',12,'FontName','Helvetica');
+% xlabel('Glucose concentration (uM)','FontSize',14,'FontName','Helvetica');
+% ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+% 
+% set(gcf,'position',[0 300 230 130]);
+% set(gca,'position',[0.23 0.25 0.72 0.7]);
+% clear x1 x2 y1 y2;
 
 %Metabolic shift
 % Experimental data
@@ -320,40 +320,79 @@ xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 set(gcf,'position',[0 0 305 300]);
 set(gca,'position',[0.17 0.13 0.7 0.7]);
 
+% % mixed to lactic acid with sf
+% figure('Name','3');
+% hold on;
+% box on;
+% 
+% plot(mu2,f_lac2,'-','LineWidth',0.75,'Color',color_lactic);
+% x = exp_mu; y = f_exp_lac; yu = f_exp_lac + f_exp_lac_sd; yl = f_exp_lac - f_exp_lac_sd;
+% plot(x,y,'-.','LineWidth',0.75,'Color',color_lactic);
+% fill([x fliplr(x)],[yu fliplr(yl)],color_lactic,'linestyle','none','FaceAlpha',0.3);
+% 
+% plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
+% x = exp_mu; y = f_exp_mix; yu = f_exp_mix + f_exp_mix_sd; yl = f_exp_mix - f_exp_mix_sd;
+% plot(x,y,'-.','LineWidth',0.75,'Color',color_mixed);
+% fill([x fliplr(x)],[yu fliplr(yl)],color_mixed,'linestyle','none','FaceAlpha',0.3);
+% 
+% % errorbar(exp_mu,f_exp_lac,f_exp_lac_sd,'-.','LineWidth',0.75,'Color',color_lactic);
+% % errorbar(exp_mu,f_exp_mix,f_exp_mix_sd,'-.','LineWidth',0.75,'Color',color_mixed);
+% 
+% set(gca,'YTick',0:0.2:1);
+% set(gca,'ycolor','k');
+% set(gca,'XTick',0.1:0.2:0.7);
+% xlim([0.1 0.7]);
+% ylim([-0.05 1.05]);
+% set(gca,'FontSize',12,'FontName','Helvetica');
+% ylabel('Fraction in glucose','FontSize',14,'FontName','Helvetica');
+% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+% legend({'Sim lactic acid',...
+%         'Exp lactic acid'...
+%         'SD lactic acid'...
+%         'Sim mixed acid',...
+%         'Exp mixed acid'...
+%         'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
+% set(gcf,'position',[450 0 305 300]);
+% set(gca,'position',[0.17 0.13 0.7 0.7]);
+
 % mixed to lactic acid with sf
 figure('Name','3');
 hold on;
 box on;
 
 plot(mu2,f_lac2,'-','LineWidth',0.75,'Color',color_lactic);
+plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
+set(gca,'FontSize',12,'FontName','Helvetica');
+xlabel('Simulated growth rate (/h)','FontSize',14,'FontName','Helvetica');
+ylabel('Fraction in total glucose carbon','FontSize',14,'FontName','Helvetica');
+set(gcf,'position',[450 0 305 300]);
+set(gca,'position',[0.17 0.13 0.7 0.7]);
+
+ax1 = gca;
+ax1.XLim = [0.2 0.7];
+set(ax1,'XTick',0.2:0.1:0.7);
+ax1.YLim = [0 1];
+ax2 = axes('Position',ax1.Position,'XAxisLocation','top','YAxisLocation','right','Color','none');
+hold on;
+
 x = exp_mu; y = f_exp_lac; yu = f_exp_lac + f_exp_lac_sd; yl = f_exp_lac - f_exp_lac_sd;
 plot(x,y,'-.','LineWidth',0.75,'Color',color_lactic);
 fill([x fliplr(x)],[yu fliplr(yl)],color_lactic,'linestyle','none','FaceAlpha',0.3);
 
-plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
 x = exp_mu; y = f_exp_mix; yu = f_exp_mix + f_exp_mix_sd; yl = f_exp_mix - f_exp_mix_sd;
 plot(x,y,'-.','LineWidth',0.75,'Color',color_mixed);
 fill([x fliplr(x)],[yu fliplr(yl)],color_mixed,'linestyle','none','FaceAlpha',0.3);
 
-% errorbar(exp_mu,f_exp_lac,f_exp_lac_sd,'-.','LineWidth',0.75,'Color',color_lactic);
-% errorbar(exp_mu,f_exp_mix,f_exp_mix_sd,'-.','LineWidth',0.75,'Color',color_mixed);
-
-set(gca,'YTick',0:0.2:1);
-set(gca,'ycolor','k');
-set(gca,'XTick',0.1:0.2:0.7);
-xlim([0.1 0.7]);
-ylim([-0.05 1.05]);
+set(gca,'XAxisLocation','top','YAxisLocation','right','Color','none');
 set(gca,'FontSize',12,'FontName','Helvetica');
-ylabel('Fraction in glucose','FontSize',14,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-legend({'Sim lactic acid',...
-        'Exp lactic acid'...
-        'SD lactic acid'...
-        'Sim mixed acid',...
-        'Exp mixed acid'...
-        'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
-set(gcf,'position',[450 0 305 300]);
-set(gca,'position',[0.17 0.13 0.7 0.7]);
+xlabel('Experimental growth rate (/h)','FontSize',14,'FontName','Helvetica');
+ax2.XLim = [0.15 0.6];
+ax2.YLim = ax1.YLim;
+line(xlim,[ax2.YLim(2), ax2.YLim(2)],'color','w','LineWidth',1);
+line(xlim,[ax2.YLim(2), ax2.YLim(2)],'color','k','LineStyle','-.');
+legend({'lactic acid','lactic acid','mixed acid','mixed acid'},'FontSize',12,'FontName','Helvetica','location','nw');
+set(ax2,'XTick',0.2:0.1:0.6);
+set(ax2,'ytick',[]);
 
 % arg catabolism with sf
 color_orn = [221,52,151]/255;
@@ -370,8 +409,8 @@ ylabel('Flux (mmol/gCDW/h)','FontSize',14,'FontName','Helvetica');
 set(gcf,'position',[900 0 305 300]);
 set(gca,'position',[0.17 0.13 0.7 0.7]);
 ax1 = gca;
-ax1.XLim = [0.1 0.7];
-set(ax1,'XTick',0.1:0.1:0.7);
+ax1.XLim = [0.2 0.7];
+set(ax1,'XTick',0.2:0.1:0.7);
 ax1.YLim = [-1.1 1.1];
 ax2 = axes('Position',ax1.Position,'XAxisLocation','top','YAxisLocation','right','Color','none');
 hold on;
@@ -395,12 +434,12 @@ fill([x fliplr(x)],[yu fliplr(yl)],color_citr,'linestyle','none','FaceAlpha',0.3
 set(gca,'XAxisLocation','top','YAxisLocation','right','Color','none');
 set(gca,'FontSize',12,'FontName','Helvetica');
 xlabel('Experimental growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ax2.XLim = [0.1 0.6];
+ax2.XLim = [0.15 0.6];
 ax2.YLim = ax1.YLim;
 line(xlim,[ax2.YLim(2), ax2.YLim(2)],'color','w','LineWidth',1);
 line(xlim,[ax2.YLim(2), ax2.YLim(2)],'color','k','LineStyle','-.');
 legend({'Ornithine','Ornithine','Arginine','Arginine','Citrulline','Citrulline'},'FontSize',12,'FontName','Helvetica','location','nw');
-set(ax2,'XTick',0.1:0.1:0.6);
+set(ax2,'XTick',0.2:0.1:0.6);
 set(ax2,'ytick',[]);
 
 clear;
