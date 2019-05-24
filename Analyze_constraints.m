@@ -172,3 +172,6 @@ cd ../;
 
 clear;
 toc;
+
+%% Figures
+
