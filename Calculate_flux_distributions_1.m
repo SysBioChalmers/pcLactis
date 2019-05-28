@@ -28,7 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
+f_transporter = 0.01;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');

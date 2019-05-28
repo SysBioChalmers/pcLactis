@@ -228,29 +228,12 @@ st1 = glc_list(idx_1);%unit: /uM
 st2 = glc_list(idx_2);%unit: /uM
 st3 = glc_list(idx_3);%unit: /uM
 
-clr_mu = [31,120,180]/255;
-clr_BiomassGlc = [51,160,44]/255;
-clr_ArgBiomass = [227,26,28]/255;
-
 % Reference
 ref_mu = permute(res1(1,2,:),[3 2 1]);
 ref_BiomassGlc = permute(res1(1,3,:),[3 2 1]);
 ref_ArgBiomass = permute(res1(1,4,:),[3 2 1]);
 
-figure();
 hold on;
-plot(glc_list(idx_1),ref_mu(idx_1),'Color',clr_mu);
-plot(glc_list(idx_1),ref_BiomassGlc(idx_1),'Color',clr_BiomassGlc);
-plot(glc_list(idx_1),ref_ArgBiomass(idx_1),'Color',clr_ArgBiomass);
+plot(glc_list(idx_1),)
 
-figure();
-hold on;
-plot(glc_list(idx_2),ref_mu(idx_2),'Color',clr_mu);
-plot(glc_list(idx_2),ref_BiomassGlc(idx_2),'Color',clr_BiomassGlc);
-plot(glc_list(idx_2),ref_ArgBiomass(idx_2),'Color',clr_ArgBiomass);
 
-figure();
-hold on;
-plot(glc_list(idx_3),ref_mu(idx_3),'Color',clr_mu);
-plot(glc_list(idx_3),ref_BiomassGlc(idx_3),'Color',clr_BiomassGlc);
-plot(glc_list(idx_3),ref_ArgBiomass(idx_3),'Color',clr_ArgBiomass);

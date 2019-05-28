@@ -28,7 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
+f_transporter = 0.01;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -320,7 +320,7 @@ xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 set(gcf,'position',[0 0 305 300]);
 set(gca,'position',[0.17 0.13 0.7 0.7]);
 
-% % mixed to lactic acid with sf
+% mixed to lactic acid with sf
 % figure('Name','3');
 % hold on;
 % box on;

@@ -154,6 +154,7 @@ save('Egt_result.mat','res');
 cd ../;
 
 %% Figure
+load('Egt_result.mat');
 figure('Name','1');
 hold on;
 box on;
