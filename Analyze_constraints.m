@@ -221,9 +221,9 @@ toc;
 load('Ac_result1.mat');
 load('Ac_result2.mat');
 glc_list = [2 4 6 8 10 20 40 60 80 100 200 1000 10000 100000 1000000];%unit: /uM
-idx_1 = 1:5;
-idx_2 = 6:11;
-idx_3 = 12:length(glc_list);
+idx_1 = 2:5;
+idx_2 = 5:10;
+idx_3 = 10:length(glc_list);
 st1 = glc_list(idx_1);%unit: /uM
 st2 = glc_list(idx_2);%unit: /uM
 st3 = glc_list(idx_3);%unit: /uM
@@ -237,20 +237,96 @@ ref_mu = permute(res1(1,2,:),[3 2 1]);
 ref_BiomassGlc = permute(res1(1,3,:),[3 2 1]);
 ref_ArgBiomass = permute(res1(1,4,:),[3 2 1]);
 
-figure();
+
+figure('position',[0 0 800 300]);
+pos_st1 = [0.2 0.13 0.1 0.7];
+h1 = axes('position',pos_st1,'color','none','ycolor',clr_mu);
 hold on;
 plot(glc_list(idx_1),ref_mu(idx_1),'Color',clr_mu);
+set(gca,'FontSize',12,'FontName','Helvetica');
+xlabel('Glucose concentration (uM)','FontSize',14,'FontName','Helvetica');
+ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+h1.YLim = [0 0.8];
+set(h1,'ytick',0:0.2:0.8);
+h1.XLim = [min(glc_list(idx_1)) max(glc_list(idx_1))];
+h2 = axes('Position',h1.Position,'Color','none');
+hold on;
 plot(glc_list(idx_1),ref_BiomassGlc(idx_1),'Color',clr_BiomassGlc);
-plot(glc_list(idx_1),ref_ArgBiomass(idx_1),'Color',clr_ArgBiomass);
+h2.YLim = [0 0.3];
+h2.XLim = [min(glc_list(idx_1)) max(glc_list(idx_1))];
+set(h2,'ycolor',clr_mu,'xtick',[],'ytick',[]);
+h3 = axes('position',[0.14 0.13 0.01 0.7],'color','none','ycolor',clr_BiomassGlc);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('Biomass yield on glucose (g/g)','FontSize',14,'FontName','Helvetica');
+set(h3,'yaxislocation','left','xtick',[]);
+h3.YLim = h2.YLim;
+set(h3,'ytick',0:0.1:0.3);
 
-figure();
+h4 = axes('Position',h1.Position,'Color','none');
+hold on;
+plot(glc_list(idx_1),ref_ArgBiomass(idx_1),'Color',clr_ArgBiomass);
+h4.YLim = [0 0.3];
+h4.XLim = [min(glc_list(idx_1)) max(glc_list(idx_1))];
+set(h4,'ycolor',clr_mu,'xtick',[],'ytick',[]);
+h5 = axes('position',[0.08 0.13 0.01 0.7],'color','none','ycolor',clr_ArgBiomass);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('Arg consumed per biomass (g/g)','FontSize',14,'FontName','Helvetica');
+set(h5,'yaxislocation','left','xtick',[]);
+h5.YLim = h4.YLim;
+set(h5,'ytick',0:0.1:0.3);
+
+pos_st2 = [0.32 0.13 0.13 0.7];
+h6 = axes('position',pos_st2,'color','none');
 hold on;
 plot(glc_list(idx_2),ref_mu(idx_2),'Color',clr_mu);
-plot(glc_list(idx_2),ref_BiomassGlc(idx_2),'Color',clr_BiomassGlc);
-plot(glc_list(idx_2),ref_ArgBiomass(idx_2),'Color',clr_ArgBiomass);
+h6.YLim = [0 0.8];
+h6.XLim = [min(glc_list(idx_2)) max(glc_list(idx_2))];
+axis off;
+h7 = axes('position',[0.32 0.13 0.15 0.01],'color','none');
+set(gca,'FontSize',12,'FontName','Helvetica');
+set(h7,'ytick',[]);
+h7.XLim = h6.XLim;
 
-figure();
+h8 = axes('position',pos_st2,'color','none');
+hold on;
+plot(glc_list(idx_2),ref_BiomassGlc(idx_2),'Color',clr_BiomassGlc);
+h8.YLim = [0 0.3];
+h8.XLim = h6.XLim;
+axis off;
+
+h9 = axes('position',pos_st2,'color','none');
+hold on;
+plot(glc_list(idx_2),ref_ArgBiomass(idx_2),'Color',clr_ArgBiomass);
+h9.YLim = [0 0.3];
+h9.XLim = h6.XLim;
+axis off;
+
+pos_st3 = [0.49 0.13 0.15 0.7];
+h10 = axes('position',pos_st3,'color','none');
+set(gca,'xscale','log');
 hold on;
 plot(glc_list(idx_3),ref_mu(idx_3),'Color',clr_mu);
+h10.YLim = [0 0.8];
+h10.XLim = [min(glc_list(idx_3)) max(glc_list(idx_3))];
+
+axis off;
+h11 = axes('position',[0.49 0.13 0.15 0.01],'color','none');
+set(gca,'FontSize',12,'FontName','Helvetica','xscale','log');
+set(h11,'ytick',[]);
+h11.XLim = h10.XLim;
+
+h12 = axes('position',pos_st3,'color','none');
+set(gca,'xscale','log');
+hold on;
 plot(glc_list(idx_3),ref_BiomassGlc(idx_3),'Color',clr_BiomassGlc);
+h12.YLim = [0 0.3];
+h12.XLim = h10.XLim;
+axis off;
+
+h13 = axes('position',pos_st3,'color','none');
+hold on;
+set(gca,'xscale','log');
 plot(glc_list(idx_3),ref_ArgBiomass(idx_3),'Color',clr_ArgBiomass);
+h13.YLim = [0 0.3];
+h13.XLim = h10.XLim;
+axis off;
