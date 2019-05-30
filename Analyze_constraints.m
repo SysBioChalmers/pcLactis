@@ -228,9 +228,9 @@ st1 = glc_list(idx_1);%unit: /uM
 st2 = glc_list(idx_2);%unit: /uM
 st3 = glc_list(idx_3);%unit: /uM
 
-clr_mu = [31,120,180]/255;
-clr_BiomassGlc = [51,160,44]/255;
-clr_ArgBiomass = [227,26,28]/255;
+clr_mu = [227,26,28]/255;
+clr_BiomassGlc = [31,120,180]/255;
+clr_ArgBiomass = [51,160,44]/255;
 
 %% Figure for reference
 ref_mu = permute(res1(1,2,:),[3 2 1]);
@@ -360,8 +360,7 @@ max_rel_mu = max([max(max_tmp1),max(max_tmp2)]);
 min_rel_mu = min([min(min_tmp1),min(min_tmp2)]);
 range_mu = max_rel_mu-min_rel_mu;
 
-% clrmax = clr_mu;
-clrmax = [222,45,38]/255;
+clrmax = clr_mu;
 n_points = 64;
 
 % changing modeled protein

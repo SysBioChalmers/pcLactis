@@ -6,7 +6,7 @@ Introduction
 
 This repository contains files for proteome-constrained model of _Lactococcus lactis_.
 
-* Last update: 2019-05-23
+* Last update: 2019-05-30
 
 
 Main contributors
