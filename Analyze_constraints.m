@@ -275,17 +275,18 @@ h5.YLim = h4.YLim;
 set(h5,'ytick',0:0.1:0.3);
 
 % stage 2
-pos_st2 = [0.28 0.13 0.12 0.7];
+pos_st2 = [0.29 0.13 0.11 0.7];
 h6 = axes('position',pos_st2,'color','none');
 hold on;
 plot(glc_list(idx_2),ref_mu(idx_2),'Color',clr_mu);
 h6.YLim = [0 0.8];
 h6.XLim = [min(glc_list(idx_2)) max(glc_list(idx_2))];
 axis off;
-h7 = axes('position',[0.28 0.13 0.12 0.01],'color','none');
+h7 = axes('position',[0.29 0.13 0.11 0.01],'color','none');
 set(gca,'FontSize',12,'FontName','Helvetica');
 set(h7,'ytick',[]);
 h7.XLim = h6.XLim;
+set(h7,'xtick',[min(glc_list(idx_2)),max(glc_list(idx_2))/2,max(glc_list(idx_2))]);
 h8 = axes('position',pos_st2,'color','none');
 hold on;
 plot(glc_list(idx_2),ref_BiomassGlc(idx_2),'Color',clr_BiomassGlc);
@@ -300,7 +301,7 @@ h9.XLim = h6.XLim;
 axis off;
 
 % stage 3
-pos_st3 = [0.42 0.13 0.08 0.7];
+pos_st3 = [0.43 0.13 0.08 0.7];
 h10 = axes('position',pos_st3,'color','none');
 set(gca,'xscale','log');
 hold on;
@@ -308,7 +309,7 @@ plot(glc_list(idx_3),ref_mu(idx_3),'Color',clr_mu);
 h10.YLim = [0 0.8];
 h10.XLim = [min(glc_list(idx_3)) max(glc_list(idx_3))];
 axis off;
-h11 = axes('position',[0.42 0.13 0.08 0.01],'color','none');
+h11 = axes('position',[0.43 0.13 0.08 0.01],'color','none');
 set(gca,'FontSize',12,'FontName','Helvetica','xscale','log');
 set(h11,'ytick',[]);
 h11.XLim = h10.XLim;
