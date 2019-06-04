@@ -70,7 +70,7 @@ model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
 
 %% Main simulations.
 
-f_transporter_range = [0.002:0.002:0.01,0.02,0.05,0.1,0.2];
+f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
 % f_transporter_range = 0.5;
 res = zeros(length(f_transporter_range),8);
 
@@ -160,12 +160,12 @@ hold on;
 box on;
 % x = res(:,8);
 % y = res(:,6);
-x = res(1:end-2,8);
-y = res(1:end-2,6);
-plot(x,y,'-o','LineWidth',2,'MarkerSize',2);
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Fraction of glucose transporter','FontSize',11,'FontName','Helvetica');
-ylabel('Growth rate (/h)','FontSize',11,'FontName','Helvetica');
+x = res(1:end-1,8);
+y = res(1:end-1,6);
+plot(x,y,'-o','LineWidth',1,'MarkerSize',1);
+set(gca,'FontSize',12,'FontName','Helvetica');
+xlabel('Fraction of glucose transporter','FontSize',14,'FontName','Helvetica');
+ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 
 % xlim([0 0.2]);
 ylim([0 0.8]);
