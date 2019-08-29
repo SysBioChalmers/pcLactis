@@ -1,10 +1,10 @@
 %% AddBiomassDilutionRxn
 %   This function will add a biomass dilution reaction.
-function Matrix = AddBiomassDilutionRxn(Matrix,f_unmodeled)
+function Matrix = AddBiomassDilutionRxn(Matrix,f_unmodeled,GAM)
 
 % Set parameters.
-% f_unmodeled, unmodeled protein proportion (g/gCDW)
-GAM = 42; %GAM (mmolATP/gCDW/h)
+% f_unmodeled, unmodeled protein proportion (g/g total protein)
+% GAM (mmolATP/gCDW/h)
 
 % Calculate the stoichiometric coefficient of unmodeled protein in the
 % biomass dilution reaction.
@@ -12,9 +12,7 @@ MW_unmodeled = 28290.75; %(g/mol)
 S_unmodeled = 0.46*f_unmodeled/MW_unmodeled*1000;
 
 % Import biomass data.
-cd Data;
 [~, ~, biomass_raw] = xlsread('Biomass.xlsx');
-cd ../;
 
 % Add biomass dilution reaction.
 RxnID = 'R_biomass_dilution';

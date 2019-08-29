@@ -1,9 +1,8 @@
 %% GetTranscriptionUnits
 function [TU, Gene_list] = GetTranscriptionUnits(Gene_list)
 
-cd Data;
 [~, txtTUinfo, ~] = xlsread('Transcription_units.xlsx');
-cd ../;
+
 
 TU = struct();
 TU.TUID = txtTUinfo(2:end,1);

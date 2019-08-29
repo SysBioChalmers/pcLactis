@@ -1,8 +1,12 @@
 %% This function calculates proteome allocation for exp data.
 
-load('Cfd1_fluxes_without_sf.mat');
+% load('Cfd1_fluxes_without_sf.mat');
+% flux_res = fluxes_global_saturation_factor_unchanged;
 
-flux_res = fluxes_global_saturation_factor_unchanged;
+
+load('Sglc2_fluxes_with_sf.mat');
+flux_res = fluxes_simulated_with_sf;
+
 
 [~, excel_input, ~] = xlsread('Allocation.xlsx');
 load('Info_enzyme.mat');

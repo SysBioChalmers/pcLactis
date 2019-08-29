@@ -19,9 +19,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -50,14 +50,11 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
@@ -118,8 +115,6 @@ load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
 
-y(2) = 1;
-y(9) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 

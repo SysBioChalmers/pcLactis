@@ -6,11 +6,10 @@ function [E_Protein_assembly,...
 E_Protein_assembly = MatrixGeneration;
 
 % Import collected protein stoichiometry data.
-cd Data;
 fid = fopen('protein_stoichiometry_20181030.txt','r');
 data = textscan(fid,'%s %f');
 fclose(fid);
-cd ../;
+
 Protein_stoichiometry(:,1) = data{1};
 Protein_stoichiometry(:,2) = num2cell(data{2});
 

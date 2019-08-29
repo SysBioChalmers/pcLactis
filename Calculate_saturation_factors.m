@@ -29,9 +29,6 @@ clear idx M_exchange_reactions;
 
 % Block some reactions in M part.
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp',0,'l');%block infinite h[e]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -273,23 +270,23 @@ sat_factor.corr_coef = res_sat_factor.corr_coef(idx);
 idx_poor = res_sat_factor.corr_coef < 0.8;
 sat_factor.poor_Enzyme = res_sat_factor.EnzymeID_pc(idx_poor);
 
-% % Determine linear equation with intercept of 0 for each enzyme, i.e., y=kx
-% if min(sat_factor.corr_coef) > 0
-%     sat_factor.factor(:,4) = ones(length(sat_factor.corr_coef),1);
-%     sat_factor.factor(:,1) = sat_factor.factor(:,4) ./ sat_factor.factor_ratio(:,3);
-%     sat_factor.factor(:,2) = sat_factor.factor(:,1) .* sat_factor.factor_ratio(:,1);
-%     sat_factor.factor(:,3) = sat_factor.factor(:,1) .* sat_factor.factor_ratio(:,2);
-% else
-%     error('should check the factors with negative correlation with mu');
-% end
-% 
-% sat_factor.k = [];
-% mu = [0.15;0.3;0.5;0.6];
-% for i = 1:length(sat_factor.EnzymeID_pc)
-%     y = transpose(sat_factor.factor(i,:));
-%     coef_tmp = mu\y;
-%     sat_factor.k = [sat_factor.k;coef_tmp];
-% end
+% Determine linear equation with intercept of 0 for each enzyme, i.e., y=kx
+if min(sat_factor.corr_coef) > 0
+    sat_factor.factor(:,4) = ones(length(sat_factor.corr_coef),1);
+    sat_factor.factor(:,1) = sat_factor.factor(:,4) ./ sat_factor.factor_ratio(:,3);
+    sat_factor.factor(:,2) = sat_factor.factor(:,1) .* sat_factor.factor_ratio(:,1);
+    sat_factor.factor(:,3) = sat_factor.factor(:,1) .* sat_factor.factor_ratio(:,2);
+else
+    error('should check the factors with negative correlation with mu');
+end
+
+sat_factor.k = [];
+mu = [0.15;0.3;0.5;0.6];
+for i = 1:length(sat_factor.EnzymeID_pc)
+    y = transpose(sat_factor.factor(i,:));
+    coef_tmp = mu\y;
+    sat_factor.k = [sat_factor.k;coef_tmp];
+end
 
 cd Simulations/;
 save('sat_factor.mat','sat_factor');
@@ -333,27 +330,28 @@ set(gcf,'position',[500 300 300 300]);
 set(gca,'position',[0.2 0.22 0.75 0.75]);
 
 %% Figure distribution of slopes
-% hold on;
-% box on;
-% [a,b] = ksdensity(sat_factor.k);
-% h = area(b,a);
-% h.EdgeColor = 'k';
-% h.LineWidth = 1;
-% h.FaceColor = [221,28,119]/256;
-% h.FaceAlpha = 0.4;
-% title('Distribution of slope','FontSize',14,'FontName','Helvetica','fontweight','bold');
-% xlabel('Slope','FontSize',14,'FontName','Helvetica');
-% ylabel('Density','FontSize',14,'FontName','Helvetica');
-% 
-% number = ['N = ',num2str(length(sat_factor.k))];
-% text(1.1,2.25,number,'FontSize',15,'FontName','Helvetica','Color','k');
-% 
-% number = ['Median = ',num2str(round(median(sat_factor.k),3))];
-% text(1.7,2.25,number,'FontSize',15,'FontName','Helvetica','Color',[221,28,119]/256);
-% 
-% set(gcf,'position',[0 0 255 230]);
-% set(gca,'position',[0.15 0.16 0.8 0.75]);
-% clear a b h number;
+figure();
+hold on;
+box on;
+[a,b] = ksdensity(sat_factor.k);
+h = area(b,a);
+h.EdgeColor = 'k';
+h.LineWidth = 1;
+h.FaceColor = [221,28,119]/256;
+h.FaceAlpha = 0.4;
+title('Distribution of slope','FontSize',14,'FontName','Helvetica','fontweight','bold');
+xlabel('Slope','FontSize',14,'FontName','Helvetica');
+ylabel('Density','FontSize',14,'FontName','Helvetica');
+
+number = ['N = ',num2str(length(sat_factor.k))];
+text(1.1,2.25,number,'FontSize',15,'FontName','Helvetica','Color','k');
+
+number = ['Median = ',num2str(round(median(sat_factor.k),3))];
+text(1.7,2.25,number,'FontSize',15,'FontName','Helvetica','Color',[221,28,119]/256);
+
+set(gcf,'position',[0 500 255 230]);
+set(gca,'position',[0.15 0.16 0.8 0.75]);
+clear a b h number;
 
 
 clear;

@@ -1,24 +1,21 @@
 %% AssignMetabolicKcat
 %   This function collect and assign kcat for metabolic enzymes.
-function [RxnGPR, kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix)
+function [RxnGPR, kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID)
 
 % EC numbers were downloaded from Uniprot, BioCyc and KEGG.
 
 % Store EC number.
-cd Data;
 [~, ~, rawUniprot] = xlsread('EC_number.xlsx','Uniprot');
 [~, ~, rawKEGG] = xlsread('EC_number.xlsx','KEGG');
-cd ../;
 EC = struct();
 EC.Uniprot = rawUniprot(:,1:2);
 EC.KEGG = rawKEGG(:,1:2);
 
 % Import collected protein stoichiometry data.
-cd Data;
 fid = fopen('protein_stoichiometry_20181030.txt','r');
 data = textscan(fid,'%s %f');
 fclose(fid);
-cd ../;
+
 Protein_stoichiometry(:,1) = data{1};
 Protein_stoichiometry(:,2) = num2cell(data{2});
 
@@ -27,7 +24,7 @@ Protein_stoichiometry(:,2) = num2cell(data{2});
 RxnGPR.Gene = RxnGPR.GPR;
 for i = 1:length(RxnGPR.GPR)
     z = RxnGPR.GPR{i};
-    if ~isempty(strfind(z,'and'))%if it is a complex
+    if contains(z,'and')%if it is a complex
         num = length(strfind(z,'and'))+1;
         RxnGPR.Gene(i,1:num) = strsplit(z,' and ');
     end
@@ -50,7 +47,6 @@ for i = 1:length(x)
 end
 %add substrate
 %replace metID with full name
-[~, ~, raw_metID] = xlsread('M_model.xlsx','metabolites');
 MetName = raw_metID(2:end,1:2);
 MetName(:,2) = cellfun(@(x) strrep(x,'_',' '),MetName(:,2),'UniformOutput',false);
 n = length(Metabolic_Matrix.CompoList);

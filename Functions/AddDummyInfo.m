@@ -9,9 +9,7 @@ function [Gene_list,...
                                            Seq_CDS_AA_total)
 
 % Import seq info of the unmodeled protein.
-cd Data;
 [~, ~, seq_raw] = xlsread('Dummy_GPR.xlsx','Seq_info_dummy');
-cd ../;
 
 AA_sequence = 'M';
 NA_sequence = 'ATG';

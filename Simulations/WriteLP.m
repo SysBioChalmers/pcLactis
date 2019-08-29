@@ -63,14 +63,14 @@ for i = 1:length(m_enzyme)
     
 % Set kcat for glucose transporter
     glc_transporter = {'M_GLCpts_1_Enzyme_c','M_GLCpts_2_Enzyme_c',...
-                       'M_GLCpermease_fwd_Enzyme_c','M_GLCpermease_rvs_Enzyme_c'};
+                       'M_GLCt2_fwd_Enzyme_c','M_GLCt2_rvs_Enzyme_c'};
     if ismember(enzyme,glc_transporter)
         kcat = kcat_glc*3600;
     end
     
 % Change kcats extremely low or high value
-	if kcat < 7056 % 5% 900 10% 7056 15% 23760 20% 56160
-        kcat = 7056;
+	if kcat < 6480 % 5% 900 10% 6480 
+        kcat = 6480;
 	end
     
     kcat = kcat*factor_k;

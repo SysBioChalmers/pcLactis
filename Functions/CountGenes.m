@@ -7,11 +7,9 @@ Gene_list = struct();
 Gene_list.M_gene = M_Model_total.genes;
 
 % Count E model genes.
-cd Data;
 Gene_list.E_protein_gene = importdata('E_model_protein_gene_list.txt');
 Gene_list.E_rRNA_gene = importdata('E_model_rRNA_list.txt');
 Gene_list.E_tRNA_gene = importdata('E_model_tRNA_list.txt');
-cd ../;
 Gene_list.E_total_gene = unique([Gene_list.E_protein_gene;
                                Gene_list.E_rRNA_gene;
                                Gene_list.E_tRNA_gene]);

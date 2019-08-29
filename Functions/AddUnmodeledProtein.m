@@ -22,9 +22,7 @@ function [Gene_list,...
                                                    E_Enzyme_dilution)
 
 % Import seq info of the unmodel protein.
-cd Data;
 [~, ~, seq_raw] = xlsread('Unmodeled_protein.xlsx','Seq_info_unmodeled');
-cd ../;
 
 AA_sequence = 'M';
 NA_sequence = 'ATG';

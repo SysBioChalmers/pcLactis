@@ -1,6 +1,6 @@
 %% Evaluate model using experimental data
 
-% Timing: ~ 400 s
+% Timing: ~ 300 s
 
 % In order to evaluate the model with the determined parameters, we used
 % physiological data under chemostat conditions (PMID: 25828364) as
@@ -16,9 +16,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -26,7 +26,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 factor_k = 1;%global saturation factor
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.1;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -48,14 +48,11 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
@@ -66,7 +63,7 @@ header = exchange_raw(1,1:21);
 mu_list = [0.15 0.3 0.45 0.5 0.6];
 
 tf_res = [];
-
+fluxes = zeros(length(model.rxns),0);
 for i = 1:length(mu_list)
     mu = mu_list(i);
     
@@ -93,10 +90,16 @@ for i = 1:length(mu_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
+        [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
+        
+        if strcmp(solME_status,'optimal')
+            fluxes = cat(2,fluxes,solME_full);
+        else
+            fluxes = cat(2,fluxes,zeros(length(model_tmp.rxns),1));
+        end
         
         tf_res = [tf_res;strcmp(solME_status,'optimal')];
         
@@ -106,6 +109,6 @@ end
 clear ans command exchange_raw f f_transporter f_unmodeled factor_k Exchange_reactions;
 clear fileName fileName_out GAM header i idx j kcat_glc LB lb_idx pcLactis_Model;
 clear model_tmp mu mu_list NGAM osenseStr replicate rxnID solME_status UB ub_idx;
-clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome Info_tRNA;
+clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome Info_tRNA solME_full;
 
 toc;

@@ -10,18 +10,18 @@ tic;
 %   1. Copy the .xls file and then paste into a new .xlsx file using PASTE
 %      VALUES. Otherwise String info will be 'NaN'. Besides, the new Excel
 %      file should be named 'M_model.xlsx' with 'reactions',
-%      'network_react' and 'metabolites' sheet.
-%   2. Unknown genes should be deleted following two rules: 
-%    1) for 'geneA or unknown' just delete unknown;
-%    2) for 'geneA and unknown' just replace unknown with geneA, i.e.,
-%       change it to 'geneA and geneA'.
-%   3. Some single genes have wrong structure like '( llmg_1248 )', should
-%      be changed to 'llmg_1248'.
-%   4. Add 'dummy', except 'R_G5SADs', 'R_ATPM', exchange and biomass rxns.
-%   5. Change GAM to 37.5.
+%      'network_react', 'metabolites' and 'gpr' sheet.
+%   2. Change inf to 1000, and -inf to -1000.
+%   3. Change 'R_biomass_LLA_atpm' to the same type with 'R_biomass_LLA'.
+%      Then change the coefficients of atp, h2o, adp, pi and h to 0.
+%   4. Add 'dummy', except 'R_G5SADs', 'R_ATPM', 'R_biomass_LLA',
+%      'R_biomass_LLA_atpm', 'R_DNAS_LLA', 'R_PROTS_LLA_v3', 'R_RNAS_LLA', 
+%      and exchange rxns.
+%   5. Change GAM to 34 according to 'Estimate_ATP_M_Model.m'.
 
-[num_rxn, txt_rxn, ~] = xlsread('M_model.xlsx','reactions');
-[num_matrix, txt_matrix, ~] = xlsread('M_model.xlsx','network_react');
+[num_rxn, txt_rxn, ~] = xlsread('M_model_201908.xlsx','reactions');
+[num_matrix, txt_matrix, ~] = xlsread('M_model_201908.xlsx','network_react');
+[~, ~, raw_metID] = xlsread('M_model_201908.xlsx','metabolites');
 
 %% M modelling: Convert CBMpy to COBRA matrix.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,11 +67,6 @@ clear M_Model_total;
 % Chromosome sequences were downloaded from NCBI:
 % (NCBI Reference Sequence: NC_009004.1, Assembly: GCF_000009425.1)
 % https://www.ncbi.nlm.nih.gov/nuccore/NC_009004.1
-% Plasmid sequences were downloaded from NCBI:
-% pNZ712 (GenBank: KX138409.1)
-% https://www.ncbi.nlm.nih.gov/nuccore/1044892037
-% pLP712 (NCBI Reference Sequence: NC_019377.1)
-% https://www.ncbi.nlm.nih.gov/nuccore/NC_019377.1
 
 [Seq_CDS_AA_total,Seq_gene_NA_total,Gene_list] = ProcessSequence(Gene_list);
 
@@ -163,9 +158,11 @@ clear AA_sequence NA_sequence;
 % collected kcats have been stored in the file 'k_parameter.xlsx', so this 
 % code can be skipped.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix);
-clear RxnGPR;
+% [RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID);
+% clear RxnGPR;
+%%%%%%% Paste the produced file 'kcat_M.xls' to 'k_parameter.xlsx'. %%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear raw_metID;
 
 %% modelling: Transcription.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -418,12 +415,9 @@ clear Functional_protein FUtRNA Metabolic_Matrix...
 % biomass dilution reaction represents the rest of the cell materials as
 % well as the unmodeled protein.
 
-Model_Matrix = AddBiomassDilutionRxn(Model_Matrix,0.42);
-% 0.42 is f_unmodeled, unmodeled protein proportion (g/g total protein).
-% f represents the proportion (g/gCDW) of the sum of RNA and proteins
-% (without the unmodeled protein) considered in the model, which can be
-% used as a constraints in simulations to constrain the total fluxes
-% through all the dilution reactions of RNA and enzymes.
+Model_Matrix = AddBiomassDilutionRxn(Model_Matrix,0.45,38);
+% 0.45 is f_unmodeled, unmodeled protein proportion (g/g total protein).
+% 38 is GAM.
 
 %% modelling: Convert ME-Matrix to COBRA model.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

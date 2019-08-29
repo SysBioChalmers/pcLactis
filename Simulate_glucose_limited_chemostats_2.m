@@ -18,9 +18,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -59,14 +59,11 @@ clear exchange_raw Exchange_reactions LB UB;
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
 %% Main part.
 
@@ -98,7 +95,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -118,7 +115,7 @@ for i = 1:length(D_list)
                                 Info_ribosome,...
                                 Info_tRNA);
                    
-	command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+	command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
@@ -137,7 +134,7 @@ end
 
 % with saturation factor
 % obtain the global saturation factor
-load('Egsf1_result.mat');
+load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
 x = x(y ~= 1);
@@ -174,7 +171,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -194,7 +191,7 @@ for i = 1:length(D_list)
                                 Info_ribosome,...
                                 Info_tRNA);
                    
-	command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+	command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
@@ -205,7 +202,7 @@ for i = 1:length(D_list)
         glc_conc_with_sf(i,1) = D;
         glc_conc_with_sf(i,2) = glc_conc;
     else
-        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns,1));
+        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
         glc_conc_with_sf(i,1) = D;
         glc_conc_with_sf(i,2) = 0;
     end
@@ -269,28 +266,28 @@ sd_citr = cell2mat(exp_raw(11,19:23));
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
 mu1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_biomass_dilution'),:);
-glc1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_glc_LPAREN_e_RPAREN_'),:);
-ac1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_ac_LPAREN_e_RPAREN_'),:);
-eth1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_etoh_LPAREN_e_RPAREN_'),:);
-form1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_for_LPAREN_e_RPAREN_'),:);
-lac1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_lac_L_LPAREN_e_RPAREN_'),:);
-orn1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_orn_L_LPAREN_e_RPAREN_'),:);
-citr1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_citr_L_LPAREN_e_RPAREN_'),:);
-nh41 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_nh4_LPAREN_e_RPAREN_'),:);
-arg1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_arg_L_LPAREN_e_RPAREN_'),:);
+glc1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_glc__D_e'),:);
+ac1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_ac_e'),:);
+eth1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_etoh_e'),:);
+form1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_for_e'),:);
+lac1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_lac__L_e'),:);
+orn1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_orn_e'),:);
+citr1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_citr__L_e'),:);
+nh41 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_nh4_e'),:);
+arg1 = fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
 f_mix1 = (ac1*2+eth1*2+form1)./(-glc1*6);
 f_lac1 = (lac1*3)./(-glc1*6);
 
 mu2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_biomass_dilution'),:);
-glc2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_glc_LPAREN_e_RPAREN_'),:);
-ac2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_ac_LPAREN_e_RPAREN_'),:);
-eth2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_etoh_LPAREN_e_RPAREN_'),:);
-form2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_for_LPAREN_e_RPAREN_'),:);
-lac2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_lac_L_LPAREN_e_RPAREN_'),:);
-orn2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_orn_L_LPAREN_e_RPAREN_'),:);
-citr2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_citr_L_LPAREN_e_RPAREN_'),:);
-nh42 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_nh4_LPAREN_e_RPAREN_'),:);
-arg2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_arg_L_LPAREN_e_RPAREN_'),:);
+glc2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_glc__D_e'),:);
+ac2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_ac_e'),:);
+eth2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_etoh_e'),:);
+form2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_for_e'),:);
+lac2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_lac__L_e'),:);
+orn2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_orn_e'),:);
+citr2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_citr__L_e'),:);
+nh42 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_nh4_e'),:);
+arg2 = fluxes_simulated_with_sf(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
 f_mix2 = (ac2*2+eth2*2+form2)./(-glc2*6);
 f_lac2 = (lac2*3)./(-glc2*6);
 
@@ -321,39 +318,39 @@ set(gcf,'position',[0 0 305 300]);
 set(gca,'position',[0.17 0.13 0.7 0.7]);
 
 % mixed to lactic acid with sf
-% figure('Name','3');
-% hold on;
-% box on;
-% 
-% plot(mu2,f_lac2,'-','LineWidth',0.75,'Color',color_lactic);
-% x = exp_mu; y = f_exp_lac; yu = f_exp_lac + f_exp_lac_sd; yl = f_exp_lac - f_exp_lac_sd;
-% plot(x,y,'-.','LineWidth',0.75,'Color',color_lactic);
-% fill([x fliplr(x)],[yu fliplr(yl)],color_lactic,'linestyle','none','FaceAlpha',0.3);
-% 
-% plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
-% x = exp_mu; y = f_exp_mix; yu = f_exp_mix + f_exp_mix_sd; yl = f_exp_mix - f_exp_mix_sd;
-% plot(x,y,'-.','LineWidth',0.75,'Color',color_mixed);
-% fill([x fliplr(x)],[yu fliplr(yl)],color_mixed,'linestyle','none','FaceAlpha',0.3);
-% 
-% % errorbar(exp_mu,f_exp_lac,f_exp_lac_sd,'-.','LineWidth',0.75,'Color',color_lactic);
-% % errorbar(exp_mu,f_exp_mix,f_exp_mix_sd,'-.','LineWidth',0.75,'Color',color_mixed);
-% 
-% set(gca,'YTick',0:0.2:1);
-% set(gca,'ycolor','k');
-% set(gca,'XTick',0.1:0.2:0.7);
-% xlim([0.1 0.7]);
-% ylim([-0.05 1.05]);
-% set(gca,'FontSize',12,'FontName','Helvetica');
-% ylabel('Fraction in glucose','FontSize',14,'FontName','Helvetica');
-% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-% legend({'Sim lactic acid',...
-%         'Exp lactic acid'...
-%         'SD lactic acid'...
-%         'Sim mixed acid',...
-%         'Exp mixed acid'...
-%         'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
-% set(gcf,'position',[450 0 305 300]);
-% set(gca,'position',[0.17 0.13 0.7 0.7]);
+figure('Name','3');
+hold on;
+box on;
+
+plot(mu2,f_lac2,'-','LineWidth',0.75,'Color',color_lactic);
+x = exp_mu; y = f_exp_lac; yu = f_exp_lac + f_exp_lac_sd; yl = f_exp_lac - f_exp_lac_sd;
+plot(x,y,'-.','LineWidth',0.75,'Color',color_lactic);
+fill([x fliplr(x)],[yu fliplr(yl)],color_lactic,'linestyle','none','FaceAlpha',0.3);
+
+plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
+x = exp_mu; y = f_exp_mix; yu = f_exp_mix + f_exp_mix_sd; yl = f_exp_mix - f_exp_mix_sd;
+plot(x,y,'-.','LineWidth',0.75,'Color',color_mixed);
+fill([x fliplr(x)],[yu fliplr(yl)],color_mixed,'linestyle','none','FaceAlpha',0.3);
+
+% errorbar(exp_mu,f_exp_lac,f_exp_lac_sd,'-.','LineWidth',0.75,'Color',color_lactic);
+% errorbar(exp_mu,f_exp_mix,f_exp_mix_sd,'-.','LineWidth',0.75,'Color',color_mixed);
+
+set(gca,'YTick',0:0.2:1);
+set(gca,'ycolor','k');
+set(gca,'XTick',0.1:0.2:0.7);
+xlim([0.1 0.7]);
+ylim([-0.05 1.05]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('Fraction in glucose','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+legend({'Sim lactic acid',...
+        'Exp lactic acid'...
+        'SD lactic acid'...
+        'Sim mixed acid',...
+        'Exp mixed acid'...
+        'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
+set(gcf,'position',[450 0 305 300]);
+set(gca,'position',[0.17 0.13 0.7 0.7]);
 
 % mixed to lactic acid with sf
 figure('Name','3');

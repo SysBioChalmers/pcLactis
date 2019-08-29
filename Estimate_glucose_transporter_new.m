@@ -90,7 +90,7 @@ for j = 1:replicate
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);

@@ -8,6 +8,11 @@
 % sat_factor.mat, their saturation factors are assumed to be always 1. At 
 % last, the saturation factors of the transporters of the unlimited 
 % compounds in the medium are always set to be 1.
+
+% Note that the unknown enzymes can be assumed to be unchanged or changed
+% with growth rate. Line 151 152 182 183.
+
+
 function fileName = WriteLPSatFactor(model,mu,f,osenseStr,rxnID,factor_k,...
                                      f_transporter,kcat_glc,factor_glc,...
                                      Info_enzyme,...
@@ -74,79 +79,78 @@ for i = 1:length(m_enzyme)
     
 % Set kcat for glucose transporter
     glc_transporter = {'M_GLCpts_1_Enzyme_c','M_GLCpts_2_Enzyme_c',...
-                       'M_GLCpermease_fwd_Enzyme_c','M_GLCpermease_rvs_Enzyme_c'};
+                       'M_GLCt2_fwd_Enzyme_c','M_GLCt2_rvs_Enzyme_c'};
     if ismember(enzyme,glc_transporter)
         kcat = kcat_glc*3600;
     end
     
 % Change kcats extremely low or high value
-	if kcat < 7056 % 5% 900 10% 7056 15% 23760 20% 56160
-        kcat = 7056;
+	if kcat < 6480 % 5% 900 10% 6480 
+        kcat = 6480;
 	end
     
 % Filter some transporters
-    key_transporters = {'M_ALA_Lt6_1_fwd_Enzyme_c',...%ala in
-                        'M_ALA_Lt6_2_fwd_Enzyme_c',...%ala in
-                        'M_ALAt2_Enzyme_c',...%ala in
+    key_transporters = {'M_ALAt2r_1_fwd_Enzyme_c',...%ala in
+                        'M_ALAt2r_2_fwd_Enzyme_c',...%ala in
+                        'M_ARGt2r_Enzyme_c',...%arg in
+                        'M_ARGORNt7_1_fwd_Enzyme_c',...%arg in
+                        'M_ARGORNt7_2_fwd_Enzyme_c',...%arg in
                         'M_ARGabc_Enzyme_c',...%arg in
-                        'M_ARGt2_Enzyme_c',...%arg in
-                        'M_ASNt2_Enzyme_c',...%asn in
-                        'M_ASPt2_Enzyme_c',...%asp in
-                        'M_CYSt2_Enzyme_c',...%cys in
+                        'M_ASNt2r_Enzyme_c',...%asn in
+                        'M_ASPt2r_fwd_Enzyme_c',...%asp in
+                        'M_CYSt2r_Enzyme_c',...%cys in
                         'M_GLUabc_1_Enzyme_c',...%glu in
                         'M_GLUabc_2_Enzyme_c',...%glu in
+                        'M_GLUABUTt7_fwd_Enzyme_c',...%glu in
                         'M_GLNabc_1_Enzyme_c',...%gln in
                         'M_GLNabc_2_Enzyme_c',...%gln in
-                        'M_GLYt2_Enzyme_c',...%gly in
-                        'M_GLYt6_1_fwd_Enzyme_c',...%gly in
-                        'M_GLYt6_2_fwd_Enzyme_c',...%gly in
-                        'M_HISt2_Enzyme_c',...%his in
-                        'M_ILEt2_Enzyme_c',...%ile in
-                        'M_ILEt6_fwd_Enzyme_c',...%ile in
-                        'M_LEUt2_Enzyme_c',...%leu in
-                        'M_LEUt6_fwd_Enzyme_c',...%leu in
-                        'M_LYSt6_1_fwd_Enzyme_c',...%lys in
-                        'M_LYSt6_2_fwd_Enzyme_c',...%lys in
+                        'M_GLYt2r_1_fwd_Enzyme_c',...%gly in
+                        'M_GLYt2r_2_fwd_Enzyme_c',...%gly in
+                        'M_HISt2r_Enzyme_c',...%his in
+                        'M_ILEt2r_fwd_Enzyme_c',...%ile in
+                        'M_LEUt2r_fwd_Enzyme_c',...%leu in
+                        'M_LYSt2r_1_fwd_Enzyme_c',...%lys in
+                        'M_LYSt2r_2_fwd_Enzyme_c',...%lys in
                         'M_METabc_1_Enzyme_c',...%met in
                         'M_METabc_2_Enzyme_c',...%met in
                         'M_METabc_3_Enzyme_c',...%met in
                         'M_METabc_4_Enzyme_c',...%met in
-                        'M_METt2_Enzyme_c',...%met in
-                        'M_PHEt6_fwd_Enzyme_c',...%phe in
+                        'M_METt2r_Enzyme_c',...%met in
+                        'M_PHEt2r_fwd_Enzyme_c',...%phe in
                         'M_PROabc_Enzyme_c',...%pro in
-                        'M_SERt6_fwd_Enzyme_c',...%ser in
-                        'M_THRt2_Enzyme_c',...%thr in
-                        'M_THRt6_fwd_Enzyme_c',...%thr in
-                        'M_TRPt6_fwd_Enzyme_c',...%trp in
-                        'M_TYRt6_fwd_Enzyme_c',...%tyr in
-                        'M_VALt2_Enzyme_c',...%val in
-                        'M_VALt6_fwd_Enzyme_c',...%val in
+                        'M_SERt2r_fwd_Enzyme_c',...%ser in
+                        'M_THRt2r_fwd_Enzyme_c',...%thr in
+                        'M_TRPt2r_fwd_Enzyme_c',...%trp in
+                        'M_TYRt2r_fwd_Enzyme_c',...%tyr in
+                        'M_VALt2r_fwd_Enzyme_c',...%val in
                         'M_PNTOabc_Enzyme_c',...%pantothenate in
                         'M_PNTOt2_fwd_Enzyme_c',...%pantothenate in
-                        'M_NACUP_Enzyme_c',...%nicotinate in
+                        'M_NACt_Enzyme_c',...%nicotinate in
                         'M_THMabc_Enzyme_c',...%thiamin in
-                        'M_H2Ot5_fwd_Enzyme_c',...%h2o in
-                        'M_H2Ot5_rvs_Enzyme_c',...%h2o out
+                        'M_H2Ot_fwd_Enzyme_c',...%h2o in
+                        'M_H2Ot_rvs_Enzyme_c',...%h2o out
                         'M_PIabc_Enzyme_c',...%pi in
                         'M_NH4t_fwd_Enzyme_c',...%nh4 in
                         'M_SO4t2_Enzyme_c',...%so4 in
                         'M_FE2abc_Enzyme_c',...%fe2 in
-                        'M_FCCabc_Enzyme_c',...%fe3 in
-                        'M_h2st_rvs_Enzyme_c',...%h2s in
+                        'M_FE3abc_Enzyme_c',...%fe3 in
+                        'M_H2St1_rvs_Enzyme_c',...%h2s in
                         'M_MNabc_Enzyme_c',...%mn2 in
                         'M_MNt2_1_Enzyme_c',...%mn2 in
                         'M_MNt2_2_Enzyme_c',...%mn2 in
-                        'M_MNt2_3_Enzyme_c',...%mn2 in
-                        'M_ZN2abc2_Enzyme_c',...%zn2 in
+                        'M_ZNabc_Enzyme_c',...%zn2 in
                         };
-%  
+
 	if ismember(enzyme,key_transporters) || ismember(enzyme,sat_factor.poor_Enzyme)
         factor_k_tmp = 1;
-	elseif strcmp(enzyme,'M_GLCpts_1_Enzyme_c') || strcmp(enzyme,'M_GLCpts_2_Enzyme_c') || strcmp(enzyme,'M_GLCpermease_fwd_Enzyme_c')
+	elseif strcmp(enzyme,'M_GLCpts_1_Enzyme_c') || strcmp(enzyme,'M_GLCpts_2_Enzyme_c') || strcmp(enzyme,'M_GLCt2_fwd_Enzyme_c')
         factor_k_tmp = factor_glc;
-    else
+    elseif ismember(enzyme,sat_factor.EnzymeID_pc)
         factor_k_tmp = factor_k;
-	end
+    else
+        factor_k_tmp = factor_k; %%%%%%%% The others to be changed
+%         factor_k_tmp = 1; %%%%%%%% The others to be 1
+    end
     if factor_k_tmp < 0
         factor_k_tmp = 0.01;
     elseif factor_k_tmp > 1
@@ -175,7 +179,8 @@ end
 for i = 1:length(e_enzyme)
     enzyme = e_enzyme{i};
     %kcat = e_kcat(i);
-    kcat = 360000*factor_k;
+    kcat = 360000*factor_k; %%%%%%%% The others to be changed
+%     kcat = 360000; %%%%%%%% The others to be 1
     id_syn = strcat('R_',enzyme(1:end-2));
     idx_syn = find(strcmp(model.rxns,id_syn));
     

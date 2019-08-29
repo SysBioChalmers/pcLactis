@@ -62,7 +62,7 @@ for i = 1:length(M_Matrix_original.RxnList)
                         z = strrep(z,') or',';'); z = strrep(z,'or (',';');
                         z = split(z,';');%split iso-complexes
                         z = strrep(z,'(',''); z = strrep(z,')',''); z = strtrim(z);
-                        if ~cellfun(@isempty,strfind(z,'or'))
+                        if contains(z,'or')
                             error('There are complicated GPRs in M model.')
                         else
                             for j = 1:length(z)%change reaction ID
@@ -76,11 +76,11 @@ for i = 1:length(M_Matrix_original.RxnList)
                         end
                     elseif contains(z,') and')||contains(z,'and (')
                     % if GPR is a complex with isozymes, e.g., '((geneA or geneB) and (geneC or geneD))'
-                        if z(1) == '('
+                        while z(1) == '('
                             z = z(2:end-1); z = strtrim(z);
                         end
                         z = {z};
-                        while ~cellfun(@isempty,strfind(z,' or '))
+                        while contains(z,' or ')
                         %The loop splits isozymes at a time 
                         %(e.g., (geneA or geneB) and next round for (geneC or geneD)) till no isozymes
                             isos = extractBetween(z,'(',')');%extract isozymes

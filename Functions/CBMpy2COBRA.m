@@ -5,7 +5,7 @@ function [M_Matrix_original, M_Model] = CBMpy2COBRA(num_rxn,txt_rxn,...
 M_Model_info = struct();
 M_Model_info.Rxn = txt_rxn(2:end,1);
 M_Model_info.Rev = num_rxn(:,1);
-M_Model_info.GPR = txt_rxn(2:end,8);
+M_Model_info.GPR = txt_rxn(2:end,6);
 
 % Convert CBMpy model to COBRA model.
 %	Change CBMpy structure to standard structure.
