@@ -13,9 +13,9 @@ load('pcLactis_Model.mat');
 model = pcLactis_Model;
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -29,6 +29,7 @@ f_transporter = 0.01;%fraction of glucose transporter in total proteome
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
+y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 sf_coeff = x\y;
@@ -63,14 +64,11 @@ clear exchange_raw Exchange_reactions LB UB;
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
 %% Main part.
 load('Sglc2_result_with_sf.mat');
@@ -93,7 +91,7 @@ for i = 1:length(D_list)
 	glc_conc = glc_conc_list(i);
     factor_glc = glc_conc / (glc_conc + Km);
     
-    rxnID = 'R_M_EX_glc_LPAREN_e_RPAREN_'; 
+    rxnID = 'R_M_EX_glc__D_e'; 
     
     % Minimize glucose uptake rate
     osenseStr = 'Maximize';
@@ -155,7 +153,7 @@ load('pcLactis_Model.mat');
 model = pcLactis_Model;
 
 mu = fluxes_simulated(strcmp(model.rxns,'R_biomass_dilution'),:);
-glc = -fluxes_simulated(strcmp(model.rxns,'R_M_EX_glc_LPAREN_e_RPAREN_'),:);
+glc = -fluxes_simulated(strcmp(model.rxns,'R_M_EX_glc__D_e'),:);
 mu_list = mu(1,1:2:end);
 low_glc_list = glc(1,1:2:end);
 high_glc_list = glc(1,2:2:end);

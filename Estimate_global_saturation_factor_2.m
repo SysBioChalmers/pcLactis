@@ -1,6 +1,6 @@
 %% Estimate a global saturation factor 2.
 
-% Timing: ~ 3300 s
+% Timing: ~ 3500 s
 
 % Consider glucose transporter
 
@@ -114,7 +114,7 @@ load('Egsf2_result.mat');
 
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-
+y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 

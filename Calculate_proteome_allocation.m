@@ -16,9 +16,9 @@ load('Info_tRNA.mat');
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,~] = ChangeUnmodeledProtein(model,f_unmodeled);
@@ -44,7 +44,7 @@ for i = 1:n
     
     mu = solME_full(strcmp(model.rxns,'R_biomass_dilution'));
     mu_list(1,i) = mu;
-    q_glc(1,i) = abs(solME_full(strcmp(model.rxns,'R_M_EX_glc_LPAREN_e_RPAREN_'),:));
+    q_glc(1,i) = abs(solME_full(strcmp(model.rxns,'R_M_EX_glc__D_e'),:));
     
     [pathway, absvalue] = CalculateProteinAllocation(model,solME_full,Info_enzyme,excel_input);
     allocation_value(:,i) = absvalue;
