@@ -256,3 +256,14 @@ cd ../;
 clear;
 toc;
 
+%% Figures
+load('RcAA_fluxes.mat');
+flux_res = fluxes_rcAA;
+clear fluxes_rcAA;
+
+load('pcLactis_Model.mat');
+model = pcLactis_Model;
+
+mu = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
+
+

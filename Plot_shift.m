@@ -31,12 +31,9 @@ sd_lac = cell2mat(exp_raw(7,19:23));
 exp_arg = -1*cell2mat(exp_raw(9,14:18));
 exp_orn = cell2mat(exp_raw(8,14:18));
 exp_nh4 = cell2mat(exp_raw(10,14:18));
-exp_citr = cell2mat(exp_raw(11,14:18));
 sd_orn = cell2mat(exp_raw(8,19:23));
 sd_arg = cell2mat(exp_raw(9,19:23));
 sd_nh4 = cell2mat(exp_raw(10,19:23));
-sd_citr = cell2mat(exp_raw(11,19:23));
-
 mu2 = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
 
 glc2 = -flux_res(strcmp(model.rxns,'R_M_EX_glc__D_e'),:);
@@ -46,7 +43,6 @@ form2 = flux_res(strcmp(model.rxns,'R_M_EX_for_e'),:);
 lac2 = flux_res(strcmp(model.rxns,'R_M_EX_lac__L_e'),:);
 
 orn2 = flux_res(strcmp(model.rxns,'R_M_EX_orn_e'),:);
-citr2 = flux_res(strcmp(model.rxns,'R_M_EX_citr__L_e'),:);
 nh42 = flux_res(strcmp(model.rxns,'R_M_EX_nh4_e'),:);
 arg2 = -flux_res(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
 
@@ -69,7 +65,6 @@ color_lac = [152,78,163]/255;
 color_arg = [247,129,191]/255;
 color_orn = [166,86,40]/255;
 color_nh4 = [153,153,153]/255;
-color_citr = [0,0,0]/255;
 
 figure('Name','1');
 subplot(2,5,1);
@@ -184,7 +179,39 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Ornithine','FontSize',14,'FontName','Helvetica');
 
-% subplot(2,5,8);
+% Arg shift in high growth rate
+load('Sglc3_fluxes_with_sf.mat');
+flux_high = fluxes_simulated_with_sf_highgrowth;
+clear fluxes_simulated_with_sf_highgrowth;
+load('Sglc4_fluxes_with_sf.mat');
+flux_high = [flux_high fluxes_simulated_with_sf_highgrowth];
+clear fluxes_simulated_with_sf_highgrowth;
+
+mu_high = flux_high(strcmp(model.rxns,'R_biomass_dilution'),:);
+arg_high = -flux_high(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
+orn_high = flux_high(strcmp(model.rxns,'R_M_EX_orn_e'),:);
+
+subplot(2,5,8);
+hold on;
+box on;
+scatter(mu_high,arg_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_arg,'MarkerFaceColor',color_arg);
+xlim([0.66 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('Flux','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('Arginine','FontSize',14,'FontName','Helvetica');
+
+subplot(2,5,9);
+hold on;
+box on;
+scatter(mu_high,orn_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
+xlim([0.66 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('Flux','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('Ornithine','FontSize',14,'FontName','Helvetica');
+
+% subplot(2,5,10);
 % hold on;
 % box on;
 % plot(mu2,nh42,'-','LineWidth',0.75,'Color',color_nh4);
@@ -194,17 +221,7 @@ title('Ornithine','FontSize',14,'FontName','Helvetica');
 % ylabel('Flux','FontSize',14,'FontName','Helvetica');
 % xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 % title('Ammonium','FontSize',14,'FontName','Helvetica');
-% 
-% subplot(2,5,9);
-% hold on;
-% box on;
-% plot(mu2,citr2,'-','LineWidth',0.75,'Color',color_citr);
-% plot(exp_mu,exp_citr,'-.','LineWidth',0.75,'Color',color_citr);
-% xlim([0.1 0.7]);
-% set(gca,'FontSize',12,'FontName','Helvetica');
-% ylabel('Flux','FontSize',14,'FontName','Helvetica');
-% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-% title('Citrulline','FontSize',14,'FontName','Helvetica');
+
 
 %% AA constraints
 [~, ~, aa_raw] = xlsread('Exchange_reaction_setting.xlsx','AA_factors');

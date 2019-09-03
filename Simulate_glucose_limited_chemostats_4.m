@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~  s
+% Timing: ~ 6300 s
 
 % With the saturation saturation factor are performed. Only focus on the
 % dilution rate between 0.68 - 0.7
