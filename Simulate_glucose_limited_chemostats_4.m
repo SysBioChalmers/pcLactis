@@ -146,8 +146,8 @@ for i = 1:length(D_list)
 end
 
 cd Results/;
-save('Sglc3_fluxes_with_sf.mat','fluxes_simulated_with_sf_highgrowth');
-save('Sglc3_result_with_sf.mat','glc_conc_with_sf_highgrowth');
+save('Sglc4_fluxes_with_sf.mat','fluxes_simulated_with_sf_highgrowth');
+save('Sglc4_result_with_sf.mat','glc_conc_with_sf_highgrowth');
 cd ../;
 
 clear;
