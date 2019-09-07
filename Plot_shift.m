@@ -1,5 +1,6 @@
 load('Sglc2_fluxes_with_sf.mat');
 flux_res = fluxes_simulated_with_sf;
+% flux_res = flux_res(:,[1:5,8:end]);
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
@@ -67,7 +68,7 @@ color_orn = [166,86,40]/255;
 color_nh4 = [153,153,153]/255;
 
 figure('Name','1');
-subplot(2,5,1);
+subplot(3,3,1);
 hold on;
 box on;
 plot(mu2,glc2,'-','LineWidth',0.75,'Color',color_glc);
@@ -83,7 +84,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Glucose','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,2);
+subplot(3,3,2);
 hold on;
 box on;
 plot(mu2,ac2,'-','LineWidth',0.75,'Color',color_ac);
@@ -99,7 +100,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Acetate','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,3);
+subplot(3,3,3);
 hold on;
 box on;
 plot(mu2,eth2,'-','LineWidth',0.75,'Color',color_eth);
@@ -115,7 +116,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Ethanol','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,4);
+subplot(3,3,4);
 hold on;
 box on;
 plot(mu2,form2,'-','LineWidth',0.75,'Color',color_form);
@@ -131,7 +132,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Formate','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,5);
+subplot(3,3,5);
 hold on;
 box on;
 plot(mu2,lac2,'-','LineWidth',0.75,'Color',color_lac);
@@ -147,7 +148,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Lactate','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,6);
+subplot(3,3,6);
 hold on;
 box on;
 plot(mu2,arg2,'-','LineWidth',0.75,'Color',color_arg);
@@ -158,12 +159,13 @@ x = exp_mu; y = exp_arg; yu = exp_arg + sd_arg; yl = exp_arg - sd_arg;
 plot(x,y,'-.','LineWidth',0.75,'Color',color_arg);
 fill([x fliplr(x)],[yu fliplr(yl)],color_arg,'linestyle','none','FaceAlpha',0.3);
 xlim([0.1 0.7]);
+ylim([0 1.5]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Arginine','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,7);
+subplot(3,3,7);
 hold on;
 box on;
 plot(mu2,orn2,'-','LineWidth',0.75,'Color',color_orn);
@@ -174,6 +176,7 @@ x = exp_mu; y = exp_orn; yu = exp_orn + sd_orn; yl = exp_orn - sd_orn;
 plot(x,y,'-.','LineWidth',0.75,'Color',color_orn);
 fill([x fliplr(x)],[yu fliplr(yl)],color_orn,'linestyle','none','FaceAlpha',0.3);
 xlim([0.1 0.7]);
+ylim([0 1.5]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
@@ -191,21 +194,23 @@ mu_high = flux_high(strcmp(model.rxns,'R_biomass_dilution'),:);
 arg_high = -flux_high(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
 orn_high = flux_high(strcmp(model.rxns,'R_M_EX_orn_e'),:);
 
-subplot(2,5,8);
+subplot(3,3,9);
 hold on;
 box on;
 scatter(mu_high,arg_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_arg,'MarkerFaceColor',color_arg);
-xlim([0.66 0.7]);
+xlim([0.1 0.7]);
+ylim([0 1.5]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Arginine','FontSize',14,'FontName','Helvetica');
 
-subplot(2,5,9);
+subplot(3,3,8);
 hold on;
 box on;
 scatter(mu_high,orn_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
-xlim([0.66 0.7]);
+xlim([0.1 0.7]);
+ylim([0 1.5]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');

@@ -67,7 +67,7 @@ selected_points = [1;5;9;13];
 glc_conc_list = glc_conc_with_sf(selected_points,:);
 clear glc_conc_with_sf;
 
-AA_factor = 2;
+% AA_factor = 10;
 
 % load AA id
 aa_list = {'ala'
@@ -102,6 +102,9 @@ sf_coeff = x\y;
 clear x y;
 
 fluxes_rcAA = zeros(length(model.rxns),length(selected_points)*length(aa_list));
+result_rcAA.row = {'mu_ref';'mu';'aa_ref';'aa_bound';'aa_real'};
+result_rcAA.column = cell(1,length(selected_points)*length(aa_list));
+result_rcAA.data = zeros(length(result_rcAA.row),length(selected_points)*length(aa_list));
 
 for i = 1:length(selected_points)
     
@@ -115,11 +118,13 @@ for i = 1:length(selected_points)
         
         aaid = aa_list(j);
         aarxnid = Exchange_AAs(contains(Exchange_AAs,aaid));
-        aalb = LBfactor_AAs(contains(Exchange_AAs,aaid))*mu_ref*AA_factor;
+        aaref = LBfactor_AAs(contains(Exchange_AAs,aaid))*mu_ref;
+%         aalb = aaref*AA_factor;
+        aalb = -1000;
         model_tmp = changeRxnBounds(model_tmp,aarxnid,aalb,'l');
 
         mu_low = 0;
-        mu_high = 1;    
+        mu_high = 1;
     
         while mu_high-mu_low > 0.001
             mu_mid = (mu_low+mu_high)/2;
@@ -147,7 +152,7 @@ for i = 1:length(selected_points)
                 mu_high = mu_mid;
             end
         end
-
+        
         model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
         factor_k = sf_coeff * mu_low;
         if factor_k > 1
@@ -163,107 +168,68 @@ for i = 1:length(selected_points)
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
+        [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
         
+        result_rcAA.column(1,(i-1)*20+j) = strcat(num2str(mu_ref),'_',aaid);
         if strcmp(solME_status,'optimal')
             fluxes_rcAA(:,(i-1)*20+j) = solME_full;
+            res_tmp = [mu_ref;mu_low;-aaref;-aalb;-solME_full(strcmp(model_tmp.rxns,aarxnid),1)];
+            result_rcAA.data(:,(i-1)*20+j) = res_tmp;
         else
             fluxes_rcAA(:,(i-1)*20+j) = zeros(length(model_tmp.rxns),1);
+            res_tmp = [mu_ref;0;-aaref;-aalb;0];
+            result_rcAA.data(:,(i-1)*20+j) = res_tmp;
         end
     end
 end
 
-% for i = 1:length(selected_points)
-%     
-%     mu_ref = glc_conc_list(i,1);
-% 	glc_conc = glc_conc_list(i,2);
-%     factor_glc = glc_conc / (glc_conc + Km);
-% 
-%     for j = 1:length(aa_list)
-%         model_tmp = model;
-%         aaid = aa_list(j);
-%         
-%         mu_low = 0;
-%         mu_high = 2;    
-%     
-%         while mu_high-mu_low > 0.01
-%             mu_mid = (mu_low+mu_high)/2;
-%             disp(['Glucose concentration = ' num2str(glc_conc) cell2mat(aaid) '; mu = ' num2str(mu_mid)]);
-%             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
-%             model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
-%             
-%             aarxnid = Exchange_AAs(contains(Exchange_AAs,aaid));
-%             aalb = LBfactor_AAs(contains(Exchange_AAs,aaid))*mu_mid*AA_factor;
-%             model_tmp = changeRxnBounds(model_tmp,aarxnid,aalb,'l');
-%             
-%             factor_k = sf_coeff * mu_mid;
-%             if factor_k > 1
-%                 factor_k = 1;
-%             end
-%             fileName = WriteLPSatFactor(model_tmp,mu_mid,f,osenseStr,rxnID,factor_k,...
-%                                         f_transporter,kcat_glc,factor_glc,...
-%                                         Info_enzyme,...
-%                                         Info_mRNA,...
-%                                         Info_protein,...
-%                                         Info_ribosome,...
-%                                         Info_tRNA);
-%             command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
-%             system(command,'-echo');
-%             fileName_out = 'Simulation.lp.out';
-%             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
-%             if strcmp(solME_status,'optimal')
-%                 mu_low = mu_mid;
-%             else
-%                 mu_high = mu_mid;
-%             end
-%         end
-%         
-%         model_tmp = model;
-%         model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
-%         model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_low,'l');
-%         aarxnid = Exchange_AAs(contains(Exchange_AAs,aaid));
-%         aalb = LBfactor_AAs(contains(Exchange_AAs,aaid))*mu_low*AA_factor;
-%         model_tmp = changeRxnBounds(model_tmp,aarxnid,aalb,'l');
-%         
-%         factor_k = sf_coeff * mu_low;
-%         if factor_k > 1
-%             factor_k = 1;
-%         end
-%         fileName = WriteLPSatFactor(model_tmp,mu_low,f,osenseStr,rxnID,factor_k,...
-%                                     f_transporter,kcat_glc,factor_glc,...
-%                                     Info_enzyme,...
-%                                     Info_mRNA,...
-%                                     Info_protein,...
-%                                     Info_ribosome,...
-%                                     Info_tRNA);
-%         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
-%         system(command,'-echo');
-%         fileName_out = 'Simulation.lp.out';
-%         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
-%         
-%         if strcmp(solME_status,'optimal')
-%             fluxes_rcAA(:,(i-1)*20+j) = solME_full;
-%         else
-%             fluxes_rcAA(:,(i-1)*20+j) = zeros(length(model_tmp.rxns),1);
-%         end
-%     end
-% end
-
 cd Results/;
 save('RcAA_fluxes.mat','fluxes_rcAA');
+save('RcAA_result.mat','result_rcAA');
 cd ../;
 
 clear;
 toc;
 
 %% Figures
-load('RcAA_fluxes.mat');
-flux_res = fluxes_rcAA;
-clear fluxes_rcAA;
+load('RcAA_result.mat');
 
-load('pcLactis_Model.mat');
-model = pcLactis_Model;
+increase_mu = round(result_rcAA.data(2,:),2)-result_rcAA.data(1,:);
+increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
+reduced_cost = increase_mu./increase_aa;
+reduced_cost = round(reduced_cost,4);
 
-mu = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
+aaidlist = result_rcAA.column(1:20);
+aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);
+c = categorical(aaidlist);
 
+figure('Name','1');
+subplot(4,1,1);
+bar(c,reduced_cost(1:20));
+ylim([0 0.03]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+title('Original mu = 0.1 /h','FontSize',14,'FontName','Helvetica');
+ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
+subplot(4,1,2);
+bar(c,reduced_cost(21:40));
+ylim([0 0.03]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+title('Original mu = 0.3 /h','FontSize',14,'FontName','Helvetica');
+ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+
+subplot(4,1,3);
+bar(c,reduced_cost(41:60));
+ylim([0 0.03]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+title('Original mu = 0.5 /h','FontSize',14,'FontName','Helvetica');
+ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+
+subplot(4,1,4);
+bar(c,reduced_cost(61:80));
+ylim([0 0.03]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+title('Original mu = 0.7 /h','FontSize',14,'FontName','Helvetica');
+ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+
+clear;
