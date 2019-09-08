@@ -194,7 +194,7 @@ toc;
 %% Figures
 load('RcAA_result.mat');
 
-increase_mu = round(result_rcAA.data(2,:),2)-result_rcAA.data(1,:);
+increase_mu = round(result_rcAA.data(2,:),2)-round(result_rcAA.data(1,:),2);
 increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
 reduced_cost = increase_mu./increase_aa;
 reduced_cost = round(reduced_cost,4);
