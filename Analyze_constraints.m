@@ -84,8 +84,11 @@ for i = 1:length(glc_list)
     factor_glc = glc_conc / (glc_conc + Km);
     
     for j = 1:length(modeled_protein_list)
+        
+        model_tmp = model;
+        
         f_unmodeled = 1-modeled_protein_list(j);
-        [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
+        [model_tmp,f] = ChangeUnmodeledProtein(model_tmp,f_unmodeled);
         f_transporter = 0.01;
         
         mu_low = 0;
@@ -94,13 +97,13 @@ for i = 1:length(glc_list)
         while mu_high-mu_low > 0.01
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
-            model = changeRxnBounds(model,'R_biomass_dilution',mu_mid,'b');
-            model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
+            model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
+            model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
             factor_k = sf_coeff * mu_mid;
                 if factor_k > 1
                     factor_k = 1;
                 end
-            fileName = WriteLPSatFactor(model,mu_mid,f,osenseStr,rxnID,factor_k,...
+            fileName = WriteLPSatFactor(model_tmp,mu_mid,f,osenseStr,rxnID,factor_k,...
                                         f_transporter,kcat_glc,factor_glc,...
                                         Info_enzyme,...
                                         Info_mRNA,...
@@ -110,7 +113,7 @@ for i = 1:length(glc_list)
             command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
-            [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+            [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
             if strcmp(solME_status,'optimal')
                 mu_low = mu_mid;
             else
@@ -118,13 +121,13 @@ for i = 1:length(glc_list)
             end
         end
         
-        model = changeRxnBounds(model,'R_biomass_dilution',mu_low,'b');
-        model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*mu_low,'l');
+        model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
+        model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_low,'l');
         factor_k = sf_coeff * mu_low;
         if factor_k > 1
             factor_k = 1;
         end
-        fileName = WriteLPSatFactor(model,mu_low,f,osenseStr,rxnID,factor_k,...
+        fileName = WriteLPSatFactor(model_tmp,mu_low,f,osenseStr,rxnID,factor_k,...
                                     f_transporter,kcat_glc,factor_glc,...
                                     Info_enzyme,...
                                     Info_mRNA,...
@@ -134,19 +137,22 @@ for i = 1:length(glc_list)
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,~,solME_full] = ReadSoplexResult(fileName_out,model);
+        [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
         
-        mu = solME_full(strcmp(model.rxns,'R_biomass_dilution'),1);
-        glc = -solME_full(strcmp(model.rxns,'R_M_EX_glc__D_e'),1);
-        arg = -solME_full(strcmp(model.rxns,'R_M_EX_arg__L_e'),1);
+        mu = solME_full(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
+        glc = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
+        arg = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
         res1(j,:,i) = [1-f_unmodeled mu mu/(glc*180/1000) arg*174/1000/mu];
                                        %g_CDW/g_glucose   g_arginine/g_CDW
     end
         
 	for k = 1:length(glucose_transporter_list)
+        
+        model_tmp = model;
+        
         f_transporter = glucose_transporter_list(k);
         f_unmodeled = 0.45;
-        [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
+        [model_tmp,f] = ChangeUnmodeledProtein(model_tmp,f_unmodeled);
         
         mu_low = 0;
         mu_high = 2;
@@ -154,13 +160,13 @@ for i = 1:length(glc_list)
         while mu_high-mu_low > 0.01
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
-            model = changeRxnBounds(model,'R_biomass_dilution',mu_mid,'b');
-            model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
+            model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
+            model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
             factor_k = sf_coeff * mu_mid;
             if factor_k > 1
                 factor_k = 1;
             end
-            fileName = WriteLPSatFactor(model,mu_mid,f,osenseStr,rxnID,factor_k,...
+            fileName = WriteLPSatFactor(model_tmp,mu_mid,f,osenseStr,rxnID,factor_k,...
                                         f_transporter,kcat_glc,factor_glc,...
                                         Info_enzyme,...
                                         Info_mRNA,...
@@ -170,7 +176,7 @@ for i = 1:length(glc_list)
             command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
-            [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+            [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
             if strcmp(solME_status,'optimal')
                 mu_low = mu_mid;
             else
@@ -178,13 +184,13 @@ for i = 1:length(glc_list)
             end
         end
         
-        model = changeRxnBounds(model,'R_biomass_dilution',mu_low,'b');
-        model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*mu_low,'l');
+        model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
+        model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_low,'l');
         factor_k = sf_coeff * mu_low;
         if factor_k > 1
             factor_k = 1;
         end
-        fileName = WriteLPSatFactor(model,mu_low,f,osenseStr,rxnID,factor_k,...
+        fileName = WriteLPSatFactor(model_tmp,mu_low,f,osenseStr,rxnID,factor_k,...
                                     f_transporter,kcat_glc,factor_glc,...
                                     Info_enzyme,...
                                     Info_mRNA,...
@@ -194,11 +200,11 @@ for i = 1:length(glc_list)
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,~,solME_full] = ReadSoplexResult(fileName_out,model);
+        [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
         
-        mu = solME_full(strcmp(model.rxns,'R_biomass_dilution'),1);
-        glc = -solME_full(strcmp(model.rxns,'R_M_EX_glc__D_e'),1);
-        arg = -solME_full(strcmp(model.rxns,'R_M_EX_arg__L_e'),1);
+        mu = solME_full(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
+        glc = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
+        arg = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
         res2(k,:,i) = [f_transporter mu mu/(glc*180/1000) arg*174/1000/mu];
                                        %g_CDW/g_glucose   g_arginine/g_CDW
 	end
@@ -497,4 +503,3 @@ colormap(ax6,clr);
 colorbar;
 set(ax6,'FontSize',12,'FontName','Helvetica');
 
-%% Figures for analysing yield
