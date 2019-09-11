@@ -54,6 +54,9 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
 model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
+
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
 

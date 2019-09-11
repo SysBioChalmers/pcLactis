@@ -150,7 +150,7 @@ for i = 1:length(m_enzyme)
     else
         factor_k_tmp = factor_k; %%%%%%%% The others to be changed
 %         factor_k_tmp = 1; %%%%%%%% The others to be 1
-    end
+	end
     if factor_k_tmp < 0
         factor_k_tmp = 0.01;
     elseif factor_k_tmp > 1

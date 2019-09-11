@@ -60,6 +60,9 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
 model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
+
 %% Main part.
 % load glucose concentration of reference state
 load('Sglc2_result_with_sf.mat');
@@ -95,7 +98,7 @@ aa_list = {'ala'
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-y(3) = 1;
+% y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 sf_coeff = x\y;
@@ -133,7 +136,7 @@ for i = 1:length(selected_points)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model_ref);
@@ -157,7 +160,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,~,solME_full] = ReadSoplexResult(fileName_out,model_ref);
@@ -196,7 +199,7 @@ for i = 1:length(selected_points)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmptmp);
@@ -219,7 +222,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);

@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 11800 s
+% Timing: ~ 18600 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -64,6 +64,9 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 % Block other glucose transporters
 model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
 model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
+
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
 %% Main part.
 
@@ -137,7 +140,7 @@ end
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-y(3) = 1;
+% y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 sf_coeff = x\y;

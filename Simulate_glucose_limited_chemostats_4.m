@@ -64,6 +64,9 @@ model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
 model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
 model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
+
 %% Main part.
 
 D_list = 0.68:0.001:0.7;%unit: /h
@@ -73,7 +76,7 @@ D_list = 0.68:0.001:0.7;%unit: /h
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-y(3) = 1;
+% y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
 sf_coeff = x\y;
