@@ -1,6 +1,6 @@
 %% Estimate a global saturation factor 2.
 
-% Timing: ~ 3500 s
+% Timing: ~ 6300 s
 
 % Consider glucose transporter
 
@@ -16,6 +16,7 @@ model = pcLactis_Model;
 
 %% Optimization setting.
 rxnID = 'R_dummy_assumed_Monomer';
+% rxnID = 'R_ribosome_70S';
 osenseStr = 'Maximize';
 
 %% Parameters.
@@ -88,7 +89,7 @@ for i = 1:length(mu_list)
         model_tmp = changeRxnBounds(model_tmp,Exchange_reactions,LB,'l');
         model_tmp = changeRxnBounds(model_tmp,Exchange_reactions,UB,'u');
 
-        disp(['mu = ' num2str(mu) '; replicate = ' num2str(j)]);        
+        disp(['mu = ' num2str(mu) '; replicate = ' num2str(j)]);
         
         [factor_k_new,...
          solME_full_new] = SearchSaturationFactor(model_tmp,mu,f,osenseStr,rxnID,...
@@ -117,10 +118,10 @@ load('Egsf2_result.mat');
 
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-% y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
-
+x = x(~isnan(y));
+y = y(~isnan(y));
 k = x\y;
 
 hold on;

@@ -31,7 +31,7 @@ if Check == 2
                                 Info_protein,...
                                 Info_ribosome,...
                                 Info_tRNA);
-    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
     fileName_out = 'Simulation.lp.out';
     [~,sol_status,sol_full] = ReadSoplexResult(fileName_out,model);
@@ -51,7 +51,7 @@ if Check == 2
         factor_high = 1;
         factor_low = 0;
     %     while factor_high-factor_low > 0.001 || tmp_protein > 0 || ~strcmp(sol_status,'optimal')
-        while factor_high-factor_low > 0.001 || (tmp_protein > 0 && factor_high-factor_low > 0.00001) || ~strcmp(sol_status,'optimal')
+        while factor_high-factor_low > 0.0001 || (tmp_protein > 0 && factor_high-factor_low > 0.000001) || ~strcmp(sol_status,'optimal')
             factor_mid = (factor_low+factor_high)/2;
             disp(['kcat factor = ' num2str(factor_mid)]);
 
@@ -62,7 +62,7 @@ if Check == 2
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);% kcat_glc*10000 used to eliminate glucose transporter which has been removed
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,sol_status,sol_full] = ReadSoplexResult(fileName_out,model);
@@ -88,7 +88,7 @@ if Check == 2
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,sol_status_low,sol_full_low] = ReadSoplexResult(fileName_out,model);
@@ -100,34 +100,48 @@ if Check == 2
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,sol_status_high,sol_full_high] = ReadSoplexResult(fileName_out,model);
         
-        if ~strcmp(sol_status_low,'optimal')
-            [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
-            tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
-            if tmp_protein_high <= 0
-                factor_k_new = factor_high;
-                sol_full_new = sol_full_high;
-            else
-                factor_k_new = nan;
-                sol_full_new = zeros(length(model.rxns),1);
-            end
-        elseif strcmp(sol_status_low,'optimal')
+        if strcmp(sol_status_low,'optimal')
             [~,~,f_enzyme_inact_low] = CheckInactiveEnzyme(model,sol_full_low);
             tmp_protein_low = f_enzyme_inact_low - f_transporter * 0.46;
-            if tmp_protein_low <= 0
+            if tmp_protein_low < 0.0001 && tmp_protein_low > -0.0001
                 factor_k_new = factor_low;
                 sol_full_new = sol_full_low;
             else
+                if strcmp(sol_status_high,'optimal')
+                    [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
+                    tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
+                    if tmp_protein_high < 0.0001 && tmp_protein_high > -0.0001
+                        factor_k_new = factor_high;
+                        sol_full_new = sol_full_high;
+                    else
+                        factor_k_new = nan;
+                        sol_full_new = zeros(length(model.rxns),1);
+                    end
+                else
+                    factor_k_new = nan;
+                    sol_full_new = zeros(length(model.rxns),1);
+                end
+            end
+        else
+            if strcmp(sol_status_high,'optimal')
+                [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
+                tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
+                if tmp_protein_high < 0.0001 && tmp_protein_high > -0.0001
+                    factor_k_new = factor_high;
+                    sol_full_new = sol_full_high;
+                else
+                    factor_k_new = nan;
+                    sol_full_new = zeros(length(model.rxns),1);
+                end
+            else
                 factor_k_new = nan;
                 sol_full_new = zeros(length(model.rxns),1);
             end
-        elseif ~strcmp(sol_status_low,'optimal') && ~strcmp(sol_status_high,'optimal')
-            factor_k_new = nan;
-            sol_full_new = zeros(length(model.rxns),1);
         end
     end
 
@@ -142,7 +156,7 @@ elseif Check == 1
                                 Info_protein,...
                                 Info_ribosome,...
                                 Info_tRNA);
-    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
     fileName_out = 'Simulation.lp.out';
     [~,sol_status,sol_full] = ReadSoplexResult(fileName_out,model);
@@ -161,7 +175,7 @@ elseif Check == 1
     else
         factor_high = 1;
         factor_low = 0;
-        while factor_high-factor_low > 0.001 || (tmp_protein > 0 && factor_high-factor_low > 0.00001) || ~strcmp(sol_status,'optimal')
+        while factor_high-factor_low > 0.0001 || (tmp_protein > 0 && factor_high-factor_low > 0.000001) || ~strcmp(sol_status,'optimal')
             factor_mid = (factor_low+factor_high)/2;
             disp(['kcat factor = ' num2str(factor_mid)]);
 
@@ -172,7 +186,7 @@ elseif Check == 1
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,sol_status,sol_full] = ReadSoplexResult(fileName_out,model);
@@ -198,7 +212,7 @@ elseif Check == 1
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,sol_status_low,sol_full_low] = ReadSoplexResult(fileName_out,model);
@@ -210,34 +224,48 @@ elseif Check == 1
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,sol_status_high,sol_full_high] = ReadSoplexResult(fileName_out,model);
 
-        if ~strcmp(sol_status_low,'optimal')
-            [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
-            tmp_protein_high = f_enzyme_inact_high;
-            if tmp_protein_high == 0
-                factor_k_new = factor_high;
-                sol_full_new = sol_full_high;
-            else
-                factor_k_new = nan;
-                sol_full_new = zeros(length(model.rxns),1);
-            end
-        elseif strcmp(sol_status_low,'optimal')
+        if strcmp(sol_status_low,'optimal')
             [~,~,f_enzyme_inact_low] = CheckInactiveEnzyme(model,sol_full_low);
             tmp_protein_low = f_enzyme_inact_low;
-            if tmp_protein_low == 0
+            if tmp_protein_low < 0.0001 && tmp_protein_low > -0.0001
                 factor_k_new = factor_low;
                 sol_full_new = sol_full_low;
             else
+                if strcmp(sol_status_high,'optimal')
+                    [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
+                    tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
+                    if tmp_protein_high < 0.0001 && tmp_protein_high > -0.0001
+                        factor_k_new = factor_high;
+                        sol_full_new = sol_full_high;
+                    else
+                        factor_k_new = nan;
+                        sol_full_new = zeros(length(model.rxns),1);
+                    end
+                else
+                    factor_k_new = nan;
+                    sol_full_new = zeros(length(model.rxns),1);
+                end
+            end
+        else
+            if strcmp(sol_status_high,'optimal')
+                [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
+                tmp_protein_high = f_enzyme_inact_high;
+                if tmp_protein_high < 0.0001 && tmp_protein_high > -0.0001
+                    factor_k_new = factor_high;
+                    sol_full_new = sol_full_high;
+                else
+                    factor_k_new = nan;
+                    sol_full_new = zeros(length(model.rxns),1);
+                end
+            else
                 factor_k_new = nan;
                 sol_full_new = zeros(length(model.rxns),1);
             end
-        elseif ~strcmp(sol_status_low,'optimal') && ~strcmp(sol_status_high,'optimal')
-            factor_k_new = nan;
-            sol_full_new = zeros(length(model.rxns),1);
         end
     end
 end
