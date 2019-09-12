@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 1900 s
+% Timing: ~ 2000 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.
@@ -92,7 +92,7 @@ for i = 1:length(f_transporter_range)
                            Info_ribosome,...
                            Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -115,7 +115,7 @@ for i = 1:length(f_transporter_range)
                        Info_ribosome,...
                        Info_tRNA);
                    
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
     fileName_out = 'Simulation.lp.out';
     [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);

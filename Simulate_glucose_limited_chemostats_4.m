@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 6300 s
+% Timing: ~ 4000 s
 
 % With the saturation saturation factor are performed. Only focus on the
 % dilution rate between 0.68 - 0.7
@@ -69,16 +69,17 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
 %% Main part.
 
-D_list = 0.68:0.001:0.7;%unit: /h
+D_list = 0.68:0.002:0.7;%unit: /h
 
 % with saturation factor
 % obtain the global saturation factor
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-% y(3) = 1;
 x = x(y ~= 1);
 y = y(y ~= 1);
+x = x(~isnan(y));
+y = y(~isnan(y));
 sf_coeff = x\y;
 clear x y;
 
@@ -111,7 +112,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -131,7 +132,7 @@ for i = 1:length(D_list)
                                 Info_ribosome,...
                                 Info_tRNA);
                    
-	command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
