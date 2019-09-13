@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 45000 s
+% Timing: ~ 40000 s
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -127,9 +127,9 @@ for i = 1:length(selected_points)
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
         model_ref = changeRxnBounds(model_ref,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
         factor_k = sf_coeff * mu_mid;
-            if factor_k > 1
-                factor_k = 1;
-            end
+        if factor_k > 1
+            factor_k = 1;
+        end
         fileName = WriteLPSatFactor(model_ref,mu_mid,f,osenseStr,rxnID,factor_k,...
                                         f_transporter,kcat_glc,factor_glc,...
                                         Info_enzyme,...
