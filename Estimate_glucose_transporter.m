@@ -17,9 +17,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+GAM = 40;%ATP coefficient in the new biomass equation.
+NGAM = 3; %(mmol/gCDW/h)
+f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -68,8 +68,8 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
 %% Main simulations.
 
-f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
-% f_transporter_range = 0.5;
+% f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
+f_transporter_range = 0.5;
 res = zeros(length(f_transporter_range),8);
 
 for i = 1:length(f_transporter_range)
@@ -78,7 +78,7 @@ for i = 1:length(f_transporter_range)
     mu_low = 0;
     mu_high = 0.8;
     
-    while mu_high-mu_low > 0.01
+    while mu_high-mu_low > 0.00001
         mu_mid = (mu_low+mu_high)/2;
         disp(['f_transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',mu_mid,'b');

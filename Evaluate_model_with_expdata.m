@@ -16,9 +16,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+GAM = 40;%ATP coefficient in the new biomass equation.
+NGAM = 3; %(mmol/gCDW/h)
+f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');

@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 40000 s
+% Timing: ~ 56800 s
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -70,7 +70,7 @@ selected_points = [1;5;9;13];
 glc_conc_list = glc_conc_with_sf(selected_points,:);
 clear glc_conc_with_sf;
 
-AA_factor = 0.5; % increase = mu * AA_factor (mmol/gCDW/h)
+AA_factor = 0.1; % increase = mu * AA_factor (mmol/gCDW/h)
 
 % load AA id
 aa_list = {'ala'
@@ -121,7 +121,7 @@ for i = 1:length(selected_points)
     model_ref = model;
 	mu_low = 0;
 	mu_high = 0.8;
-	while mu_high-mu_low > 0.0001
+	while mu_high-mu_low > 0.00001
         mu_mid = (mu_low+mu_high)/2;
         disp(['Ref: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
@@ -184,7 +184,7 @@ for i = 1:length(selected_points)
         mu_low = 0;
         mu_high = 0.8;
     
-        while mu_high-mu_low > 0.0001
+        while mu_high-mu_low > 0.00001
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) '; ' cell2mat(aaid) '; mu = ' num2str(mu_mid)]);
             model_tmptmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
@@ -252,8 +252,10 @@ toc;
 %% Figures
 load('RcAA_result.mat');
 
-increase_mu = round(result_rcAA.data(2,:),3)-round(result_rcAA.data(1,:),3);
-increase_aa = round(result_rcAA.data(5,:),3)-round(result_rcAA.data(3,:),3);
+increase_mu = round(result_rcAA.data(2,:),4)-round(result_rcAA.data(1,:),4);
+increase_mu(increase_mu < 0) = 0;
+increase_aa = round(result_rcAA.data(5,:),4)-round(result_rcAA.data(3,:),4);
+increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
 reduced_cost = round(reduced_cost,4);
 

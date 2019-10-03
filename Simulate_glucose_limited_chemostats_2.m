@@ -14,7 +14,8 @@ model = pcLactis_Model;
 
 %% Optimization setting.
 
-rxnID = 'R_dummy_assumed_Monomer';
+% rxnID = 'R_dummy_assumed_Monomer';
+rxnID = 'R_M_3MBALDt_rvs_Enzyme';
 osenseStr = 'Maximize';
 
 %% Parameters.
@@ -28,7 +29,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.0084;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -84,7 +85,7 @@ for i = 1:length(D_list)
     factor_glc_low = 0;
     factor_glc_high = 1;
     
-    while factor_glc_high-factor_glc_low > 0.001
+    while factor_glc_high-factor_glc_low > 0.00001
         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
         disp(['Without sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
@@ -98,7 +99,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t600 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -131,7 +132,7 @@ for i = 1:length(D_list)
     else
         fluxes_simulated_without_sf(:,i) = zeros(length(model.rxns),1);
         glc_conc_without_sf(i,1) = D;
-        glc_conc_without_sf(i,2) = glc_conc;
+        glc_conc_without_sf(i,2) = 0;
     end
 end
 
@@ -162,7 +163,7 @@ for i = 1:length(D_list)
     factor_glc_low = 0;
     factor_glc_high = 1;
     
-    while factor_glc_high-factor_glc_low > 0.001
+    while factor_glc_high-factor_glc_low > 0.00001
         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
         disp(['With sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
@@ -176,7 +177,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t600 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -396,15 +397,15 @@ toc;
 % set(ax2,'XTick',0.2:0.1:0.6);
 % set(ax2,'ytick',[]);
 % 
-% % arg catabolism with sf
-% color_orn = [221,52,151]/255;
-% color_arg = [65,171,93]/255;
-% color_citr = [82,82,82]/255;
-% figure('Name','4');
-% hold on;
-% plot(mu2,orn2,'-','LineWidth',0.75,'Color',color_orn);
-% plot(mu2,arg2,'-','LineWidth',0.75,'Color',color_arg);
-% plot(mu2,citr2,'-','LineWidth',0.75,'Color',color_citr);
+% arg catabolism with sf
+color_orn = [221,52,151]/255;
+color_arg = [65,171,93]/255;
+color_citr = [82,82,82]/255;
+figure('Name','4');
+hold on;
+plot(mu1,orn1,'-','LineWidth',0.75,'Color',color_orn);
+plot(mu1,arg1,'-','LineWidth',0.75,'Color',color_arg);
+plot(mu1,citr1,'-','LineWidth',0.75,'Color',color_citr);
 % set(gca,'FontSize',12,'FontName','Helvetica');
 % xlabel('Simulated growth rate (/h)','FontSize',14,'FontName','Helvetica');
 % ylabel('Flux (mmol/gCDW/h)','FontSize',14,'FontName','Helvetica');

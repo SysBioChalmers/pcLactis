@@ -1,6 +1,9 @@
-load('Sglc2_fluxes_with_sf.mat');
-flux_res = fluxes_simulated_with_sf;
+% load('Sglc2_fluxes_with_sf.mat');
+% flux_res = fluxes_simulated_with_sf;
 % flux_res = flux_res(:,[1:5,8:end]);
+
+load('Sglc2_fluxes_without_sf.mat');
+flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
@@ -283,6 +286,9 @@ total_inactive_enzyme = zeros(1,n);
 mu_list = zeros(1,n);
 total_Ribo = zeros(1,n);
 q_glc = zeros(1,n);
+total_rRNA = zeros(1,n);
+total_tRNA = zeros(1,n);
+total_mRNA = zeros(1,n);
 
 for i = 1:n
     
@@ -297,7 +303,7 @@ for i = 1:n
     [pathway, absvalue] = CalculateProteinAllocation(model,solME_full,Info_enzyme,excel_input);
     allocation_value(:,i) = absvalue;
     
-    [Protein,RNA,rProtein,rRNA,~,~] = CalculateProteinAndRNA(model,solME_full,...
+    [Protein,RNA,rProtein,rRNA,tRNA,mRNA] = CalculateProteinAndRNA(model,solME_full,...
                                                              Info_enzyme,...
                                                              Info_ribosome,...
                                                              Info_tRNA,...
@@ -308,7 +314,9 @@ for i = 1:n
     total_Ribo(1,i) = rProtein + rRNA;
     [~,~,f_enzyme_inact] = CheckInactiveEnzyme(model,solME_full);
     total_inactive_enzyme(1,i) = f_enzyme_inact;
-    
+    total_rRNA(1,i) = rRNA;
+    total_tRNA(1,i) = tRNA;
+    total_mRNA(1,i) = mRNA;
 end
 allocation_pathway = [pathway;'Ribosomal protein';'Inactive enzyme'];
 allocation_value = [allocation_value;total_rProtein;total_inactive_enzyme];
@@ -345,11 +353,8 @@ ylabel('Proteome fraction','FontSize',14,'FontName','Helvetica');
 set(gcf,'position',[0 0 420 300]);
 set(gca,'position',[0.11 0.13 0.5 0.85]);
 
-color = [178,24,43]/255;
-% color = [221,28,119]/255;
-
 figure('Name','4');
-plot(mu_list,q_glc,'LineWidth',0.75,'Color',color);
+plot(mu_list,q_glc,'-o','LineWidth',0.75);
 ylim([0 28]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
@@ -359,7 +364,7 @@ set(gcf,'position',[0 0 270 110]);
 set(gca,'position',[0.25 0.28 0.7 0.7]);
 
 figure('Name','5');
-plot(mu_list,total_RNA./total_proteome,'LineWidth',0.75,'Color',color);
+plot(mu_list,total_RNA./total_proteome,'-o','LineWidth',0.75);
 % ylim([0.1 0.24]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
@@ -369,7 +374,36 @@ set(gcf,'position',[300 0 270 110]);
 set(gca,'position',[0.25 0.28 0.7 0.7]);
 
 figure('Name','6');
-plot(mu_list,allocation_value(2,:),'LineWidth',0.75,'Color',color);
+hold on;
+plot(mu_list,total_RNA,'-o','LineWidth',0.75);
+plot(mu_list,total_proteome,'-o','LineWidth',0.75);
+% ylim([0.1 0.24]);
+xlim([0 0.75]);
+set(gca,'FontSize',10,'FontName','Helvetica');
+legend({'RNA','Protein'},'FontSize',12,'FontName','Helvetica','location','e');
+legend('boxoff');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+ylabel('Content (g/gCDW)','FontSize',14,'FontName','Helvetica');
+set(gcf,'position',[300 400 200 220]);
+set(gca,'position',[0.25 0.28 0.7 0.6]);
+
+figure('Name','7');
+hold on;
+plot(mu_list,total_rRNA,'-o','LineWidth',0.75);
+plot(mu_list,total_tRNA,'-o','LineWidth',0.75);
+plot(mu_list,total_mRNA,'-o','LineWidth',0.75);
+% ylim([0.1 0.24]);
+xlim([0 0.75]);
+set(gca,'FontSize',10,'FontName','Helvetica');
+legend({'rRNA','tRNA','mRNA'},'FontSize',12,'FontName','Helvetica','location','e');
+legend('boxoff');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+ylabel('Content (g/gCDW)','FontSize',14,'FontName','Helvetica');
+set(gcf,'position',[300 400 200 220]);
+set(gca,'position',[0.25 0.28 0.7 0.6]);
+
+figure('Name','8');
+plot(mu_list,allocation_value(2,:),'-o','LineWidth',0.75);
 % ylim([0 0.037]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
@@ -378,9 +412,9 @@ ylabel(['Glycolytic enzymes',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','
 set(gcf,'position',[600 0 270 110]);
 set(gca,'position',[0.25 0.28 0.7 0.7]);
 
-figure('Name','7');
-plot(mu_list,total_inactive_enzyme,'LineWidth',0.75,'Color',color);
-ylim([0 0.012]);
+figure('Name','9');
+plot(mu_list,total_inactive_enzyme,'-o','LineWidth',0.75);
+% ylim([0 0.012]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
@@ -388,12 +422,12 @@ ylabel(['Inactive enzymes',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','He
 set(gcf,'position',[900 100 270 170]);
 set(gca,'position',[0.25 0.28 0.7 0.5]);
 
-figure('Name','8');
+figure('Name','10');
 hold on;
 box on;
 x = [0,1]; y = [0.0046,0.0046];
 plot(x,y,':','LineWidth',1.5,'Color','k');
-plot(mu_list,allocation_value(1,:),'LineWidth',0.75,'Color',color);
+plot(mu_list,allocation_value(1,:),'-o','LineWidth',0.75);
 ylim([0.004 0.005]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');

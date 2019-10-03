@@ -78,7 +78,7 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 load('Sglc2_result_with_sf.mat');
 
 D_list = glc_conc_with_sf(:,1);%unit: /h
-glc_conc_list = glc_conc_with_sf(:,2);%unit: uM
+glc_conc_list = glc_conc_with_sf(:,2)*1.00001;%unit: uM
 
 fluxes_simulated = zeros(length(model.rxns),2*length(D_list));
 

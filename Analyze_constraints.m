@@ -1,6 +1,6 @@
 %% Sensitivity analysis for total modeled proteome and glucose transporter.
 
-% Timing: ~ 62000 s
+% Timing: ~ 45000 s
 
 % With the saturation saturation factor are performed.
 
@@ -146,7 +146,15 @@ for i = 1:length(glc_list)
         mu = solME_full(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
         glc = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
         arg = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        res1(j,:,i) = [1-f_unmodeled mu mu/(glc*180/1000) arg*174/1000/mu];
+        
+        [Protein_tmp,~,~,~,~,~] = CalculateProteinAndRNA(model_tmp,solME_full,...
+                                                             Info_enzyme,...
+                                                             Info_ribosome,...
+                                                             Info_tRNA,...
+                                                             Info_mRNA);
+        f_modeled_tmp = (Protein_tmp-f_unmodeled*0.46)/Protein_tmp;
+        
+        res1(j,:,i) = [f_modeled_tmp mu mu/(glc*180/1000) arg*174/1000/mu];
                                        %g_CDW/g_glucose   g_arginine/g_CDW
     end
         

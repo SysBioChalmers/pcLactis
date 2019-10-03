@@ -2,13 +2,12 @@
 %   This function will change the proportion of the unmodeled protein.
 function [model,f] = ChangeUnmodeledProtein(model,f_unmodeled)
 
-% Calculate total proportion of RNA and proteins (excluding the unmodel
-% protein) modeled in the ME model.
-f = 0.46*(1-f_unmodeled)+0.1; %(g/gCDW)
-% f represents the proportion (g/gCDW) of the sum of RNA and proteins
-% (without the unmodeled protein) considered in the model, which can be
-% used as a constraints in simulations to constrain the total fluxes
-% through all the dilution reactions of RNA and enzymes.
+% Calculate total proportion of proteins (excluding the unmodel protein)
+% modeled in the model.
+f = 0.46*(1-f_unmodeled); %(g/gCDW)
+% f represents the proportion (g/gCDW) of the sum of proteins (without the
+% unmodeled protein) considered in the model, which can be used to
+% constrain the total fluxes through all dilution reactions of proteins.
 
 % Calculate the stoichiometric coefficient of unmodeled protein in the
 % biomass dilution reaction.

@@ -97,6 +97,48 @@ ylabel('Protein (mmol/gCDW)','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('ArgA','FontSize',14,'FontName','Helvetica');
 
+figure('Name','2');
+mu_new = [0.3 0.45 0.5 0.6];
+idx = [5 8 9 11];
 
+subplot(1,5,2);
+hold on;
+box on;
+plot(mu_new,log2(abs_ack2(idx)/abs_ack2(2)),'k-o');
+xlim([0.1 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('log_2 Ratio','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('ACK','FontSize',14,'FontName','Helvetica');
+
+subplot(1,5,3);
+hold on;
+box on;
+plot(mu_new,log2(abs_adh2(idx)/abs_adh2(2)),'k-o');
+xlim([0.1 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('log_2 Ratio','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('ADH','FontSize',14,'FontName','Helvetica');
+
+subplot(1,5,4);
+hold on;
+box on;
+plot(mu_new,log2(abs_pfl(idx)/abs_pfl(2)),'k-o');
+xlim([0.1 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('log_2 Ratio','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('PFL','FontSize',14,'FontName','Helvetica');
+
+subplot(1,5,5);
+hold on;
+box on;
+plot(mu_new,log2(abs_arga(idx)/abs_arga(2)),'k-o');
+xlim([0.1 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
+ylabel('log_2 Ratio','FontSize',14,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+title('ArgA','FontSize',14,'FontName','Helvetica');
 
 

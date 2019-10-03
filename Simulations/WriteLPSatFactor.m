@@ -241,6 +241,7 @@ for i = 1:length(idx_rxn)
     end
 end
 fprintf(fptr,'CRNAP: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'CRNAP: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5) Coupling mRNA degradation reactions and mRNA degradation complex.
@@ -274,6 +275,7 @@ for i = 1:length(idx_rxn)
     end
 end
 fprintf(fptr,'CmRNAcplx: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'CmRNAcplx: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 6) Coupling tRNA.
@@ -301,6 +303,8 @@ for i = 1:length(ge_tRNA)
     if length(idx_renaming) == 1
         fprintf(fptr,'CtRNA%d: X%d - %.15f X%d <= 0\n',...
                      i,idx_charging,coef,idx_renaming);
+%         fprintf(fptr,'CtRNA%d: X%d - %.15f X%d = 0\n',...
+%                      i,idx_charging,coef,idx_renaming);
     else
         for j = 1:length(idx_renaming)
             idx = idx_renaming(j);
@@ -311,6 +315,7 @@ for i = 1:length(ge_tRNA)
         end
         end
         fprintf(fptr,'CtRNA%d: %s <= 0\n',i,eq);
+%         fprintf(fptr,'CtRNA%d: %s = 0\n',i,eq);
     end
 end
 
@@ -345,6 +350,8 @@ for i = 1:length(tu_transl)
 	if length(idx_transl_init) == 1
         fprintf(fptr,'CmRNA%d: X%d - %.15f X%d <= 0\n',...
                      i,idx_transl_init,coef,idx_transcrip);
+%         fprintf(fptr,'CmRNA%d: X%d - %.15f X%d = 0\n',...
+%                      i,idx_transl_init,coef,idx_transcrip);
     else
         for j = 1:length(idx_transl_init)
             idx = idx_transl_init(j);
@@ -356,6 +363,8 @@ for i = 1:length(tu_transl)
         end
         fprintf(fptr,'CmRNA%d: %s - %.15f X%d <= 0\n',...
                      i,eq,coef,idx_transcrip);
+%         fprintf(fptr,'CmRNA%d: %s - %.15f X%d = 0\n',...
+%                      i,eq,coef,idx_transcrip);
 	end
 end
 
@@ -390,6 +399,7 @@ for i = 1:length(Info_protein.ID)
     end
 end
 fprintf(fptr,'Cribosome: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'Cribosome: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 9) Coupling protein degradation reactions and protease.
@@ -426,6 +436,7 @@ for i = 1:length(idx_rxn)
     end
 end
 fprintf(fptr,'Cprotease: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'Cprotease: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 10) Degradation of mRNA, 70S ribosome and enzymes.
@@ -585,6 +596,122 @@ fprintf(fptr,'Cribodil: X%d - %.15f X%d = 0\n',...
 
 dil_rxns = model.rxns(contains(model.rxns,'R_dilution'));
 
+% %Sum of total protein and RNA.
+% for i = 1:length(dil_rxns)
+%     rxn_id = dil_rxns{i};
+%     comp_name = strrep(rxn_id,'R_dilution_','');
+%     idx = find(strcmp(model.rxns,rxn_id));
+%     
+%     if mod(i,200) == 0
+%         sep = newline;
+% 	else
+%         sep = '';
+%     end
+%     
+%     if strcmp(comp_name,'ribosome_70S')
+%         MW = Info_ribosome.MW_protein + Info_ribosome.MW_RNA;
+%         coeff = MW/1000;
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%         
+%     elseif contains(comp_name,'_Enzyme')
+%         MW = Info_enzyme.MW(contains(Info_enzyme.ID,comp_name));
+%         coeff = MW/1000;
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%     
+% 	elseif contains(comp_name,'generic_tRNA_')
+%         trna_name = strrep(comp_name,'generic_','');
+%         ge_trna_list = model.rxns(contains(model.rxns,'R_Generic_RNA_'));
+%         trna_list = ge_trna_list(contains(ge_trna_list,trna_name));
+%         trna_list = cellfun(@(x) strrep(x,'R_Generic_RNA_',''),...
+%                                  trna_list,'UniformOutput',false);
+%         trna_list = cellfun(@(x) x(1:min(strfind(x,trna_name))-2),...
+%                                  trna_list,'UniformOutput',false);
+%         MW_list = Info_tRNA.MW(ismember(Info_tRNA.ID,trna_list));
+%         MW = mean(MW_list);
+%         coeff = MW/1000;
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%         
+%     elseif contains(comp_name,'mRNA_TU')
+%         tu_name = strrep(comp_name,'mRNA_','');
+%         MW = Info_mRNA.MW(strcmp(Info_mRNA.ID,tu_name));
+%         coeff = MW/1000;       
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%     end
+% end
+% 
+% fprintf(fptr,'CprotRNA: %s = %.15f\n',eq,mu*f);
+% 
+% %Total RNA constraint
+% dil_rxns = dil_rxns(~contains(dil_rxns,'_Enzyme'));
+% 
+% for i = 1:length(dil_rxns)
+%     rxn_id = dil_rxns{i};
+%     comp_name = strrep(rxn_id,'R_dilution_','');
+%     idx = find(strcmp(model.rxns,rxn_id));
+%     
+%     if mod(i,200) == 0
+%         sep = newline;
+% 	else
+%         sep = '';
+%     end
+%     
+%     if strcmp(comp_name,'ribosome_70S')
+%         MW = Info_ribosome.MW_RNA;
+%         coeff = MW/1000;
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%     
+% 	elseif contains(comp_name,'generic_tRNA_')
+%         trna_name = strrep(comp_name,'generic_','');
+%         ge_trna_list = model.rxns(contains(model.rxns,'R_Generic_RNA_'));
+%         trna_list = ge_trna_list(contains(ge_trna_list,trna_name));
+%         trna_list = cellfun(@(x) strrep(x,'R_Generic_RNA_',''),...
+%                                  trna_list,'UniformOutput',false);
+%         trna_list = cellfun(@(x) x(1:min(strfind(x,trna_name))-2),...
+%                                  trna_list,'UniformOutput',false);
+%         MW_list = Info_tRNA.MW(ismember(Info_tRNA.ID,trna_list));
+%         MW = mean(MW_list);
+%         coeff = MW/1000;
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%         
+%     elseif contains(comp_name,'mRNA_TU')
+%         tu_name = strrep(comp_name,'mRNA_','');
+%         MW = Info_mRNA.MW(strcmp(Info_mRNA.ID,tu_name));
+%         coeff = MW/1000;       
+%         if i == 1
+%             eq = sprintf('%.15f X%d',coeff,idx);
+%         else
+%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
+%         end
+%     end
+% end
+% 
+% fprintf(fptr,'CtotRNA: %s = %.15f\n',eq,mu*0.56*(mu+1.25)/(mu+12.51));
+
+%Total protein constraint
 for i = 1:length(dil_rxns)
     rxn_id = dil_rxns{i};
     comp_name = strrep(rxn_id,'R_dilution_','');
@@ -597,14 +724,14 @@ for i = 1:length(dil_rxns)
     end
     
     if strcmp(comp_name,'ribosome_70S')
-        MW = Info_ribosome.MW_protein + Info_ribosome.MW_RNA;
+        MW = Info_ribosome.MW_protein;
         coeff = MW/1000;
         if i == 1
             eq = sprintf('%.15f X%d',coeff,idx);
         else
             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
         end
-        
+    
     elseif contains(comp_name,'_Enzyme')
         MW = Info_enzyme.MW(contains(Info_enzyme.ID,comp_name));
         coeff = MW/1000;
@@ -613,37 +740,11 @@ for i = 1:length(dil_rxns)
         else
             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
         end
-    
-	elseif contains(comp_name,'generic_tRNA_')
-        trna_name = strrep(comp_name,'generic_','');
-        ge_trna_list = model.rxns(contains(model.rxns,'R_Generic_RNA_'));
-        trna_list = ge_trna_list(contains(ge_trna_list,trna_name));
-        trna_list = cellfun(@(x) strrep(x,'R_Generic_RNA_',''),...
-                                 trna_list,'UniformOutput',false);
-        trna_list = cellfun(@(x) x(1:min(strfind(x,trna_name))-2),...
-                                 trna_list,'UniformOutput',false);
-        MW_list = Info_tRNA.MW(ismember(Info_tRNA.ID,trna_list));
-        MW = mean(MW_list);
-        coeff = MW/1000;
-        if i == 1
-            eq = sprintf('%.15f X%d',coeff,idx);
-        else
-            eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-        end
-        
-    elseif contains(comp_name,'mRNA_TU')
-        tu_name = strrep(comp_name,'mRNA_','');
-        MW = Info_mRNA.MW(strcmp(Info_mRNA.ID,tu_name));
-        coeff = MW/1000;       
-        if i == 1
-            eq = sprintf('%.15f X%d',coeff,idx);
-        else
-            eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-        end
     end
 end
 
-fprintf(fptr,'CprotRNA: %s = %.15f\n',eq,mu*f);
+fprintf(fptr,'Ctotprot: %s = %.15f\n',eq,mu*f);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 13) Constraint of membrane proteins (transporters).
