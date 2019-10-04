@@ -20,16 +20,19 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
+% GAM = 40;%ATP coefficient in the new biomass equation.
+% NGAM = 3; %(mmol/gCDW/h)
+% f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36;%ATP coefficient in the new biomass equation.
 NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+f_unmodeled = 0.5; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.00832;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');

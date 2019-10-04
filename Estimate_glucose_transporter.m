@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 2000 s
+% Timing: ~ 4000 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.
@@ -17,9 +17,13 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 40;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+% GAM = 40;%ATP coefficient in the new biomass equation.
+% NGAM = 3; %(mmol/gCDW/h)
+% f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36;%ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.5; %proportion of unmodeled protein in total protein (g/g)
+
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');

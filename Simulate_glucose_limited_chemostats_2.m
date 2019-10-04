@@ -14,14 +14,13 @@ model = pcLactis_Model;
 
 %% Optimization setting.
 
-% rxnID = 'R_dummy_assumed_Monomer';
-rxnID = 'R_M_3MBALDt_rvs_Enzyme';
+rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
+GAM = 36;%ATP coefficient in the new biomass equation.
 NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+f_unmodeled = 0.5; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -29,7 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.0084;%fraction of glucose transporter in total proteome
+f_transporter = 0.00832;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -99,7 +98,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -t600 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -177,7 +176,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -t600 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -398,14 +397,14 @@ toc;
 % set(ax2,'ytick',[]);
 % 
 % arg catabolism with sf
-color_orn = [221,52,151]/255;
-color_arg = [65,171,93]/255;
-color_citr = [82,82,82]/255;
-figure('Name','4');
-hold on;
-plot(mu1,orn1,'-','LineWidth',0.75,'Color',color_orn);
-plot(mu1,arg1,'-','LineWidth',0.75,'Color',color_arg);
-plot(mu1,citr1,'-','LineWidth',0.75,'Color',color_citr);
+% color_orn = [221,52,151]/255;
+% color_arg = [65,171,93]/255;
+% color_citr = [82,82,82]/255;
+% figure('Name','4');
+% hold on;
+% plot(mu1,orn1,'-','LineWidth',0.75,'Color',color_orn);
+% plot(mu1,arg1,'-','LineWidth',0.75,'Color',color_arg);
+% plot(mu1,citr1,'-','LineWidth',0.75,'Color',color_citr);
 % set(gca,'FontSize',12,'FontName','Helvetica');
 % xlabel('Simulated growth rate (/h)','FontSize',14,'FontName','Helvetica');
 % ylabel('Flux (mmol/gCDW/h)','FontSize',14,'FontName','Helvetica');

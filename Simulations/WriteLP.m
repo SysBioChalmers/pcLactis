@@ -69,8 +69,8 @@ for i = 1:length(m_enzyme)
     end
     
 % Change kcats extremely low or high value
-	if kcat < 6480 % 5% 900 10% 6480 
-        kcat = 6480;
+	if kcat < 23040 % 5% 900 10% 6480 15% 23040 20% 46440
+        kcat = 23040;
 	end
     
     kcat = kcat*factor_k;
