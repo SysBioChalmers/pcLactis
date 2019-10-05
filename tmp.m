@@ -14,7 +14,7 @@ osenseStr = 'Maximize';
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
 NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.5; %proportion of unmodeled protein in total protein (g/g)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -65,7 +65,7 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
 % model = changeRxnBounds(model,'R_M_EX_glc__D_e',-23.0749,'b');
 
-D_list = 0.15;%unit: /h
+D_list = 0.7;%unit: /h
 
 % without saturation factor
 factor_k = 1;%global saturation factor

@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 10000 s
+% Timing: ~ 17000 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -20,7 +20,7 @@ osenseStr = 'Maximize';
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
 NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.5; %proportion of unmodeled protein in total protein (g/g)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -28,7 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.00832;%fraction of glucose transporter in total proteome
+f_transporter = 0.0084;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
