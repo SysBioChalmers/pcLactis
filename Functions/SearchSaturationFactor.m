@@ -108,14 +108,14 @@ if Check == 2
         if strcmp(sol_status_low,'optimal')
             [~,~,f_enzyme_inact_low] = CheckInactiveEnzyme(model,sol_full_low);
             tmp_protein_low = f_enzyme_inact_low - f_transporter * 0.46;
-            if tmp_protein_low < 0.001 && tmp_protein_low > -0.001
+            if tmp_protein_low < 0.1 && tmp_protein_low > -0.1
                 factor_k_new = factor_low;
                 sol_full_new = sol_full_low;
             else
                 if strcmp(sol_status_high,'optimal')
                     [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
                     tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
-                    if tmp_protein_high < 0.001 && tmp_protein_high > -0.001
+                    if tmp_protein_high < 0.1 && tmp_protein_high > -0.1
                         factor_k_new = factor_high;
                         sol_full_new = sol_full_high;
                     else
@@ -131,7 +131,7 @@ if Check == 2
             if strcmp(sol_status_high,'optimal')
                 [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
                 tmp_protein_high = f_enzyme_inact_high - f_transporter * 0.46;
-                if tmp_protein_high < 0.001 && tmp_protein_high > -0.001
+                if tmp_protein_high < 0.1 && tmp_protein_high > -0.1
                     factor_k_new = factor_high;
                     sol_full_new = sol_full_high;
                 else
@@ -232,14 +232,14 @@ elseif Check == 1
         if strcmp(sol_status_low,'optimal')
             [~,~,f_enzyme_inact_low] = CheckInactiveEnzyme(model,sol_full_low);
             tmp_protein_low = f_enzyme_inact_low;
-            if tmp_protein_low < 0.001 && tmp_protein_low > -0.001
+            if tmp_protein_low < 0.1 && tmp_protein_low > -0.1
                 factor_k_new = factor_low;
                 sol_full_new = sol_full_low;
             else
                 if strcmp(sol_status_high,'optimal')
                     [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
                     tmp_protein_high = f_enzyme_inact_high;
-                    if tmp_protein_high < 0.001 && tmp_protein_high > -0.001
+                    if tmp_protein_high < 0.1 && tmp_protein_high > -0.1
                         factor_k_new = factor_high;
                         sol_full_new = sol_full_high;
                     else
@@ -255,7 +255,7 @@ elseif Check == 1
             if strcmp(sol_status_high,'optimal')
                 [~,~,f_enzyme_inact_high] = CheckInactiveEnzyme(model,sol_full_high);
                 tmp_protein_high = f_enzyme_inact_high;
-                if tmp_protein_high < 0.001 && tmp_protein_high > -0.001
+                if tmp_protein_high < 0.1 && tmp_protein_high > -0.1
                     factor_k_new = factor_high;
                     sol_full_new = sol_full_high;
                 else
