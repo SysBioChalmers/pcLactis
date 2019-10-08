@@ -1,9 +1,9 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 4000 s
+% Timing: ~ 2000 s
 
 % With the saturation saturation factor are performed. Only focus on the
-% dilution rate between 0.68 - 0.7
+% dilution rate between 0.65 - 0.7
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -17,9 +17,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36;%ATP coefficient in the new biomass equation.
+NGAM = 3; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -27,7 +27,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -69,7 +69,7 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
 %% Main part.
 
-D_list = 0.68:0.002:0.7;%unit: /h
+D_list = 0.65:0.01:0.7;%unit: /h
 
 % with saturation factor
 % obtain the global saturation factor
@@ -150,8 +150,8 @@ for i = 1:length(D_list)
 end
 
 cd Results/;
-save('Sglc4_fluxes_with_sf.mat','fluxes_simulated_with_sf_highgrowth');
-save('Sglc4_result_with_sf.mat','glc_conc_with_sf_highgrowth');
+save('Sglc3_fluxes_with_sf.mat','fluxes_simulated_with_sf_highgrowth');
+save('Sglc3_result_with_sf.mat','glc_conc_with_sf_highgrowth');
 cd ../;
 
 clear;

@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 56800 s
+% Timing: ~ 53000 s
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -13,9 +13,9 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
-f_unmodeled = 0.45; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36;%ATP coefficient in the new biomass equation.
+NGAM = 3; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -23,7 +23,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -137,7 +137,7 @@ for i = 1:length(selected_points)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model_ref);
@@ -161,7 +161,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,~,solME_full] = ReadSoplexResult(fileName_out,model_ref);
@@ -200,7 +200,7 @@ for i = 1:length(selected_points)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmptmp);
@@ -223,7 +223,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -252,12 +252,12 @@ toc;
 %% Figures
 load('RcAA_result.mat');
 
-increase_mu = round(result_rcAA.data(2,:),4)-round(result_rcAA.data(1,:),4);
+increase_mu = round(result_rcAA.data(2,:),5)-round(result_rcAA.data(1,:),5);
 increase_mu(increase_mu < 0) = 0;
-increase_aa = round(result_rcAA.data(5,:),4)-round(result_rcAA.data(3,:),4);
+increase_aa = round(result_rcAA.data(5,:),5)-round(result_rcAA.data(3,:),5);
 increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
-reduced_cost = round(reduced_cost,4);
+reduced_cost = round(reduced_cost,5);
 
 aaidlist = result_rcAA.column(1:20);
 aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);

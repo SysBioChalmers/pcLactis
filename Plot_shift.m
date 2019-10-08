@@ -185,50 +185,50 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Ornithine','FontSize',14,'FontName','Helvetica');
 
-% Arg shift in high growth rate
-load('Sglc3_fluxes_with_sf.mat');
-flux_high = fluxes_simulated_with_sf_highgrowth;
-clear fluxes_simulated_with_sf_highgrowth;
-load('Sglc4_fluxes_with_sf.mat');
-flux_high = [flux_high fluxes_simulated_with_sf_highgrowth];
-clear fluxes_simulated_with_sf_highgrowth;
-
-mu_high = flux_high(strcmp(model.rxns,'R_biomass_dilution'),:);
-arg_high = -flux_high(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
-orn_high = flux_high(strcmp(model.rxns,'R_M_EX_orn_e'),:);
-
-subplot(3,3,9);
-hold on;
-box on;
-scatter(mu_high,arg_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_arg,'MarkerFaceColor',color_arg);
-xlim([0.1 0.7]);
-ylim([0 1.5]);
-set(gca,'FontSize',12,'FontName','Helvetica');
-ylabel('Flux','FontSize',14,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-title('Arginine','FontSize',14,'FontName','Helvetica');
-
-subplot(3,3,8);
-hold on;
-box on;
-scatter(mu_high,orn_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
-xlim([0.1 0.7]);
-ylim([0 1.5]);
-set(gca,'FontSize',12,'FontName','Helvetica');
-ylabel('Flux','FontSize',14,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-title('Ornithine','FontSize',14,'FontName','Helvetica');
-
-% subplot(2,5,10);
+% % Arg shift in high growth rate
+% load('Sglc3_fluxes_with_sf.mat');
+% flux_high = fluxes_simulated_with_sf_highgrowth;
+% clear fluxes_simulated_with_sf_highgrowth;
+% load('Sglc4_fluxes_with_sf.mat');
+% flux_high = [flux_high fluxes_simulated_with_sf_highgrowth];
+% clear fluxes_simulated_with_sf_highgrowth;
+% 
+% mu_high = flux_high(strcmp(model.rxns,'R_biomass_dilution'),:);
+% arg_high = -flux_high(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
+% orn_high = flux_high(strcmp(model.rxns,'R_M_EX_orn_e'),:);
+% 
+% subplot(3,3,9);
 % hold on;
 % box on;
-% plot(mu2,nh42,'-','LineWidth',0.75,'Color',color_nh4);
-% plot(exp_mu,exp_nh4,'-.','LineWidth',0.75,'Color',color_nh4);
+% scatter(mu_high,arg_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_arg,'MarkerFaceColor',color_arg);
 % xlim([0.1 0.7]);
+% ylim([0 1.5]);
 % set(gca,'FontSize',12,'FontName','Helvetica');
 % ylabel('Flux','FontSize',14,'FontName','Helvetica');
 % xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-% title('Ammonium','FontSize',14,'FontName','Helvetica');
+% title('Arginine','FontSize',14,'FontName','Helvetica');
+% 
+% subplot(3,3,8);
+% hold on;
+% box on;
+% scatter(mu_high,orn_high,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
+% xlim([0.1 0.7]);
+% ylim([0 1.5]);
+% set(gca,'FontSize',12,'FontName','Helvetica');
+% ylabel('Flux','FontSize',14,'FontName','Helvetica');
+% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+% title('Ornithine','FontSize',14,'FontName','Helvetica');
+% 
+% % subplot(2,5,10);
+% % hold on;
+% % box on;
+% % plot(mu2,nh42,'-','LineWidth',0.75,'Color',color_nh4);
+% % plot(exp_mu,exp_nh4,'-.','LineWidth',0.75,'Color',color_nh4);
+% % xlim([0.1 0.7]);
+% % set(gca,'FontSize',12,'FontName','Helvetica');
+% % ylabel('Flux','FontSize',14,'FontName','Helvetica');
+% % xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+% % title('Ammonium','FontSize',14,'FontName','Helvetica');
 
 
 %% AA constraints
