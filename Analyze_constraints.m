@@ -1,6 +1,6 @@
 %% Sensitivity analysis for total modeled proteome and glucose transporter.
 
-% Timing: ~ 45000 s
+% Timing: ~ 118000 s
 
 % With the saturation saturation factor are performed.
 
@@ -18,8 +18,12 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+GAM = 36;%ATP coefficient in the new biomass equation.
+NGAM = 3; %(mmol/gCDW/h)
+
+f_unmodeled_ref = 0.4;
+f_transporter_ref = 0.009;
+
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
@@ -67,8 +71,8 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 %% Main part.
 
 glc_list = [2 4 6 8 10 20 40 60 80 100 200 1000 10000 100000 1000000];%unit: /uM
-modeled_protein_list = (1-0.45)*(1:0.1:1.5);
-glucose_transporter_list = 0.01*(1:0.1:1.5);
+modeled_protein_list = (1-f_unmodeled_ref)*(1:0.1:1.5);
+glucose_transporter_list = f_transporter_ref*(1:0.1:1.5);
 res1 = zeros(length(modeled_protein_list),4,length(glc_list));
 res2 = zeros(length(glucose_transporter_list),4,length(glc_list));
 
@@ -93,12 +97,12 @@ for i = 1:length(glc_list)
         
         f_unmodeled = 1-modeled_protein_list(j);
         [model_tmp,f] = ChangeUnmodeledProtein(model_tmp,f_unmodeled);
-        f_transporter = 0.01;
+        f_transporter = f_transporter_ref;
         
         mu_low = 0;
         mu_high = 2;
 
-        while mu_high-mu_low > 0.01
+        while mu_high-mu_low > 0.00001
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
@@ -114,7 +118,7 @@ for i = 1:length(glc_list)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
@@ -138,7 +142,7 @@ for i = 1:length(glc_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -146,13 +150,8 @@ for i = 1:length(glc_list)
         mu = solME_full(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
         glc = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
         arg = -solME_full(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        
-        [Protein_tmp,~,~,~,~,~] = CalculateProteinAndRNA(model_tmp,solME_full,...
-                                                             Info_enzyme,...
-                                                             Info_ribosome,...
-                                                             Info_tRNA,...
-                                                             Info_mRNA);
-        f_modeled_tmp = (Protein_tmp-f_unmodeled*0.46)/Protein_tmp;
+
+        f_modeled_tmp = 1-f_unmodeled;
         
         res1(j,:,i) = [f_modeled_tmp mu mu/(glc*180/1000) arg*174/1000/mu];
                                        %g_CDW/g_glucose   g_arginine/g_CDW
@@ -163,13 +162,13 @@ for i = 1:length(glc_list)
         model_tmp = model;
         
         f_transporter = glucose_transporter_list(k);
-        f_unmodeled = 0.45;
+        f_unmodeled = f_unmodeled_ref;
         [model_tmp,f] = ChangeUnmodeledProtein(model_tmp,f_unmodeled);
         
         mu_low = 0;
         mu_high = 2;
         
-        while mu_high-mu_low > 0.01
+        while mu_high-mu_low > 0.00001
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
@@ -185,7 +184,7 @@ for i = 1:length(glc_list)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
@@ -209,7 +208,7 @@ for i = 1:length(glc_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -221,8 +220,6 @@ for i = 1:length(glc_list)
                                        %g_CDW/g_glucose   g_arginine/g_CDW
 	end
 end
-    
-
 
 cd Results/;
 save('Ac_result1.mat','res1');
