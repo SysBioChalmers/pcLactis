@@ -1,6 +1,10 @@
 %% Reduced cost for AA uptake
 % Timing: ~ 53000 s
 
+% Use absolute increase, e.g., 0.1mu mmol/gCDW/h;
+% Use unchanged uptake rates for other AAs;
+% Use changed saturation factor, catalytic rates, degradation constants...
+
 % Simulated results will be saved in the folder 'Results'.
 
 tic;
