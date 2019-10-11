@@ -327,28 +327,28 @@ c = categorical(aaidlist);
 figure('Name','1');
 subplot(4,1,1);
 bar(c,reduced_cost(1:20));
-ylim([0 0.15]);
+ylim([0 0.1]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.1 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,2);
 bar(c,reduced_cost(21:40));
-ylim([0 0.15]);
+ylim([0 0.1]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.3 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,3);
 bar(c,reduced_cost(41:60));
-ylim([0 0.15]);
+ylim([0 0.1]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.5 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,4);
 bar(c,reduced_cost(61:80));
-ylim([0 0.15]);
+ylim([0 0.1]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.7 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
