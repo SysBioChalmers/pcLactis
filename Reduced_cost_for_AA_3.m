@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 53000 s
+% Timing: ~ 60000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Use unchanged uptake rates for other AAs;
