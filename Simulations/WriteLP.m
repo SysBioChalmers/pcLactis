@@ -96,7 +96,7 @@ end
 for i = 1:length(e_enzyme)
     enzyme = e_enzyme{i};
     %kcat = e_kcat(i);
-    kcat = 360000*factor_k;
+    kcat = 360000;
     id_syn = strcat('R_',enzyme(1:end-2));
     idx_syn = find(strcmp(model.rxns,id_syn));
     
@@ -106,7 +106,9 @@ for i = 1:length(e_enzyme)
     
     %the enzyme catalyses one or more reactions
     if length(idx_rxn) == 1
-        fprintf(fptr,'CE%d: X%d - %.15f X%d <= 0\n',...
+%         fprintf(fptr,'CE%d: X%d - %.15f X%d <= 0\n',...
+%                      i,idx_rxn,coef,idx_syn);
+        fprintf(fptr,'CE%d: X%d - %.15f X%d = 0\n',...
                      i,idx_rxn,coef,idx_syn);
     elseif length(idx_rxn) > 1
         for j = 1
@@ -120,7 +122,9 @@ for i = 1:length(e_enzyme)
             end
             eq = sprintf('%s + X%d%c',eq,idx_rxn(j),sep);
         end
-        fprintf(fptr,'CE%d: %s - %.15f X%d <= 0\n',...
+%         fprintf(fptr,'CE%d: %s - %.15f X%d <= 0\n',...
+%                      i,eq,coef,idx_syn);
+        fprintf(fptr,'CE%d: %s - %.15f X%d = 0\n',...
                      i,eq,coef,idx_syn);
     end
 end
@@ -156,8 +160,8 @@ for i = 1:length(idx_rxn)
         eq = sprintf('%s + %.15f X%d%c',eq,len_tu,idx,sep);
     end
 end
-fprintf(fptr,'CRNAP: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
-% fprintf(fptr,'CRNAP: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'CRNAP: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+fprintf(fptr,'CRNAP: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5) Coupling mRNA degradation reactions and mRNA degradation complex.
@@ -190,8 +194,8 @@ for i = 1:length(idx_rxn)
         eq = sprintf('%s + %.15f X%d%c',eq,len_tu,idx,sep);
     end
 end
-fprintf(fptr,'CmRNAcplx: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
-% fprintf(fptr,'CmRNAcplx: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'CmRNAcplx: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+fprintf(fptr,'CmRNAcplx: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 6) Coupling tRNA.
@@ -351,8 +355,8 @@ for i = 1:length(idx_rxn)
         eq = sprintf('%s + %.15f X%d%c',eq,len_prot,idx,sep);
     end
 end
-fprintf(fptr,'Cprotease: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
-% fprintf(fptr,'Cprotease: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
+% fprintf(fptr,'Cprotease: %s - %.15f X%d <= 0\n',eq,coef,idx_syn);
+fprintf(fptr,'Cprotease: %s - %.15f X%d = 0\n',eq,coef,idx_syn);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 10) Degradation of mRNA, 70S ribosome and enzymes.

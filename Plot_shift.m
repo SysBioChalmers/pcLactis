@@ -1,9 +1,15 @@
-load('Sglc2_fluxes_with_sf.mat');
-flux_res = fluxes_simulated_with_sf;
+% load('Sglc2_fluxes_with_sf.mat');
+% flux_res = fluxes_simulated_with_sf;
 % flux_res = flux_res(:,[1:5,8:end]);
 
 % load('Sglc2_fluxes_without_sf.mat');
 % flux_res = fluxes_simulated_without_sf;
+
+% load('Sglc_fluxes_without_arg.mat');
+% flux_res = fluxes_simulated_without_arg;
+
+% load('Sglc_fluxes_with_arg.mat');
+% flux_res = fluxes_simulated_with_arg;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
@@ -71,7 +77,7 @@ color_orn = [166,86,40]/255;
 color_nh4 = [153,153,153]/255;
 
 figure('Name','1');
-subplot(3,3,1);
+subplot(2,3,1);
 hold on;
 box on;
 plot(mu2,glc2,'-','LineWidth',0.75,'Color',color_glc);
@@ -87,7 +93,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Glucose','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,2);
+subplot(2,3,2);
 hold on;
 box on;
 plot(mu2,ac2,'-','LineWidth',0.75,'Color',color_ac);
@@ -103,7 +109,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Acetate','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,3);
+subplot(2,3,3);
 hold on;
 box on;
 plot(mu2,eth2,'-','LineWidth',0.75,'Color',color_eth);
@@ -119,7 +125,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Ethanol','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,4);
+subplot(2,3,4);
 hold on;
 box on;
 plot(mu2,form2,'-','LineWidth',0.75,'Color',color_form);
@@ -135,7 +141,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Formate','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,5);
+subplot(2,3,5);
 hold on;
 box on;
 plot(mu2,lac2,'-','LineWidth',0.75,'Color',color_lac);
@@ -151,7 +157,7 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Lactate','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,6);
+subplot(2,3,6);
 hold on;
 box on;
 plot(mu2,arg2,'-','LineWidth',0.75,'Color',color_arg);
@@ -168,23 +174,25 @@ ylabel('Flux','FontSize',14,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
 title('Arginine','FontSize',14,'FontName','Helvetica');
 
-subplot(3,3,7);
-hold on;
-box on;
-plot(mu2,orn2,'-','LineWidth',0.75,'Color',color_orn);
-plot(exp_mu,exp_orn,'-.','LineWidth',0.75,'Color',color_orn);
-scatter(mu2,orn2,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
-scatter(exp_mu,exp_orn,10,'o','LineWidth',0.75,'MarkerEdgeColor',color_orn);
-x = exp_mu; y = exp_orn; yu = exp_orn + sd_orn; yl = exp_orn - sd_orn;
-plot(x,y,'-.','LineWidth',0.75,'Color',color_orn);
-fill([x fliplr(x)],[yu fliplr(yl)],color_orn,'linestyle','none','FaceAlpha',0.3);
-xlim([0.1 0.7]);
-ylim([0 1.5]);
-set(gca,'FontSize',12,'FontName','Helvetica');
-ylabel('Flux','FontSize',14,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-title('Ornithine','FontSize',14,'FontName','Helvetica');
+set(gcf,'position',[500 500 520 300]);
 
+% subplot(3,3,7);
+% hold on;
+% box on;
+% plot(mu2,orn2,'-','LineWidth',0.75,'Color',color_orn);
+% plot(exp_mu,exp_orn,'-.','LineWidth',0.75,'Color',color_orn);
+% scatter(mu2,orn2,10,'o','filled','LineWidth',0.75,'MarkerEdgeColor',color_orn,'MarkerFaceColor',color_orn);
+% scatter(exp_mu,exp_orn,10,'o','LineWidth',0.75,'MarkerEdgeColor',color_orn);
+% x = exp_mu; y = exp_orn; yu = exp_orn + sd_orn; yl = exp_orn - sd_orn;
+% plot(x,y,'-.','LineWidth',0.75,'Color',color_orn);
+% fill([x fliplr(x)],[yu fliplr(yl)],color_orn,'linestyle','none','FaceAlpha',0.3);
+% xlim([0.1 0.7]);
+% ylim([0 1.5]);
+% set(gca,'FontSize',12,'FontName','Helvetica');
+% ylabel('Flux','FontSize',14,'FontName','Helvetica');
+% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+% title('Ornithine','FontSize',14,'FontName','Helvetica');
+% 
 % % Arg shift in high growth rate
 % load('Sglc3_fluxes_with_sf.mat');
 % flux_high = fluxes_simulated_with_sf_highgrowth;
@@ -269,12 +277,24 @@ for i = 1:length(Exchange_AAs)
     title(aaid,'FontSize',14,'FontName','Helvetica');
 end
 
+set(gcf,'position',[0 0 820 700]);
+
 %% Protein constraints
 [~, excel_input, ~] = xlsread('Allocation.xlsx');
 load('Info_enzyme.mat');
 load('Info_mRNA.mat');
 load('Info_ribosome.mat');
 load('Info_tRNA.mat');
+
+load('Egsf2_result.mat');
+x = global_saturation_factor_list(:,1);
+y = global_saturation_factor_list(:,2);
+x = x(y ~= 1);
+y = y(y ~= 1);
+x = x(~isnan(y));
+y = y(~isnan(y));
+sf_coeff = x\y;
+clear x y;
 
 [~, n] = size(flux_res);
 
@@ -312,7 +332,14 @@ for i = 1:n
     total_RNA(1,i) = RNA;
     total_rProtein(1,i) = rProtein;
     total_Ribo(1,i) = rProtein + rRNA;
-    [~,~,f_enzyme_inact] = CheckInactiveEnzyme(model,solME_full);
+    
+% 	factor_k = sf_coeff * mu;
+%     if factor_k > 1
+%         factor_k = 1;
+%     end
+    factor_k = 1;
+    
+    [~,~,f_enzyme_inact] = CheckInactiveEnzyme(model,solME_full,factor_k);
     total_inactive_enzyme(1,i) = f_enzyme_inact;
     total_rRNA(1,i) = rRNA;
     total_tRNA(1,i) = tRNA;
@@ -414,7 +441,7 @@ set(gca,'position',[0.25 0.28 0.7 0.7]);
 
 figure('Name','9');
 plot(mu_list,total_inactive_enzyme,'-o','LineWidth',0.75);
-% ylim([0 0.012]);
+ylim([0 0.2]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');

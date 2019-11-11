@@ -15,6 +15,7 @@ model = pcLactis_Model;
 %% Optimization setting.
 
 rxnID = 'R_dummy_assumed_Monomer';
+% rxnID = 'R_M_3MBALDt_rvs_Enzyme';
 osenseStr = 'Maximize';
 
 %% Parameters.
