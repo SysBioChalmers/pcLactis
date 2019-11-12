@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 10000 s
+% Timing: ~  s
 
 % With the saturation saturation factor is performed.
 
@@ -8,8 +8,12 @@
 
 % Perform two types of simulations:
 % 1. without constraining any AA uptakes
-% 2. constrain arg uptake rate based on experimental data but set free other
+% 2. constrain ser uptake rate based on experimental data but set free other
 % AA uptakes.
+% 3. constrain ser and cys uptake rate based on experimental data but set
+% free other AA uptakes.
+% 4. constrain ser, cys and arg uptake rate based on experimental data but
+% set free other AA uptakes.
 
 tic;
 load('pcLactis_Model.mat');
@@ -93,11 +97,11 @@ load('Sglc2_result_with_sf.mat');
 glc_conc_list = glc_conc_with_sf(:,2);
 % glc_conc_list = glc_conc_list([1;3;5;7;9;11;13]);
 
-% 1. without constraining any AA uptakes
-fluxes_simulated_without_arg = zeros(length(model.rxns),length(glc_conc_list));
+% 1. set free AA uptakes
+fluxes_simulated_with_sf = zeros(length(model.rxns),length(glc_conc_list));
 
-model = changeRxnBounds(model,'R_M_SERD_L',0,'b');
-model = changeRxnBounds(model,'R_M_CYSDS',0,'b');
+% model = changeRxnBounds(model,'R_M_SERD_L',0,'b');
+% model = changeRxnBounds(model,'R_M_CYSDS',0,'b');
 
 for i = 1:length(glc_conc_list)
     
@@ -114,7 +118,7 @@ for i = 1:length(glc_conc_list)
     
 	while mu_high-mu_low > 0.00001
         mu_mid = (mu_low+mu_high)/2;
-        disp(['Without arg: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
+        disp(['Free AA: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
         factor_k = sf_coeff * mu_mid;
         if factor_k > 1
@@ -157,16 +161,19 @@ for i = 1:length(glc_conc_list)
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_ref);
     
     if strcmp(solME_status,'optimal')
-        fluxes_simulated_without_arg(:,i) = solME_full;
+        fluxes_simulated_with_sf(:,i) = solME_full;
     else
-        fluxes_simulated_without_arg(:,i) = zeros(length(model.rxns),1);
+        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
     end
 end
+cd Results/;
+save('Sglc_fluxes_free_AA.mat','fluxes_simulated_with_sf');
+cd ../;
 
-% 2. constrain arg uptake rate based on experimental data but set free other
+% 2. constrain ser uptake rate based on experimental data but set free other
 % AA uptakes.
-fluxes_simulated_with_arg = zeros(length(model.rxns),length(glc_conc_list));
-aa_idx = contains(Exchange_AAs,{'ser';'cys'});
+fluxes_simulated_with_sf = zeros(length(model.rxns),length(glc_conc_list));
+aa_idx = contains(Exchange_AAs,{'ser'});
 
 for i = 1:length(glc_conc_list)
     
@@ -183,7 +190,7 @@ for i = 1:length(glc_conc_list)
     
 	while mu_high-mu_low > 0.00001
         mu_mid = (mu_low+mu_high)/2;
-        disp(['With_arg: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
+        disp(['Constrain ser: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
         model_ref = changeRxnBounds(model_ref,Exchange_AAs(aa_idx),LBfactor_AAs(aa_idx)*mu_mid,'l');
         factor_k = sf_coeff * mu_mid;
@@ -228,15 +235,165 @@ for i = 1:length(glc_conc_list)
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_ref);
     
     if strcmp(solME_status,'optimal')
-        fluxes_simulated_with_arg(:,i) = solME_full;
+        fluxes_simulated_with_sf(:,i) = solME_full;
     else
-        fluxes_simulated_with_arg(:,i) = zeros(length(model.rxns),1);
+        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
     end
 end
 
 cd Results/;
-save('Sglc_fluxes_without_arg.mat','fluxes_simulated_without_arg');
-save('Sglc_fluxes_with_arg.mat','fluxes_simulated_with_arg');
+save('Sglc_fluxes_free_AA_ser.mat','fluxes_simulated_with_sf');
+cd ../;
+
+
+% 3. constrain ser and cys uptake rate based on experimental data but set free other
+% AA uptakes.
+fluxes_simulated_with_sf = zeros(length(model.rxns),length(glc_conc_list));
+aa_idx = contains(Exchange_AAs,{'ser';'cys'});
+
+for i = 1:length(glc_conc_list)
+    
+    glc_conc = glc_conc_list(i);
+    factor_glc = glc_conc / (glc_conc + Km);
+    
+    LBfactor_AAs_tmp = ones(length(LBfactor_AAs),1)*-1000;
+    
+    model_ref = model;
+    model_ref = changeRxnBounds(model_ref,Exchange_AAs,LBfactor_AAs_tmp,'l');
+    
+	mu_low = 0;
+	mu_high = 1;
+    
+	while mu_high-mu_low > 0.00001
+        mu_mid = (mu_low+mu_high)/2;
+        disp(['Constrain ser and cys: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
+        model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
+        model_ref = changeRxnBounds(model_ref,Exchange_AAs(aa_idx),LBfactor_AAs(aa_idx)*mu_mid,'l');
+        factor_k = sf_coeff * mu_mid;
+        if factor_k > 1
+            factor_k = 1;
+        end
+        
+        fileName = WriteLPSatFactor(model_ref,mu_mid,f,osenseStr,rxnID,factor_k,...
+                                    f_transporter,kcat_glc,factor_glc,...
+                                    Info_enzyme,...
+                                    Info_mRNA,...
+                                    Info_protein,...
+                                    Info_ribosome,...
+                                    Info_tRNA);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        system(command,'-echo');
+        fileName_out = 'Simulation.lp.out';
+        [~,solME_status,~] = ReadSoplexResult(fileName_out,model_ref);
+        if strcmp(solME_status,'optimal')
+            mu_low = mu_mid;
+        else
+            mu_high = mu_mid;
+        end
+	end
+    
+	model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_low,'b');
+    model_ref = changeRxnBounds(model_ref,Exchange_AAs(aa_idx),LBfactor_AAs(aa_idx)*mu_low,'l');
+	factor_k = sf_coeff * mu_low;
+	if factor_k > 1
+        factor_k = 1;
+	end
+	fileName = WriteLPSatFactor(model_ref,mu_low,f,osenseStr,rxnID,factor_k,...
+                                f_transporter,kcat_glc,factor_glc,...
+                                Info_enzyme,...
+                                Info_mRNA,...
+                                Info_protein,...
+                                Info_ribosome,...
+                                Info_tRNA);
+	command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	system(command,'-echo');
+	fileName_out = 'Simulation.lp.out';
+	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_ref);
+    
+    if strcmp(solME_status,'optimal')
+        fluxes_simulated_with_sf(:,i) = solME_full;
+    else
+        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
+    end
+end
+
+cd Results/;
+save('Sglc_fluxes_free_AA_sercys.mat','fluxes_simulated_with_sf');
+cd ../;
+
+% 4. constrain arg, ser and cys uptake rate based on experimental data but set free other
+% AA uptakes.
+fluxes_simulated_with_sf = zeros(length(model.rxns),length(glc_conc_list));
+aa_idx = contains(Exchange_AAs,{'arg';'ser';'cys'});
+
+for i = 1:length(glc_conc_list)
+    
+    glc_conc = glc_conc_list(i);
+    factor_glc = glc_conc / (glc_conc + Km);
+    
+    LBfactor_AAs_tmp = ones(length(LBfactor_AAs),1)*-1000;
+    
+    model_ref = model;
+    model_ref = changeRxnBounds(model_ref,Exchange_AAs,LBfactor_AAs_tmp,'l');
+    
+	mu_low = 0;
+	mu_high = 1;
+    
+	while mu_high-mu_low > 0.00001
+        mu_mid = (mu_low+mu_high)/2;
+        disp(['Constrain ser, cys and arg: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
+        model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
+        model_ref = changeRxnBounds(model_ref,Exchange_AAs(aa_idx),LBfactor_AAs(aa_idx)*mu_mid,'l');
+        factor_k = sf_coeff * mu_mid;
+        if factor_k > 1
+            factor_k = 1;
+        end
+        
+        fileName = WriteLPSatFactor(model_ref,mu_mid,f,osenseStr,rxnID,factor_k,...
+                                    f_transporter,kcat_glc,factor_glc,...
+                                    Info_enzyme,...
+                                    Info_mRNA,...
+                                    Info_protein,...
+                                    Info_ribosome,...
+                                    Info_tRNA);
+        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        system(command,'-echo');
+        fileName_out = 'Simulation.lp.out';
+        [~,solME_status,~] = ReadSoplexResult(fileName_out,model_ref);
+        if strcmp(solME_status,'optimal')
+            mu_low = mu_mid;
+        else
+            mu_high = mu_mid;
+        end
+	end
+    
+	model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_low,'b');
+    model_ref = changeRxnBounds(model_ref,Exchange_AAs(aa_idx),LBfactor_AAs(aa_idx)*mu_low,'l');
+	factor_k = sf_coeff * mu_low;
+	if factor_k > 1
+        factor_k = 1;
+	end
+	fileName = WriteLPSatFactor(model_ref,mu_low,f,osenseStr,rxnID,factor_k,...
+                                f_transporter,kcat_glc,factor_glc,...
+                                Info_enzyme,...
+                                Info_mRNA,...
+                                Info_protein,...
+                                Info_ribosome,...
+                                Info_tRNA);
+	command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	system(command,'-echo');
+	fileName_out = 'Simulation.lp.out';
+	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_ref);
+    
+    if strcmp(solME_status,'optimal')
+        fluxes_simulated_with_sf(:,i) = solME_full;
+    else
+        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
+    end
+end
+
+cd Results/;
+save('Sglc_fluxes_free_AA_sercysarg.mat','fluxes_simulated_with_sf');
 cd ../;
 
 clear;
