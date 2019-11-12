@@ -74,6 +74,9 @@ model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 % Block one of ADH isozymes llmg_0955
 model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
+% Block pyruvate oxidase
+model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
+
 %% Main part.
 load('Sglc2_result_with_sf.mat');
 
