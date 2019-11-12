@@ -455,7 +455,7 @@ box on;
 x = [0,1]; y = [0.0046,0.0046];
 plot(x,y,':','LineWidth',1.5,'Color','k');
 plot(mu_list,allocation_value(1,:),'-o','LineWidth',0.75);
-ylim([0.004 0.005]);
+% ylim([0.004 0.005]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
