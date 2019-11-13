@@ -1,15 +1,9 @@
 % load('Sglc2_fluxes_with_sf.mat');
-% flux_res = fluxes_simulated_with_sf;
+flux_res = fluxes_simulated_with_sf;
 % flux_res = flux_res(:,[1:5,8:end]);
 
 % load('Sglc2_fluxes_without_sf.mat');
 % flux_res = fluxes_simulated_without_sf;
-
-% load('Sglc_fluxes_without_arg.mat');
-% flux_res = fluxes_simulated_without_arg;
-
-% load('Sglc_fluxes_with_arg.mat');
-% flux_res = fluxes_simulated_with_arg;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
@@ -286,15 +280,15 @@ load('Info_mRNA.mat');
 load('Info_ribosome.mat');
 load('Info_tRNA.mat');
 
-% load('Egsf2_result.mat');
-% x = global_saturation_factor_list(:,1);
-% y = global_saturation_factor_list(:,2);
-% x = x(y ~= 1);
-% y = y(y ~= 1);
-% x = x(~isnan(y));
-% y = y(~isnan(y));
-% sf_coeff = x\y;
-% clear x y;
+load('Egsf2_result.mat');
+x = global_saturation_factor_list(:,1);
+y = global_saturation_factor_list(:,2);
+x = x(y ~= 1);
+y = y(y ~= 1);
+x = x(~isnan(y));
+y = y(~isnan(y));
+sf_coeff = x\y;
+clear x y;
 
 [~, n] = size(flux_res);
 
@@ -333,11 +327,11 @@ for i = 1:n
     total_rProtein(1,i) = rProtein;
     total_Ribo(1,i) = rProtein + rRNA;
     
-% 	factor_k = sf_coeff * mu;
-%     if factor_k > 1
-%         factor_k = 1;
-%     end
-    factor_k = 1;
+	factor_k = sf_coeff * mu;
+    if factor_k > 1
+        factor_k = 1;
+    end
+%     factor_k = 1;
     
     [~,~,f_enzyme_inact] = CheckInactiveEnzyme(model,solME_full,factor_k);
     total_inactive_enzyme(1,i) = f_enzyme_inact;

@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~  s
+% Timing: ~ 24000 s
 
 % With the saturation saturation factor is performed.
 
