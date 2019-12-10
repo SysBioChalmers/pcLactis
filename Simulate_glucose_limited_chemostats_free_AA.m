@@ -78,6 +78,10 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 % Block pyruvate oxidase
 model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
+% Block 
+model = changeRxnBounds(model,'R_M_THRA_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLUDC',0,'b');
+
 %% Main part.
 
 % with saturation factor
@@ -393,7 +397,7 @@ for i = 1:length(glc_conc_list)
 end
 
 cd Results/;
-save('Sglc_fluxes_free_AA_sercysarg.mat','fluxes_simulated_with_sf');
+save('Sglc_fluxes_free_AA_sercysarg_blockTHRA_GLUDC.mat','fluxes_simulated_with_sf');
 cd ../;
 
 clear;

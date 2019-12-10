@@ -1,6 +1,6 @@
 %% Estimate a global saturation factor 2.
 
-% Timing: ~ 6800 s
+% Timing: ~ 8000 s
 
 % Consider glucose transporter
 
@@ -16,11 +16,12 @@ model = pcLactis_Model;
 
 %% Optimization setting.
 rxnID = 'R_dummy_assumed_Monomer';
+% rxnID = 'R_M_3MBALDt_rvs_Enzyme';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+GAM = 40;%ATP coefficient in the new biomass equation.
+NGAM = 3.5; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -28,8 +29,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-% f_transporter = 0.00852;%fraction of glucose transporter in total proteome
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
+f_transporter = 0.01;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -44,9 +44,6 @@ idx = cellfun(@(x) contains(x,'R_M_EX_'),model.rxns,'UniformOutput',false);
 M_exchange_reactions = model.rxns(cell2mat(idx));
 model = changeRxnBounds(model,M_exchange_reactions,0,'l');
 clear idx M_exchange_reactions;
-
-% Set NGAM.
-model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');

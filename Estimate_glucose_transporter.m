@@ -17,8 +17,8 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+GAM = 40; %ATP coefficient in the new biomass equation.
+NGAM = 3.5; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -71,8 +71,8 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main simulations.
 
-f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
-% f_transporter_range = 0.5;
+% f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
+f_transporter_range = 0.5;
 res = zeros(length(f_transporter_range),8);
 
 for i = 1:length(f_transporter_range)
@@ -95,7 +95,7 @@ for i = 1:length(f_transporter_range)
                            Info_ribosome,...
                            Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -118,7 +118,7 @@ for i = 1:length(f_transporter_range)
                        Info_ribosome,...
                        Info_tRNA);
                    
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
     fileName_out = 'Simulation.lp.out';
     [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);

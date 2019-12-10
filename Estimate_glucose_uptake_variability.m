@@ -14,7 +14,7 @@ model = pcLactis_Model;
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);

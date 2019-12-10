@@ -1,14 +1,14 @@
 % load('Sglc2_fluxes_with_sf.mat');
-flux_res = fluxes_simulated_with_sf;
+% flux_res = fluxes_simulated_with_sf;
 % flux_res = flux_res(:,[1:5,8:end]);
 
-% load('Sglc2_fluxes_without_sf.mat');
-% flux_res = fluxes_simulated_without_sf;
+load('Sglc2_fluxes_without_sf.mat');
+flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
-GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+GAM = 38;%ATP coefficient in the new biomass equation.
+NGAM = 3.8; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -333,7 +333,7 @@ for i = 1:n
     end
 %     factor_k = 1;
     
-    [~,~,f_enzyme_inact] = CheckInactiveEnzyme(model,solME_full,factor_k);
+    [~,~,f_enzyme_inact,~] = CheckInactiveEnzyme(model,solME_full,factor_k);
     total_inactive_enzyme(1,i) = f_enzyme_inact;
     total_rRNA(1,i) = rRNA;
     total_tRNA(1,i) = tRNA;
@@ -435,7 +435,7 @@ set(gca,'position',[0.25 0.28 0.7 0.7]);
 
 figure('Name','9');
 plot(mu_list,total_inactive_enzyme,'-o','LineWidth',0.75);
-ylim([0 0.2]);
+% ylim([0 0.2]);
 xlim([0 0.75]);
 set(gca,'FontSize',10,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');

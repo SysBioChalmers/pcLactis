@@ -41,7 +41,7 @@ k = SetParameters(mu4parameter);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1) SV = 0.
-% (From Ebrahim)
+% (From Ibrahim)
 for i = 1:numel(model.mets)
     j = find(full(model.S(i,:)));
     for m = 1:numel(j)
@@ -89,8 +89,8 @@ for i = 1:length(m_enzyme)
     end
     
 % Change kcats extremely low or high value
-	if kcat < 6480 % 5% 900 10% 6480 15% 23040 20% 46440
-        kcat = 6480;
+	if kcat < quantile(m_kcat,0.1,1)
+        kcat = quantile(m_kcat,0.1,1);
 	end
     
 % Filter some transporters

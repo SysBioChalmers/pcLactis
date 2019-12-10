@@ -1,6 +1,6 @@
 %% CheckInactiveEnzyme
 %   This function checks if produced enzymes do not carry fluxes.
-function [tf,enzyme_inact,f_enzyme_inact] = CheckInactiveEnzyme(model,sol_full,factor_k)
+function [tf,enzyme_inact,f_enzyme_inact,f_inact_part] = CheckInactiveEnzyme(model,sol_full,factor_k)
 % Input: model and flux distribution.
 %        factor_k is the global saturation factor.
 % Output: tf, a logical result. Logical 1 means at least one enzyme is
@@ -9,6 +9,7 @@ function [tf,enzyme_inact,f_enzyme_inact] = CheckInactiveEnzyme(model,sol_full,f
 %         enzyme_inact, list of such inactive enzymes.
 %         f_enzyme_inact, total proportion of such inactive enzymes in
 %                         biomass (g/g).
+%         f_inact_part, inactive mass of inactive enzymes in biomass (g/g).
 
 load('sat_factor.mat');
 key_transporters = {'M_ALAt2r_1_fwd_Enzyme_c',...%ala in
@@ -84,48 +85,126 @@ enzyme_dil_nonzero_fluxes_rxns = enzyme_dil_nonzero_fluxes_rxns(contains(enzyme_
 
 tf_list = [];
 enzyme_inact = {};
-f_enzyme_inact = 0;
+f_inact_part = [];
+
+% There could be a cycle between forward and backward reaction to carry
+% inactive enzyme
+idx_tmp = contains(enzyme_dil_nonzero_fluxes_rxns,'_rvs_') | contains(enzyme_dil_nonzero_fluxes_rxns,'_fwd_');
+reversiblerxnid = enzyme_dil_nonzero_fluxes_rxns(idx_tmp);
+reversiblerxn = cellfun(@(x) x(14:end-11),reversiblerxnid,'UniformOutput',false);
+[~, tmp, ~] = unique(reversiblerxn);
+reversiblerxnlist = reversiblerxn(setdiff((1:length(reversiblerxn))',tmp));
+for i = 1:length(reversiblerxnlist)
+    id_tmp = reversiblerxnlist{i};
+    dil_rxn_fwd = strcat('R_dilution_M_',id_tmp,'_fwd_Enzyme');
+    enzyme_id_fwd = strcat('M_',id_tmp,'_fwd_Enzyme_c');
+    dil_rxn_rvs = strcat('R_dilution_M_',id_tmp,'_rvs_Enzyme');
+    enzyme_id_rvs = strcat('M_',id_tmp,'_rvs_Enzyme_c');
+    mflux_fwd = sol_full(strcmp(model.grRules,enzyme_id_fwd));
+    mflux_rvs = sol_full(strcmp(model.grRules,enzyme_id_rvs));
+    dilflux_fwd = sol_full(strcmp(model.rxns,dil_rxn_fwd));
+    dilflux_rvs = sol_full(strcmp(model.rxns,dil_rxn_rvs));
+    if mflux_fwd ~= 0 && mflux_rvs ~= 0
+        netflux = mflux_fwd - mflux_rvs;
+        
+        if netflux > 0
+            rxn_id = dil_rxn_fwd;
+            enzyme_id = enzyme_id_fwd;
+            dil_flux = dilflux_fwd;
+            enzyme_id_totally_inactive = enzyme_id_rvs;
+            dil_flux_totally_inactive = dilflux_rvs;
+        else
+            rxn_id = dil_rxn_rvs;
+            enzyme_id = enzyme_id_rvs;
+            dil_flux = dilflux_rvs;
+            enzyme_id_totally_inactive = enzyme_id_fwd;
+            dil_flux_totally_inactive = dilflux_fwd;
+        end
+        
+        kcat = m_kcat(ismember(m_enzyme,enzyme_id));
+        % Change kcats extremely low or high value %%%%%%%%%%%%%%%%%%%%%%%%
+        if kcat < quantile(m_kcat,0.1,1)
+            kcat = quantile(m_kcat,0.1,1);
+        end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if ismember(enzyme_id,key_transporters) || ismember(enzyme_id,sat_factor.poor_Enzyme)
+            factor_k_tmp = 1;
+        elseif ismember(enzyme_id,sat_factor.EnzymeID_pc)
+            factor_k_tmp = factor_k;
+        else
+            factor_k_tmp = factor_k;
+        end
+        if factor_k_tmp < 0
+            factor_k_tmp = 0.01;
+        elseif factor_k_tmp > 1
+            factor_k_tmp = 1;
+        end
+        kcat = kcat * factor_k_tmp;
+        
+        required_enzyme_conc = netflux/kcat;
+        real_enzyme_conc = dil_flux/mu;
+        delta_enzyme_conc = real_enzyme_conc - required_enzyme_conc;
+        
+        tf_i = delta_enzyme_conc > 0;
+        tf_list = [tf_list;tf_i];
+        enzyme_inact = [enzyme_inact;enzyme_id];
+        MW = Info_enzyme.MW(contains(Info_enzyme.ID,enzyme_id));
+        f_i = delta_enzyme_conc*MW/1000;
+        f_inact_part = [f_inact_part;f_i];
+        
+        enzyme_conc_totally_inactive = dil_flux_totally_inactive/mu;
+        tf_i = enzyme_conc_totally_inactive > 0;
+        tf_list = [tf_list;tf_i];
+        enzyme_inact = [enzyme_inact;enzyme_id_totally_inactive];
+        MW = Info_enzyme.MW(contains(Info_enzyme.ID,enzyme_id_totally_inactive));
+        f_i = enzyme_conc_totally_inactive*MW/1000;
+        f_inact_part = [f_inact_part;f_i];
+    end
+end
 
 for i = 1:length(enzyme_dil_nonzero_fluxes_rxns)
     rxn_id = enzyme_dil_nonzero_fluxes_rxns{i};
     enzyme_id = strcat(rxn_id(12:end),'_c');
-    kcat = m_kcat(ismember(m_enzyme,enzyme_id));
-    % Change kcats extremely low or high value %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	if kcat < 6480 % 5% 900 10% 6480 15% 23040 20% 46440
-        kcat = 6480;
-	end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	if ismember(enzyme_id,key_transporters) || ismember(enzyme_id,sat_factor.poor_Enzyme)
-        factor_k_tmp = 1;
-    elseif ismember(enzyme_id,sat_factor.EnzymeID_pc)
-        factor_k_tmp = factor_k;
-    else
-        factor_k_tmp = factor_k;
-	end
-    if factor_k_tmp < 0
-        factor_k_tmp = 0.01;
-    elseif factor_k_tmp > 1
-        factor_k_tmp = 1;
-    end
-    kcat = kcat * factor_k_tmp;
     
-    enzyme_carry_fluxes = sol_full(strcmp(model.grRules,enzyme_id));
-    used_enzyme_conc = enzyme_carry_fluxes/kcat;
+    if ~ismember(enzyme_id,enzyme_inact)
     
-    dil_flux = sol_full(strcmp(model.rxns,rxn_id));
-    real_enzyme_conc = dil_flux/mu;
-    
-    delta_enzyme_conc = abs(real_enzyme_conc - used_enzyme_conc);
-    
-    tf_i = delta_enzyme_conc > 1e-10;
-    tf_list = [tf_list;tf_i];
-    
-    if tf_i
-        enzyme_inact = [enzyme_inact;enzyme_id];
-        MW = Info_enzyme.MW(contains(Info_enzyme.ID,enzyme_id));
-        f_i = delta_enzyme_conc*MW/1000;
-        f_enzyme_inact = f_enzyme_inact + f_i;
+        kcat = m_kcat(ismember(m_enzyme,enzyme_id));
+        % Change kcats extremely low or high value %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if kcat < quantile(m_kcat,0.1,1)
+            kcat = quantile(m_kcat,0.1,1);
+        end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if ismember(enzyme_id,key_transporters) || ismember(enzyme_id,sat_factor.poor_Enzyme)
+            factor_k_tmp = 1;
+        elseif ismember(enzyme_id,sat_factor.EnzymeID_pc)
+            factor_k_tmp = factor_k;
+        else
+            factor_k_tmp = factor_k;
+        end
+        if factor_k_tmp < 0
+            factor_k_tmp = 0.01;
+        elseif factor_k_tmp > 1
+            factor_k_tmp = 1;
+        end
+        kcat = kcat * factor_k_tmp;
+
+        enzyme_carry_fluxes = sol_full(strcmp(model.grRules,enzyme_id));
+        used_enzyme_conc = enzyme_carry_fluxes/kcat;
+
+        dil_flux = sol_full(strcmp(model.rxns,rxn_id));
+        real_enzyme_conc = dil_flux/mu;
+
+        delta_enzyme_conc = abs(real_enzyme_conc - used_enzyme_conc);
+
+        tf_i = delta_enzyme_conc > 0;
+        tf_list = [tf_list;tf_i];
+
+        if tf_i
+            enzyme_inact = [enzyme_inact;enzyme_id];
+            MW = Info_enzyme.MW(contains(Info_enzyme.ID,enzyme_id));
+            f_i = delta_enzyme_conc*MW/1000;
+            f_inact_part = [f_inact_part;f_i];
+        end
     end
 end
 
 tf = sum(tf_list) > 0;
-    
+f_enzyme_inact = sum(f_inact_part);
