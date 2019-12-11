@@ -5,8 +5,11 @@ k = struct();
 
 % Kinetic parameters
 k.deg_mrna = 6.25*mu+1.54; %mRNA degradation constant (/h)
-k.deg_enzyme = 0.001; %protein degradation constant (/h)
-k.deg_ribosome = 0.001; %ribosome degradation constant (/h)
+k.deg_enzyme = 0.1*mu; %protein degradation constant (/h)
+k.deg_ribosome = 0.1*mu; %ribosome degradation constant (/h)
+% k.deg_enzyme = 0.001; %protein degradation constant (/h)
+% k.deg_ribosome = 0.001; %ribosome degradation constant (/h)
+
 % Catalytic rates.
 % k.cplx_rnap = 176.46*mu/(1.147+mu); %nucleotide molecules/complex molecule/s
 % k.trna = 6.65*mu/(1.147+mu); %amino acid molecules/tRNA molecule/s

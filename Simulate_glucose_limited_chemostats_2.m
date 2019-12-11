@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 18000 s
+% Timing: ~ 21000 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -89,7 +89,8 @@ for i = 1:length(D_list)
     factor_glc_high = 1;
     
     while factor_glc_high-factor_glc_low > 0.00001
-        factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+%         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+        factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['Without sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
@@ -167,7 +168,8 @@ for i = 1:length(D_list)
     factor_glc_high = 1;
     
     while factor_glc_high-factor_glc_low > 0.00001
-        factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+%         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+        factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['With sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');

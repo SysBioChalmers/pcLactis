@@ -17,8 +17,8 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 40; %ATP coefficient in the new biomass equation.
-NGAM = 3.5; %(mmol/gCDW/h)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -73,7 +73,7 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 % f_transporter_range = [0.002:0.002:0.01,0.1,0.2];
 f_transporter_range = 0.5;
-res = zeros(length(f_transporter_range),8);
+res = zeros(length(f_transporter_range),9);
 
 for i = 1:length(f_transporter_range)
     f_transporter = f_transporter_range(i);
@@ -130,6 +130,7 @@ for i = 1:length(f_transporter_range)
         eth = solME_full(strcmp(model.rxns,'R_M_EX_etoh_e'));
         form = solME_full(strcmp(model.rxns,'R_M_EX_for_e'));
         lac = solME_full(strcmp(model.rxns,'R_M_EX_lac__L_e'));
+        arg = solME_full(strcmp(model.rxns,'R_M_EX_arg__L_e'));
         glc_transporter_weight = sum(CalculateEnzymeWeight(model,...
                                     {'M_GLCpts_1_Enzyme_c';...
                                      'M_GLCpts_2_Enzyme_c';...
@@ -137,13 +138,13 @@ for i = 1:length(f_transporter_range)
                                      'M_GLCt2_rvs_Enzyme_c'},...
                                      solME_full,Info_enzyme));
         
-        res(i,:) = [glc ac eth form lac mu glc_transporter_weight f_transporter];
+        res(i,:) = [glc ac eth form lac arg mu glc_transporter_weight f_transporter];
     else
-        res(i,:) = [0 0 0 0 0 0 0 f_transporter];
+        res(i,:) = [0 0 0 0 0 0 0 0 f_transporter];
     end
 end
 
-estimated_f_transporter = max(res(:,7)) / 0.46;
+estimated_f_transporter = max(res(:,8)) / 0.46;
 
 clear ac ans command eth Exchange_AAs f f_transporter f_transporter_range;
 clear f_unmodeled factor_k fileName fileName_out form GAM glc osenseStr;
@@ -160,10 +161,8 @@ load('Egt_result.mat');
 figure('Name','1');
 hold on;
 box on;
-% x = res(:,8);
-% y = res(:,6);
-x = res(1:end-1,8);
-y = res(1:end-1,6);
+x = res(:,9);
+y = res(:,7);
 plot(x,y,'-o','LineWidth',1,'MarkerSize',1);
 set(gca,'FontSize',12,'FontName','Helvetica');
 xlabel('Fraction of glucose transporter','FontSize',14,'FontName','Helvetica');

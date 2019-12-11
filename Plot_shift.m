@@ -1,14 +1,13 @@
-% load('Sglc2_fluxes_with_sf.mat');
-% flux_res = fluxes_simulated_with_sf;
-% flux_res = flux_res(:,[1:5,8:end]);
+load('Sglc2_fluxes_with_sf.mat');
+flux_res = fluxes_simulated_with_sf;
 
-load('Sglc2_fluxes_without_sf.mat');
-flux_res = fluxes_simulated_without_sf;
+% load('Sglc2_fluxes_without_sf.mat');
+% flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
-GAM = 38;%ATP coefficient in the new biomass equation.
-NGAM = 3.8; %(mmol/gCDW/h)
+GAM = 40;%ATP coefficient in the new biomass equation.
+NGAM = 3.5; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');

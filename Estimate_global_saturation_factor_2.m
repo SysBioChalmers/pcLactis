@@ -1,6 +1,6 @@
 %% Estimate a global saturation factor 2.
 
-% Timing: ~ 8000 s
+% Timing: ~ 4500 s
 
 % Consider glucose transporter
 
@@ -20,8 +20,8 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 40;%ATP coefficient in the new biomass equation.
-NGAM = 3.5; %(mmol/gCDW/h)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -29,7 +29,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');

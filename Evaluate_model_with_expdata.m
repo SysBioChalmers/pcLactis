@@ -17,8 +17,8 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 40;%ATP coefficient in the new biomass equation.
-NGAM = 3.5; %(mmol/gCDW/h)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -27,7 +27,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 factor_k = 1;%global saturation factor
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -94,7 +94,6 @@ for i = 1:length(mu_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-%         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
