@@ -19,8 +19,8 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 40;%ATP coefficient in the new biomass equation.
-NGAM = 3.5; %(mmol/gCDW/h)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -29,7 +29,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -74,7 +74,7 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
 
-D_list = [0.1:0.05:0.7 0.73];%unit: /h
+D_list = 0.1:0.05:0.7;%unit: /h
 
 % without saturation factor
 factor_k = 1;%global saturation factor
@@ -89,8 +89,8 @@ for i = 1:length(D_list)
     factor_glc_high = 1;
     
     while factor_glc_high-factor_glc_low > 0.00001
-%         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
-        factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
+        factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+%         factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['Without sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
@@ -168,8 +168,8 @@ for i = 1:length(D_list)
     factor_glc_high = 1;
     
     while factor_glc_high-factor_glc_low > 0.00001
-%         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
-        factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
+        factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+%         factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['With sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');

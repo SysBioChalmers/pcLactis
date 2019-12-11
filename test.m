@@ -1,4 +1,4 @@
-% Test
+ % Test
 
 tic;
 load('pcLactis_Model.mat');
@@ -66,7 +66,7 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
 
-D_list = 0.1:0.1:0.7;%unit: /h
+D_list = 0.15:0.1:0.65;%unit: /h
 
 % without saturation factor
 factor_k = 1;%global saturation factor
@@ -81,8 +81,8 @@ for i = 1:length(D_list)
     factor_glc_high = 1;
     
     while factor_glc_high-factor_glc_low > 0.0001
-%         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
-        factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
+        factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
+%         factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['Without sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');

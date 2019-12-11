@@ -134,9 +134,15 @@ ylabel('Saturation factor','FontSize',14,'FontName','Helvetica');
 
 equation = ['y = ',num2str(round(k,3)),' x'];
 text(0.05,0.8,equation,'FontSize',15,'FontName','Helvetica','Color','k');
-% R = corrcoef(x,y);
-% corr_coef = ['R^2 = ',num2str(round(R(1,2)^2,3))];
-% text(0.05,0.65,corr_coef,'FontSize',15,'FontName','Helvetica','Color','k');
+
+yfit =  k * x;
+yresid = y - yfit;
+SSresid = sum(yresid.^2);
+SStotal = (length(y)-1) * var(y);
+rsq = 1 - SSresid/SStotal;
+
+R2 = ['R^2 = ',num2str(round(rsq,3))];
+text(0.05,0.6,R2,'FontSize',15,'FontName','Helvetica','Color','k');
 
 ylim([0 1]);
 
