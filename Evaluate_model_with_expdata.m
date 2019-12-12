@@ -1,6 +1,6 @@
 %% Evaluate model using experimental data
 
-% Timing: ~ 300 s
+% Timing: ~ 250 s
 
 % In order to evaluate the model with the determined parameters, we used
 % physiological data under chemostat conditions (PMID: 25828364) as
@@ -94,7 +94,7 @@ for i = 1:length(mu_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);

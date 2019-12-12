@@ -105,8 +105,8 @@ aa_list = {'ala'
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-x = x(y ~= 1);
-y = y(y ~= 1);
+% x = x(y ~= 1);
+% y = y(y ~= 1);
 x = x(~isnan(y));
 y = y(~isnan(y));
 sf_coeff = x\y;

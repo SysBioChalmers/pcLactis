@@ -34,7 +34,7 @@ model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
 
 %% Loop for calculating fluxes at dilution rate of 0.15 0.3 0.5 and 0.6.
 
-[~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
+[~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds_GAM_NGAM');
 
 Exchange_reactions = exchange_raw(2:end,1);
 header = exchange_raw(1,1:21);

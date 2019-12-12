@@ -1,6 +1,6 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 21000 s
+% Timing: ~ 18000 s
 
 % Without and with the saturation saturation factor are performed.
 
@@ -103,7 +103,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -123,7 +123,7 @@ for i = 1:length(D_list)
                                 Info_ribosome,...
                                 Info_tRNA);
                    
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
@@ -182,7 +182,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
@@ -202,7 +202,7 @@ for i = 1:length(D_list)
                                 Info_ribosome,...
                                 Info_tRNA);
                    
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t500 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
@@ -220,10 +220,10 @@ for i = 1:length(D_list)
 end
 
 cd Results/;
-save('Sglc2_fluxes_without_sf.mat','fluxes_simulated_without_sf');
-save('Sglc2_fluxes_with_sf.mat','fluxes_simulated_with_sf');
-save('Sglc2_result_without_sf.mat','glc_conc_without_sf');
-save('Sglc2_result_with_sf.mat','glc_conc_with_sf');
+save('Sglc2_fluxes_without_sf_new.mat','fluxes_simulated_without_sf');
+save('Sglc2_fluxes_with_sf_new.mat','fluxes_simulated_with_sf');
+save('Sglc2_result_without_sf_new.mat','glc_conc_without_sf');
+save('Sglc2_result_with_sf_new.mat','glc_conc_with_sf');
 cd ../;
 
 clear;
