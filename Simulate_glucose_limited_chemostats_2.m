@@ -145,8 +145,8 @@ end
 load('Egsf2_result.mat');
 x = global_saturation_factor_list(:,1);
 y = global_saturation_factor_list(:,2);
-x = x(y ~= 1);
-y = y(y ~= 1);
+% x = x(y ~= 1);
+% y = y(y ~= 1);
 x = x(~isnan(y));
 y = y(~isnan(y));
 sf_coeff = x\y;
@@ -220,10 +220,10 @@ for i = 1:length(D_list)
 end
 
 cd Results/;
-save('Sglc2_fluxes_without_sf_new.mat','fluxes_simulated_without_sf');
-save('Sglc2_fluxes_with_sf_new.mat','fluxes_simulated_with_sf');
-save('Sglc2_result_without_sf_new.mat','glc_conc_without_sf');
-save('Sglc2_result_with_sf_new.mat','glc_conc_with_sf');
+save('Sglc2_fluxes_without_sf.mat','fluxes_simulated_without_sf');
+save('Sglc2_fluxes_with_sf.mat','fluxes_simulated_with_sf');
+save('Sglc2_result_without_sf.mat','glc_conc_without_sf');
+save('Sglc2_result_with_sf.mat','glc_conc_with_sf');
 cd ../;
 
 clear;

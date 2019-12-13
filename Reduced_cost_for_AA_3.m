@@ -2,8 +2,8 @@
 % Timing: ~ 60000 s
 
 % Use relative increase, i.e., 1% of the reference value;
-% Use unchanged uptake rates for other AAs;
-% Use unchanged saturation factor, catalytic rates, degradation constants...
+% Keep unchanged uptake rates for other AAs as reference;
+% Keep unchanged saturation factor, catalytic rates, degradation constants...as reference;
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -129,7 +129,7 @@ for i = 1:length(selected_points)
     model_ref = model;
 	mu_low = 0;
 	mu_high = 0.8;
-	while mu_high-mu_low > 0.00001
+	while mu_high-mu_low > 0.000000001
         mu_mid = (mu_low+mu_high)/2;
         disp(['Ref: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
@@ -145,7 +145,7 @@ for i = 1:length(selected_points)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,~] = ReadSoplexResult(fileName_out,model_ref);
@@ -169,7 +169,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-	command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,~,solME_full] = ReadSoplexResult(fileName_out,model_ref);
@@ -178,7 +178,7 @@ for i = 1:length(selected_points)
     [~, idx_tmp] = ismember(Exchange_AAs,model_ref.rxns);
     q_AAs_ref = solME_full(idx_tmp);
     q_AAs_ref(q_AAs_ref > 0) = 0;
-    q_AAs_ref = q_AAs_ref*1.00001;
+    q_AAs_ref = q_AAs_ref*1.000001;
     
     % Estimate reference state using the new AA uptakes and growth rate
         model_tmp = model;
@@ -192,7 +192,7 @@ for i = 1:length(selected_points)
         mu_low = 0;
         mu_high = 0.8;
     
-        while mu_high-mu_low > 0.00001
+        while mu_high-mu_low > 0.000000001
             mu_mid = (mu_low+mu_high)/2;
             disp(['Ref(new) Glucose concentration = ' num2str(glc_conc) '; mu = ' num2str(mu_mid)]);
             model_tmptmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
@@ -205,7 +205,7 @@ for i = 1:length(selected_points)
                                            Info_ribosome,...
                                            Info_tRNA,...
                                            mu_ref);
-            command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmptmp);
@@ -226,7 +226,7 @@ for i = 1:length(selected_points)
                                        Info_ribosome,...
                                        Info_tRNA,...
                                        mu_ref);
-        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -252,7 +252,7 @@ for i = 1:length(selected_points)
         mu_low = 0;
         mu_high = 0.8;
     
-        while mu_high-mu_low > 0.00001
+        while mu_high-mu_low > 0.000000001
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) '; ' cell2mat(aaid) '; mu = ' num2str(mu_mid)]);
             model_tmptmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
@@ -265,7 +265,7 @@ for i = 1:length(selected_points)
                                            Info_ribosome,...
                                            Info_tRNA,...
                                            mu_ref);
-            command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmptmp);
@@ -286,7 +286,7 @@ for i = 1:length(selected_points)
                                        Info_ribosome,...
                                        Info_tRNA,...
                                        mu_ref);
-        command = sprintf('/Users/cheyu/build/bin/soplex -t1000 -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -305,23 +305,23 @@ for i = 1:length(selected_points)
 end
 
 cd Results/;
-save('RcAA3_fluxes.mat','fluxes_rcAA');
-save('RcAA3_reffluxes.mat','fluxes_ref');
-save('RcAA3_result.mat','result_rcAA');
+save('RcAA_fluxes.mat','fluxes_rcAA');
+save('RcAA_fluxes_ref.mat','fluxes_ref');
+save('RcAA_result.mat','result_rcAA');
 cd ../;
 
 clear;
 toc;
 
 %% Figures
-load('RcAA3_result.mat');
+load('RcAA_result.mat');
 
-increase_mu = round(result_rcAA.data(2,:),5)-round(result_rcAA.data(1,:),5);
+increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
 increase_mu(increase_mu < 0) = 0;
-increase_aa = round(result_rcAA.data(5,:),5)-round(result_rcAA.data(3,:),5);
+increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
 increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
-reduced_cost = round(reduced_cost,5);
+scaled_reduced_cost = reduced_cost.*result_rcAA.data(3,:)./result_rcAA.data(1,:);
 
 aaidlist = result_rcAA.column(1:20);
 aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);
@@ -329,28 +329,28 @@ c = categorical(aaidlist);
 
 figure('Name','1');
 subplot(4,1,1);
-bar(c,reduced_cost(1:20));
+bar(c,scaled_reduced_cost(1:20));
 ylim([0 0.15]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.1 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,2);
-bar(c,reduced_cost(21:40));
+bar(c,scaled_reduced_cost(21:40));
 ylim([0 0.15]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.3 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,3);
-bar(c,reduced_cost(41:60));
+bar(c,scaled_reduced_cost(41:60));
 ylim([0 0.15]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.5 /h','FontSize',14,'FontName','Helvetica');
 ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,4);
-bar(c,reduced_cost(61:80));
+bar(c,scaled_reduced_cost(61:80));
 ylim([0 0.15]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.7 /h','FontSize',14,'FontName','Helvetica');
