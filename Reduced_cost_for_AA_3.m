@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 60000 s
+% Timing: ~ 100000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Keep unchanged uptake rates for other AAs as reference;
@@ -316,12 +316,17 @@ toc;
 %% Figures
 load('RcAA_result.mat');
 
-increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
+increase_mu = round(result_rcAA.data(2,:),6)-round(result_rcAA.data(1,:),6);
 increase_mu(increase_mu < 0) = 0;
-increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
+increase_aa = round(result_rcAA.data(5,:),6)-round(result_rcAA.data(3,:),6);
 increase_aa(increase_aa < 0) = 0;
+% increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
+% increase_mu(increase_mu < 0) = 0;
+% increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
+% increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
 scaled_reduced_cost = reduced_cost.*result_rcAA.data(3,:)./result_rcAA.data(1,:);
+% scaled_reduced_cost = reduced_cost;
 
 aaidlist = result_rcAA.column(1:20);
 aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);
@@ -330,30 +335,30 @@ c = categorical(aaidlist);
 figure('Name','1');
 subplot(4,1,1);
 bar(c,scaled_reduced_cost(1:20));
-ylim([0 0.15]);
+ylim([0 0.05]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.1 /h','FontSize',14,'FontName','Helvetica');
-ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+ylabel('Scaled reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,2);
 bar(c,scaled_reduced_cost(21:40));
-ylim([0 0.15]);
+ylim([0 0.05]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.3 /h','FontSize',14,'FontName','Helvetica');
-ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+ylabel('Scaled reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,3);
 bar(c,scaled_reduced_cost(41:60));
-ylim([0 0.15]);
+ylim([0 0.05]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.5 /h','FontSize',14,'FontName','Helvetica');
-ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+ylabel('Scaled reduced cost','FontSize',14,'FontName','Helvetica');
 
 subplot(4,1,4);
 bar(c,scaled_reduced_cost(61:80));
-ylim([0 0.15]);
+ylim([0 0.05]);
 set(gca,'FontSize',12,'FontName','Helvetica');
 title('Original mu = 0.7 /h','FontSize',14,'FontName','Helvetica');
-ylabel('Reduced cost','FontSize',14,'FontName','Helvetica');
+ylabel('Scaled reduced cost','FontSize',14,'FontName','Helvetica');
 
 clear;
