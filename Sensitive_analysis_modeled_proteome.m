@@ -106,10 +106,11 @@ for i = 1:length(glc_list)
         f_transporter = f_transporter_ref;
         
         mu_low = 0;
-        mu_high = 1;
+        mu_high = 1.2;
         
         while mu_high-mu_low > 0.000000001
             mu_mid = (mu_low+mu_high)/2;
+%             mu_mid = mu_low + (mu_high - mu_low)/4;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
             model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
@@ -174,10 +175,11 @@ for i = 1:length(glc_list)
         f_transporter = f_transporter_ref;
         
         mu_low = 0;
-        mu_high = 1;
+        mu_high = 1.2;
         
         while mu_high-mu_low > 0.000000001
             mu_mid = (mu_low+mu_high)/2;
+%             mu_mid = mu_low + (mu_high - mu_low)/4;
             disp(['Glucose concentration = ' num2str(glc_conc) ' uM; modeled protein = ' num2str((1-f_unmodeled)) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
             model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_ref,'l');
