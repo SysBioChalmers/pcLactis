@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 4000 s
+% Timing: ~ 11000 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.
@@ -95,53 +95,35 @@ for i = 1:length(f_transporter_range)
                            Info_ribosome,...
                            Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+%         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-20 -o1e-20 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+        [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
         
         if strcmp(solME_status,'optimal')
             mu_low = mu_mid;
+            flux_tmp = solME_full;
         else
             mu_high = mu_mid;
         end
     end
     
-    model = changeRxnBounds(model,'R_biomass_dilution',mu_low,'b');
-    model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*mu_low,'l');
-	
-	fileName = WriteLP(model,mu_low,f,osenseStr,rxnID,factor_k,...
-                       f_transporter,kcat_glc,...
-                       Info_enzyme,...
-                       Info_mRNA,...
-                       Info_protein,...
-                       Info_ribosome,...
-                       Info_tRNA);
-                   
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-    system(command,'-echo');
-    fileName_out = 'Simulation.lp.out';
-    [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
+    glc = -flux_tmp(strcmp(model.rxns,'R_M_EX_glc__D_e'));
+    mu = flux_tmp(strcmp(model.rxns,'R_biomass_dilution'));
+    ac = flux_tmp(strcmp(model.rxns,'R_M_EX_ac_e'));
+    eth = flux_tmp(strcmp(model.rxns,'R_M_EX_etoh_e'));
+    form = flux_tmp(strcmp(model.rxns,'R_M_EX_for_e'));
+    lac = flux_tmp(strcmp(model.rxns,'R_M_EX_lac__L_e'));
+    arg = flux_tmp(strcmp(model.rxns,'R_M_EX_arg__L_e'));
+    glc_transporter_weight = sum(CalculateEnzymeWeight(model,...
+        {'M_GLCpts_1_Enzyme_c';...
+        'M_GLCpts_2_Enzyme_c';...
+        'M_GLCt2_fwd_Enzyme_c';...
+        'M_GLCt2_rvs_Enzyme_c'},...
+        flux_tmp,Info_enzyme));
     
-    if strcmp(solME_status,'optimal')
-        glc = -solME_full(strcmp(model.rxns,'R_M_EX_glc__D_e'));
-        mu = solME_full(strcmp(model.rxns,'R_biomass_dilution'));
-        ac = solME_full(strcmp(model.rxns,'R_M_EX_ac_e'));
-        eth = solME_full(strcmp(model.rxns,'R_M_EX_etoh_e'));
-        form = solME_full(strcmp(model.rxns,'R_M_EX_for_e'));
-        lac = solME_full(strcmp(model.rxns,'R_M_EX_lac__L_e'));
-        arg = solME_full(strcmp(model.rxns,'R_M_EX_arg__L_e'));
-        glc_transporter_weight = sum(CalculateEnzymeWeight(model,...
-                                    {'M_GLCpts_1_Enzyme_c';...
-                                     'M_GLCpts_2_Enzyme_c';...
-                                     'M_GLCt2_fwd_Enzyme_c';...
-                                     'M_GLCt2_rvs_Enzyme_c'},...
-                                     solME_full,Info_enzyme));
-        
-        res(i,:) = [glc ac eth form lac arg mu glc_transporter_weight f_transporter];
-    else
-        res(i,:) = [0 0 0 0 0 0 0 0 f_transporter];
-    end
+    res(i,:) = [glc ac eth form lac arg mu glc_transporter_weight f_transporter];
 end
 
 estimated_f_transporter = max(res(:,8)) / 0.46;

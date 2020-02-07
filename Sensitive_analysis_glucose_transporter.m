@@ -1,6 +1,6 @@
 %% Sensitivity analysis for glucose transporter.
 
-% Timing: ~ 32000 s
+% Timing: ~ 73000 s
 
 % With the saturation saturation factor are performed.
 
@@ -72,13 +72,13 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
-precision = 1e-6;
+precision = 1e-9;
 org_min_mu = 0;
 org_max_mu = 2;
 
-% glc_list = [2 4 6 8 10 20 40 60 80 100 200 1000 10000 100000 1000000];%unit: /uM
+% glc_list = [2 4 6 8 10 20 40 60 80 100 200 1000 10000 100000 1000000];%unit: uM
 % glucose_transporter_list = f_transporter_ref*(1:0.01:1.05);
-glc_list = [2 5 10 20 50 100 1000 10000 100000];%unit: /uM
+glc_list = [2 5 10 20 50 100 1000 10000 100000];%unit: uM
 glucose_transporter_list = f_transporter_ref*(1:0.1:1.5);
 res_gt = zeros(length(glucose_transporter_list),4,length(glc_list));
 fluxes_gt = zeros(length(model.rxns),length(glucose_transporter_list)*length(glc_list));
@@ -125,7 +125,7 @@ for i = 1:length(glc_list)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-20 -o1e-20 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -139,25 +139,6 @@ for i = 1:length(glc_list)
         mu = flux_tmp(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
         glc = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
         arg = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        
-%         model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
-%         model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_low,'l');
-%         factor_k = sf_coeff * mu_low;
-%         if factor_k > 1
-%             factor_k = 1;
-%         end
-%         fileName = WriteLPSatFactor(model_tmp,mu_low,f,osenseStr,rxnID,factor_k,...
-%                                     f_transporter,kcat_glc,factor_glc,...
-%                                     Info_enzyme,...
-%                                     Info_mRNA,...
-%                                     Info_protein,...
-%                                     Info_ribosome,...
-%                                     Info_tRNA);
-%         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-%         system(command,'-echo');
-%         fileName_out = 'Simulation.lp.out';
-%         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
-        
         res_gt(k,:,i) = [f_transporter mu mu/(glc*180/1000) arg*174/1000/mu];
                                           %g_CDW/g_glucose  g_arginine/g_CDW
         fluxes_gt(:,(i-1)*length(glucose_transporter_list)+k) = flux_tmp;
@@ -192,7 +173,7 @@ for i = 1:length(glc_list)
                                            Info_ribosome,...
                                            Info_tRNA,...
                                            mu_mid);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-20 -o1e-20 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -206,26 +187,6 @@ for i = 1:length(glc_list)
         mu = flux_tmp(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
         glc = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
         arg = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        
-%         model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_low,'b');
-%         model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_ref,'l');
-%         factor_k = sf_coeff * mu_ref;
-%         if factor_k > 1
-%             factor_k = 1;
-%         end
-%         fileName = WriteLPSatFactorTmp(model_tmp,mu_low,f,osenseStr,rxnID,factor_k,...
-%                                        f_transporter,kcat_glc,factor_glc,...
-%                                        Info_enzyme,...
-%                                        Info_mRNA,...
-%                                        Info_protein,...
-%                                        Info_ribosome,...
-%                                        Info_tRNA,...
-%                                        mu_ref);
-%         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-%         system(command,'-echo');
-%         fileName_out = 'Simulation.lp.out';
-%         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
-        
         res_gt(k,:,i) = [f_transporter mu mu/(glc*180/1000) arg*174/1000/mu];
                                           %g_CDW/g_glucose  g_arginine/g_CDW
         fluxes_gt(:,(i-1)*length(glucose_transporter_list)+k) = flux_tmp;

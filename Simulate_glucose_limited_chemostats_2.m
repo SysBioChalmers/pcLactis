@@ -1,12 +1,10 @@
 %% Simulate glucose-limited chemostats (objective: minimizing glucose concentration)
 
-% Timing: ~ 18000 s
+% Timing: ~ 26000 s
 
 % Without and with the saturation saturation factor are performed.
 
 % Simulated results will be saved in the folder 'Results'.
-
-% Figures can be obtained by running the codes starting from line 222.
 
 tic;
 load('pcLactis_Model.mat');
@@ -88,9 +86,8 @@ for i = 1:length(D_list)
     factor_glc_low = 0;
     factor_glc_high = 1;
     
-    while factor_glc_high-factor_glc_low > 0.00001
+    while factor_glc_high-factor_glc_low > 0.000001
         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
-%         factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['Without sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
@@ -103,41 +100,23 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+        [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
         
         if strcmp(solME_status,'optimal')
             factor_glc_high = factor_glc_mid;
+            flux_tmp = solME_full;
         else
             factor_glc_low = factor_glc_mid;
         end
     end
     
-	fileName = WriteLPSatFactor(model,D,f,osenseStr,rxnID,factor_k,...
-                                f_transporter,kcat_glc,factor_glc_high,...
-                                Info_enzyme,...
-                                Info_mRNA,...
-                                Info_protein,...
-                                Info_ribosome,...
-                                Info_tRNA);
-                   
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-	system(command,'-echo');
-	fileName_out = 'Simulation.lp.out';
-	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
-    
-    if strcmp(solME_status,'optimal')
-        fluxes_simulated_without_sf(:,i) = solME_full;
-        glc_conc = Km * factor_glc_high / (1 - factor_glc_high);
-        glc_conc_without_sf(i,1) = D;
-        glc_conc_without_sf(i,2) = glc_conc;
-    else
-        fluxes_simulated_without_sf(:,i) = zeros(length(model.rxns),1);
-        glc_conc_without_sf(i,1) = D;
-        glc_conc_without_sf(i,2) = 0;
-    end
+    fluxes_simulated_without_sf(:,i) = flux_tmp;
+    glc_conc = Km * factor_glc_high / (1 - factor_glc_high);
+    glc_conc_without_sf(i,1) = D;
+    glc_conc_without_sf(i,2) = glc_conc;
 end
 
 % with saturation factor
@@ -167,9 +146,8 @@ for i = 1:length(D_list)
     factor_glc_low = 0;
     factor_glc_high = 1;
     
-    while factor_glc_high-factor_glc_low > 0.00001
+    while factor_glc_high-factor_glc_low > 0.000001
         factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
-%         factor_glc_mid = factor_glc_low+(factor_glc_high-factor_glc_low)/4;
         disp(['With sf: D = ' num2str(D) '; factor_glc = ' num2str(factor_glc_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
         model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
@@ -182,41 +160,23 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
-        [~,solME_status,~] = ReadSoplexResult(fileName_out,model);
+        [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
         
         if strcmp(solME_status,'optimal')
             factor_glc_high = factor_glc_mid;
+            flux_tmp = solME_full;
         else
             factor_glc_low = factor_glc_mid;
         end
     end
     
-	fileName = WriteLPSatFactor(model,D,f,osenseStr,rxnID,factor_k,...
-                                f_transporter,kcat_glc,factor_glc_high,...
-                                Info_enzyme,...
-                                Info_mRNA,...
-                                Info_protein,...
-                                Info_ribosome,...
-                                Info_tRNA);
-                   
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-	system(command,'-echo');
-	fileName_out = 'Simulation.lp.out';
-	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
-    
-    if strcmp(solME_status,'optimal')
-        fluxes_simulated_with_sf(:,i) = solME_full;
-        glc_conc = Km * factor_glc_high / (1 - factor_glc_high);
-        glc_conc_with_sf(i,1) = D;
-        glc_conc_with_sf(i,2) = glc_conc;
-    else
-        fluxes_simulated_with_sf(:,i) = zeros(length(model.rxns),1);
-        glc_conc_with_sf(i,1) = D;
-        glc_conc_with_sf(i,2) = 0;
-    end
+    fluxes_simulated_with_sf(:,i) = flux_tmp;
+    glc_conc = Km * factor_glc_high / (1 - factor_glc_high);
+    glc_conc_with_sf(i,1) = D;
+    glc_conc_with_sf(i,2) = glc_conc;
 end
 
 cd Results/;
