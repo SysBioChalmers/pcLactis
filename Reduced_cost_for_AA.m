@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~  s
+% Timing: ~ 120000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Keep unchanged uptake rates for other AAs as reference;
@@ -239,7 +239,7 @@ for i = 1:length(selected_points)
         end
         result_rcAA.column(1,(i-1)*20+j) = strcat(num2str(mu_ref_setting),'_',aaid);
         fluxes_rcAA(:,(i-1)*20+j) = flux_tmp;
-        res_tmp = [mu_ref_new;mu_low;-aaref;-aalb;-flux_tmp(strcmp(model_tmp.rxns,aarxnid),1)];
+        res_tmp = [mu_ref_new;flux_tmp(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);-aaref;-aalb;-flux_tmp(strcmp(model_tmp.rxns,aarxnid),1)];
         result_rcAA.data(:,(i-1)*20+j) = res_tmp;
     end
 end

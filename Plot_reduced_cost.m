@@ -1,14 +1,10 @@
 % Data import
 load('RcAA_result.mat');
 
-increase_mu = round(result_rcAA.data(2,:),8)-round(result_rcAA.data(1,:),8);
+increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
 increase_mu(increase_mu < 0) = 0;
-increase_aa = round(result_rcAA.data(5,:),6)-round(result_rcAA.data(3,:),6);
+increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
 increase_aa(increase_aa < 0) = 0;
-% increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
-% increase_mu(increase_mu < 0) = 0;
-% increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
-% increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
 scaled_reduced_cost = reduced_cost.*result_rcAA.data(3,:)./result_rcAA.data(1,:);
 % scaled_reduced_cost = reduced_cost;
