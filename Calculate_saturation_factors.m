@@ -288,11 +288,12 @@ for i = 1:length(sat_factor.EnzymeID_pc)
     sat_factor.k = [sat_factor.k;coef_tmp];
 end
 
-cd Simulations/;
-save('sat_factor.mat','sat_factor');
-cd ../;
+% cd Simulations/;
+% save('sat_factor.mat','sat_factor');
+% cd ../;
 
 %% Figure distribution of all correlationss
+
 figure();
 hold on;
 box on;
@@ -302,16 +303,18 @@ h.EdgeColor = 'k';
 h.LineWidth = 1;
 h.FaceColor = 'k';
 h.FaceAlpha = 0.6;
-xlabel('Pearson correlation coefficient','FontSize',14,'FontName','Helvetica');
-ylabel('Density','FontSize',14,'FontName','Helvetica');
+
+set(gca,'FontSize',6,'FontName','Helvetica');
+
+xlabel('Pearson correlation coefficient','FontSize',7,'FontName','Helvetica');
+ylabel('Density','FontSize',7,'FontName','Helvetica');
 
 number = ['N = ',num2str(length(cmp_pcLactis.corr_coef))];
-text(-0.9,9,number,'FontSize',15,'FontName','Helvetica','Color','k');
+text(-0.9,9,number,'FontSize',7,'FontName','Helvetica','Color','k');
 
 xlim([-1 1]);
-set(gcf,'position',[0 0 250 230]);
-set(gca,'position',[0.14 0.15 0.85 0.75]);
-
+set(gcf,'position',[0 0 150 150]);
+set(gca,'position',[0.27 0.29 0.68 0.66]);
 
 figure();
 hold on;
@@ -319,39 +322,40 @@ box on;
 [f,x] = ecdf(cmp_pcLactis.corr_coef);
 plot(x,f,'LineWidth',1);
 clear x f;
-set(gca,'FontSize',12,'FontName','Helvetica');
+set(gca,'FontSize',6,'FontName','Helvetica');
 
 number = ['N = ',num2str(length(cmp_pcLactis.corr_coef))];
-text(-0.9,0.9,number,'FontSize',14,'FontName','Helvetica','Color','k');
+text(-0.9,0.9,number,'FontSize',7,'FontName','Helvetica','Color','k');
 
-xlabel('Pearson correlation coefficient','FontSize',14,'FontName','Helvetica');
-ylabel('Cumulative frequency','FontSize',14,'FontName','Helvetica');
-set(gcf,'position',[500 300 300 300]);
-set(gca,'position',[0.2 0.22 0.75 0.75]);
+xlabel('Pearson correlation coefficient','FontSize',7,'FontName','Helvetica');
+ylabel('Cumulative frequency','FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[500 300 150 150]);
+set(gca,'position',[0.27 0.29 0.68 0.66]);
+
 
 %% Figure distribution of slopes
-figure();
-hold on;
-box on;
-[a,b] = ksdensity(sat_factor.k);
-h = area(b,a);
-h.EdgeColor = 'k';
-h.LineWidth = 1;
-h.FaceColor = [221,28,119]/256;
-h.FaceAlpha = 0.4;
-title('Distribution of slope','FontSize',14,'FontName','Helvetica','fontweight','bold');
-xlabel('Slope','FontSize',14,'FontName','Helvetica');
-ylabel('Density','FontSize',14,'FontName','Helvetica');
-
-number = ['N = ',num2str(length(sat_factor.k))];
-text(1.1,2.25,number,'FontSize',15,'FontName','Helvetica','Color','k');
-
-number = ['Median = ',num2str(round(median(sat_factor.k),3))];
-text(1.7,2.25,number,'FontSize',15,'FontName','Helvetica','Color',[221,28,119]/256);
-
-set(gcf,'position',[0 500 255 230]);
-set(gca,'position',[0.15 0.16 0.8 0.75]);
-clear a b h number;
+% figure();
+% hold on;
+% box on;
+% [a,b] = ksdensity(sat_factor.k);
+% h = area(b,a);
+% h.EdgeColor = 'k';
+% h.LineWidth = 1;
+% h.FaceColor = [221,28,119]/256;
+% h.FaceAlpha = 0.4;
+% title('Distribution of slope','FontSize',14,'FontName','Helvetica','fontweight','bold');
+% xlabel('Slope','FontSize',14,'FontName','Helvetica');
+% ylabel('Density','FontSize',14,'FontName','Helvetica');
+% 
+% number = ['N = ',num2str(length(sat_factor.k))];
+% text(1.1,2.25,number,'FontSize',15,'FontName','Helvetica','Color','k');
+% 
+% number = ['Median = ',num2str(round(median(sat_factor.k),3))];
+% text(1.7,2.25,number,'FontSize',15,'FontName','Helvetica','Color',[221,28,119]/256);
+% 
+% set(gcf,'position',[0 500 255 230]);
+% set(gca,'position',[0.15 0.16 0.8 0.75]);
+% clear a b h number;
 
 
 clear;

@@ -1,23 +1,21 @@
 %% Predict protein levels using predicted flux distributions
 
-% Minimize glucose uptake rate
+% The results have been saved in 'predicted_proteomics.mat'.
 
-% The results have been saved in 'predicted_proteomics1.mat'.
-
-% Timing: ~ 1300 s
+% Timing: ~ 1100 s
 
 tic;
 
 %% Use the codes below to generate data. 
-load('Cfd1_fluxes_without_sf.mat');
-load('Cfd1_fluxes_with_sf.mat');
+load('Cfd_fluxes_with_sf.mat');
+load('Cfd_fluxes_without_sf.mat');
 
 % load the model with the correct S matrix the solutions were generated.
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
-GAM = 42;
-NGAM = 2.5;
-f_unmodeled = 0.42;
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 [model,~] = ChangeUnmodeledProtein(model,f_unmodeled);
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -51,6 +49,6 @@ predicted.without_sf = predicted_proteomics_without_sf;
 predicted.with_sf = predicted_proteomics_with_sf;
 predicted.proteinID = proteinID;
 
-save('predicted_proteomics1.mat','predicted');
+save('predicted_proteomics.mat','predicted');
 
 toc;

@@ -137,24 +137,4 @@ clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome Info_tRNA;
 cd Results/;
 save('Egt_result.mat','res');
 cd ../;
-
-%% Figure
-load('Egt_result.mat');
-figure('Name','1');
-hold on;
-box on;
-x = res(:,9);
-y = res(:,7);
-plot(x,y,'-o','LineWidth',1,'MarkerSize',1);
-set(gca,'FontSize',12,'FontName','Helvetica');
-xlabel('Fraction of glucose transporter','FontSize',14,'FontName','Helvetica');
-ylabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-
-% xlim([0 0.2]);
-ylim([0 0.8]);
-
-set(gcf,'position',[200 0 230 130]);
-set(gca,'position',[0.23 0.25 0.72 0.7]);
-
-clear x y;
 toc;

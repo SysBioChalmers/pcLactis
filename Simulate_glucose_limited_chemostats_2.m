@@ -293,12 +293,12 @@ toc;
 % hold on;
 % box on;
 % 
-% plot(mu2,f_lac2,'-','LineWidth',0.75,'Color',color_lactic);
+% plot(mu1,f_lac1,'-','LineWidth',0.75,'Color',color_lactic);
 % x = exp_mu; y = f_exp_lac; yu = f_exp_lac + f_exp_lac_sd; yl = f_exp_lac - f_exp_lac_sd;
 % plot(x,y,'-.','LineWidth',0.75,'Color',color_lactic);
 % fill([x fliplr(x)],[yu fliplr(yl)],color_lactic,'linestyle','none','FaceAlpha',0.3);
 % 
-% plot(mu2,f_mix2,'-','LineWidth',0.75,'Color',color_mixed);
+% plot(mu1,f_mix1,'-','LineWidth',0.75,'Color',color_mixed);
 % x = exp_mu; y = f_exp_mix; yu = f_exp_mix + f_exp_mix_sd; yl = f_exp_mix - f_exp_mix_sd;
 % plot(x,y,'-.','LineWidth',0.75,'Color',color_mixed);
 % fill([x fliplr(x)],[yu fliplr(yl)],color_mixed,'linestyle','none','FaceAlpha',0.3);
@@ -311,17 +311,17 @@ toc;
 % set(gca,'XTick',0.1:0.2:0.7);
 % xlim([0.1 0.7]);
 % ylim([-0.05 1.05]);
-% set(gca,'FontSize',12,'FontName','Helvetica');
-% ylabel('Fraction in glucose','FontSize',14,'FontName','Helvetica');
-% xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-% legend({'Sim lactic acid',...
-%         'Exp lactic acid'...
-%         'SD lactic acid'...
-%         'Sim mixed acid',...
-%         'Exp mixed acid'...
-%         'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
-% set(gcf,'position',[450 0 305 300]);
-% set(gca,'position',[0.17 0.13 0.7 0.7]);
+% set(gca,'FontSize',6,'FontName','Helvetica');
+% ylabel('Fraction in glucose','FontSize',8,'FontName','Helvetica');
+% xlabel('Growth rate (/h)','FontSize',8,'FontName','Helvetica');
+% % legend({'Sim lactic acid',...
+% %         'Exp lactic acid'...
+% %         'SD lactic acid'...
+% %         'Sim mixed acid',...
+% %         'Exp mixed acid'...
+% %         'SD mixed acid'},'FontSize',12,'FontName','Helvetica','location','north');
+% set(gcf,'position',[250 0 110 120]);
+% set(gca,'position',[0.25 0.25 0.65 0.65]);
 % 
 % % mixed to lactic acid with sf
 % figure('Name','3');
@@ -362,7 +362,7 @@ toc;
 % set(ax2,'XTick',0.2:0.1:0.6);
 % set(ax2,'ytick',[]);
 % 
-% arg catabolism with sf
+% % arg catabolism with sf
 % color_orn = [221,52,151]/255;
 % color_arg = [65,171,93]/255;
 % color_citr = [82,82,82]/255;

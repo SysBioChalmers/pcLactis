@@ -5,7 +5,7 @@
 % The measured data are from 'Proteomics_Goel_2015.xlsx'.
 
 %% Process predicted data
-load('predicted_proteomics1.mat');
+load('predicted_proteomics.mat');
 
 % Without saturation factor
 % Calculate mean and remove the data with coefficient of variation > 0.5
@@ -191,25 +191,25 @@ f = polyval(p,x);
 h = plot([min(x),max(x)],[min(f),max(f)],'-','Color',color1,'LineWidth',3);
 h.Color(4) = 0.5;
 clear x y p f h;
-scatter(without_sf.exp,without_sf.pred,8,'MarkerFaceColor',color1,'MarkerEdgeColor',color1,'MarkerFaceAlpha',1,'MarkerEdgeAlpha',0);
+scatter(without_sf.exp,without_sf.pred,3,'MarkerFaceColor',color1,'MarkerEdgeColor',color1,'MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0);
 xlim([-5.5 5.5]);
 ylim([-5.5 5.5]);
 line([-5.5 5.5],[-5.5 5.5],'Color','k','LineStyle',':');
-set(gca,'FontSize',12,'FontName','Helvetica');
-title('without sf','FontSize',14,'FontName','Helvetica','fontweight','bold');
-xlabel('Measured log_2FC','FontSize',14,'FontName','Helvetica');
-ylabel('Predicted log_2FC','FontSize',14,'FontName','Helvetica');
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('unchange global saturation','FontSize',7,'FontName','Helvetica','fontweight','bold');
+xlabel('Measured log_2FC','FontSize',7,'FontName','Helvetica');
+ylabel('Predicted log_2FC','FontSize',7,'FontName','Helvetica');
 str_rmse = ['RMSE = ',num2str(round(without_sf.rmse,2))];
 str_r = ['R = ',num2str(round(without_sf.R,2))];
 % str_p = ['p = ',num2str(without_sf.p)];
 % str_n = ['N = ',num2str(without_sf.N)];
-text(-1,-4.5,str_rmse,'FontSize',13,'FontName','Helvetica','Color',color1);
-text(-5,4.5,str_r,'FontSize',13,'FontName','Helvetica','Color',color1);
-% text(-0.5,-3,str_p,'FontSize',13,'FontName','Helvetica','Color',color1);
-% text(-0.5,0,str_n,'FontSize',13,'FontName','Helvetica','Color',color1);
+text(-2,-4.5,str_rmse,'FontSize',7,'FontName','Helvetica','Color',color1);
+text(-4.5,4.5,str_r,'FontSize',7,'FontName','Helvetica','Color',color1);
+% text(-0.5,-3,str_p,'FontSize',7,'FontName','Helvetica','Color',color1);
+% text(-0.5,0,str_n,'FontSize',7,'FontName','Helvetica','Color',color1);
 clear str_rmse str_r str_p str_n;
-set(gcf,'position',[0 0 180 180]);
-set(gca,'position',[0.23 0.23 0.75 0.75]);
+set(gcf,'position',[0 0 100 100]);
+set(gca,'position',[0.23 0.23 0.7 0.7]);
 
 figure();
 hold on;
@@ -221,25 +221,25 @@ f = polyval(p,x);
 h = plot([min(x),max(x)],[min(f),max(f)],'-','Color',color2,'LineWidth',3);
 h.Color(4) = 0.5;
 clear x y p f h;
-scatter(with_sf.exp,with_sf.pred,8,'MarkerFaceColor',color2,'MarkerEdgeColor',color2,'MarkerFaceAlpha',1,'MarkerEdgeAlpha',0);
+scatter(with_sf.exp,with_sf.pred,3,'MarkerFaceColor',color2,'MarkerEdgeColor',color2,'MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0);
 xlim([-5.5 5.5]);
 ylim([-5.5 5.5]);
 line([-5.5 5.5],[-5.5 5.5],'Color','k','LineStyle',':');
-set(gca,'FontSize',12,'FontName','Helvetica');
-title('with sf','FontSize',14,'FontName','Helvetica','fontweight','bold');
-xlabel('Measured log_2FC','FontSize',14,'FontName','Helvetica');
-ylabel('Predicted log_2FC','FontSize',14,'FontName','Helvetica');
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('change global saturation','FontSize',7,'FontName','Helvetica','fontweight','bold');
+xlabel('Measured log_2FC','FontSize',7,'FontName','Helvetica');
+ylabel('Predicted log_2FC','FontSize',7,'FontName','Helvetica');
 str_rmse = ['RMSE = ',num2str(round(with_sf.rmse,2))];
 str_r = ['R = ',num2str(round(with_sf.R,2))];
 % str_p = ['p = ',num2str(with_sf.p)];
 % str_n = ['N = ',num2str(with_sf.N)];
-text(-1,-4.5,str_rmse,'FontSize',13,'FontName','Helvetica','Color',color2);
-text(-5,4.5,str_r,'FontSize',13,'FontName','Helvetica','Color',color2);
-% text(-0.5,-3,str_p,'FontSize',13,'FontName','Helvetica','Color',color2);
-% text(-0.5,0,str_n,'FontSize',13,'FontName','Helvetica','Color',color2);
+text(-2,-4.5,str_rmse,'FontSize',7,'FontName','Helvetica','Color',color2);
+text(-4.5,4.5,str_r,'FontSize',7,'FontName','Helvetica','Color',color2);
+% text(-0.5,-3,str_p,'FontSize',7,'FontName','Helvetica','Color',color2);
+% text(-0.5,0,str_n,'FontSize',7,'FontName','Helvetica','Color',color2);
 clear str_rmse str_r str_p str_n;
-set(gcf,'position',[250 0 180 180]);
-set(gca,'position',[0.23 0.23 0.75 0.75]);
+set(gcf,'position',[250 0 100 100]);
+set(gca,'position',[0.23 0.23 0.7 0.7]);
 
 %% Analyses for pathways
 [~, txt1, ~] = xlsread('KEGG_pathway_llm.xlsx','GeneInPathway');
@@ -351,26 +351,26 @@ clear I;
 
 figure();
 cdata = [common.withoutsf_rmse common.withsf_rmse];
-xvalues = {'Unchanged','Changed'};
+xvalues = {'Unchange','Change'};
 yvalues = common.pathway;
 map = colormap(heatmap(xvalues,yvalues,cdata,'Colormap',bone));
 map = sort(map,'descend');
 h = heatmap(xvalues,yvalues,cdata,'Colormap',map,'CellLabelColor','none');
 h.Title = 'RMSE';
-set(gca,'FontSize',13,'FontName','Helvetica');
-set(gcf,'position',[600 0 500 500]);
-set(gca,'position',[0.7 0.1 0.1 0.6]);
+set(gca,'FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[600 0 200 250]);
+set(gca,'position',[0.75 0.15 0.08 0.6]);
 clear cdata h map xvalues yvalues;
 
 figure();
 cdata = [common.withoutsf_R common.withsf_R];
-xvalues = {'Unchanged','Changed'};
+xvalues = {'Unchange','Change'};
 yvalues = common.pathway;
 map = colormap(heatmap(xvalues,yvalues,cdata,'Colormap',pink));
 map = sort(map,'descend');
 h = heatmap(xvalues,yvalues,cdata,'Colormap',map,'CellLabelColor','none');
-h.Title = 'R';
-set(gca,'FontSize',13,'FontName','Helvetica');
-set(gcf,'position',[800 0 500 500]);
-set(gca,'position',[0.7 0.1 0.1 0.6]);
+h.Title = 'Pearson r';
+set(gca,'FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[800 0 200 250]);
+set(gca,'position',[0.75 0.15 0.08 0.6]);
 clear cdata h map xvalues yvalues;

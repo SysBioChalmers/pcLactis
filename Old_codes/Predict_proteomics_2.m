@@ -15,9 +15,9 @@ load('Cfd2_fluxes_with_sf.mat');
 % load the model with the correct S matrix the solutions were generated.
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
-GAM = 42;
-NGAM = 2.5;
-f_unmodeled = 0.42;
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 [model,~] = ChangeUnmodeledProtein(model,f_unmodeled);
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');

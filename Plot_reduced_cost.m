@@ -27,8 +27,8 @@ data = [scaled_reduced_cost(1:20);
         scaled_reduced_cost(61:80)];
 h = heatmap(aaidlist,{'refmu0.1','refmu0.3','refmu0.5','refmu0.7'},data,'Colormap',clrmap,'ColorMethod','count','CellLabelColor','none');
 
-set(h,'FontSize',10,'FontName','Helvetica');
-% set(gcf,'position',[200 300 100 600]);
-% set(gca,'position',[0.2 0.1 0.4 0.75]);
+set(h,'FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[200 300 350 60]);
+set(gca,'position',[0.18 0.3 0.68 0.68]);
 
 

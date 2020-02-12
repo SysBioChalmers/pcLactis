@@ -1,6 +1,6 @@
 %% Calculate flux distributions using experimental data (PMID: 25828364)
 
-% Timing: ~ 8700 s
+% Timing: ~ 15000 s
 
 % Minimizing glucose concentration.
 
@@ -19,16 +19,16 @@ rxnID = 'R_dummy_assumed_Monomer';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -50,14 +50,17 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
+
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
+
+% Block pyruvate oxidase
+model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
@@ -88,7 +91,7 @@ for i = 1:length(mu_list)
         factor_glc_low = 0;
         factor_glc_high = 1;
 
-        while factor_glc_high-factor_glc_low > 0.001
+        while factor_glc_high-factor_glc_low > 0.000001
             factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
             disp(['Without sf: mu = ' num2str(mu) '; replicate = ' num2str(j) '; factor_glc = ' num2str(factor_glc_mid)]);
 
@@ -100,38 +103,30 @@ for i = 1:length(mu_list)
                                         Info_ribosome,...
                                         Info_tRNA);
 
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
-            [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
+            [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
 
             if strcmp(solME_status,'optimal')
                 factor_glc_high = factor_glc_mid;
+                flux_tmp = solME_full;
             else
                 factor_glc_low = factor_glc_mid;
             end
         end
-
-        fileName = WriteLPSatFactor(model_tmp,mu,f,osenseStr,rxnID,factor_k,...
-                                    f_transporter,kcat_glc,factor_glc_high,...
-                                    Info_enzyme,...
-                                    Info_mRNA,...
-                                    Info_protein,...
-                                    Info_ribosome,...
-                                    Info_tRNA);
-
-        command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
-        system(command,'-echo');
-        fileName_out = 'Simulation.lp.out';
-        [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
-        fluxes_global_saturation_factor_unchanged = [fluxes_global_saturation_factor_unchanged solME_full];
+        fluxes_global_saturation_factor_unchanged = [fluxes_global_saturation_factor_unchanged flux_tmp];
 	end
 end
 
 % with saturation factor
 load('Egsf2_result.mat');
-mulist = global_saturation_factor_list(:,1);
-sflist = global_saturation_factor_list(:,2);
+x = global_saturation_factor_list(:,1);
+y = global_saturation_factor_list(:,2);
+% x = x(y ~= 1);
+% y = y(y ~= 1);
+mulist = x(~isnan(y));
+sflist = y(~isnan(y));
 
 fluxes_global_saturation_factor_changed = [];
 for i = 1:length(mu_list)
@@ -154,7 +149,7 @@ for i = 1:length(mu_list)
         factor_glc_low = 0;
         factor_glc_high = 1;
 
-        while factor_glc_high-factor_glc_low > 0.001
+        while factor_glc_high-factor_glc_low > 0.000001
             factor_glc_mid = (factor_glc_low+factor_glc_high)/2;
             disp(['With sf: mu = ' num2str(mu) '; replicate = ' num2str(j) '; factor_glc = ' num2str(factor_glc_mid)]);
 
@@ -166,37 +161,25 @@ for i = 1:length(mu_list)
                                         Info_ribosome,...
                                         Info_tRNA);
 
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
-            [~,solME_status,~] = ReadSoplexResult(fileName_out,model_tmp);
+            [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
 
             if strcmp(solME_status,'optimal')
                 factor_glc_high = factor_glc_mid;
+                flux_tmp = solME_full;
             else
                 factor_glc_low = factor_glc_mid;
             end
         end
-
-        fileName = WriteLPSatFactor(model_tmp,mu,f,osenseStr,rxnID,factor_k,...
-                                    f_transporter,kcat_glc,factor_glc_high,...
-                                    Info_enzyme,...
-                                    Info_mRNA,...
-                                    Info_protein,...
-                                    Info_ribosome,...
-                                    Info_tRNA);
-
-        command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
-        system(command,'-echo');
-        fileName_out = 'Simulation.lp.out';
-        [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
-        fluxes_global_saturation_factor_changed = [fluxes_global_saturation_factor_changed solME_full];
+        fluxes_global_saturation_factor_changed = [fluxes_global_saturation_factor_changed flux_tmp];
 	end
 end
 
 cd Results/;
-save('Cfd2_fluxes_without_sf.mat','fluxes_global_saturation_factor_unchanged');
-save('Cfd2_fluxes_with_sf.mat','fluxes_global_saturation_factor_changed');
+save('Cfd_fluxes_without_sf.mat','fluxes_global_saturation_factor_unchanged');
+save('Cfd_fluxes_with_sf.mat','fluxes_global_saturation_factor_changed');
 cd ../;
 
 toc;

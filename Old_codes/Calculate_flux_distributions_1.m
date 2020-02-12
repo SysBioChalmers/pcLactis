@@ -19,16 +19,16 @@ rxnID = 'R_M_EX_glc_LPAREN_e_RPAREN_';
 osenseStr = 'Maximize';
 
 %% Parameters.
-GAM = 42;%ATP coefficient in the new biomass equation.
-NGAM = 2.5; %(mmol/gCDW/h)
-f_unmodeled = 0.42; %proportion of unmodeled protein in total protein (g/g)
+GAM = 36; %ATP coefficient in the new biomass equation.
+NGAM = 2; %(mmol/gCDW/h)
+f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 0.01;%fraction of glucose transporter in total proteome
+f_transporter = 0.009;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -50,14 +50,17 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 % Block some reactions in the M model.
 model = changeRxnBounds(model,'R_M_biomass_LLA',0,'b');
 model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA',0,'b');
-model = changeRxnBounds(model,'R_M_PROTS_LLA_v2',0,'b');
 model = changeRxnBounds(model,'R_M_PROTS_LLA_v3',0,'b');
-model = changeRxnBounds(model,'R_M_MGt2pp_rvs',0,'b');%block infinite h[e]
 
 % Block other glucose transporters
-model = changeRxnBounds(model,'R_M_GLCpts_2',0,'b');
-model = changeRxnBounds(model,'R_M_GLCpermease_fwd',0,'b');
+model = changeRxnBounds(model,'R_M_GLCpts_1',0,'b');
+model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
+
+% Block one of ADH isozymes llmg_0955
+model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
+
+% Block pyruvate oxidase
+model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Loop for dilution rate of 0.15 0.3 0.45 0.5 and 0.6.
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
@@ -93,7 +96,7 @@ for i = 1:length(mu_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -102,9 +105,13 @@ for i = 1:length(mu_list)
 end
 
 % with saturation factor
-load('Egsf1_result.mat');
-mulist = global_saturation_factor_list(:,1);
-sflist = global_saturation_factor_list(:,2);
+load('Egsf2_result.mat');
+x = global_saturation_factor_list(:,1);
+y = global_saturation_factor_list(:,2);
+% x = x(y ~= 1);
+% y = y(y ~= 1);
+mulist = x(~isnan(y));
+sflist = y(~isnan(y));
 
 fluxes_global_saturation_factor_changed = [];
 for i = 1:length(mu_list)
@@ -132,7 +139,7 @@ for i = 1:length(mu_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command =sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-10 -o1e-10 -x -q -c --readmode=1 --solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-9 --real:fpopttol=1e-9 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmp);

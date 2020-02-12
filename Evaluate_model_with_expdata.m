@@ -94,7 +94,7 @@ for i = 1:length(mu_list)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-16 -o1e-16 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -109,6 +109,10 @@ for i = 1:length(mu_list)
         
 	end
 end
+fluxes_global_saturation_factor_unchanged = fluxes;
+cd Results/;
+save('Emwe_fluxes.mat','fluxes_global_saturation_factor_unchanged');
+cd ../;
 
 clear ans command exchange_raw f f_transporter f_unmodeled factor_k Exchange_reactions;
 clear fileName fileName_out GAM header i idx j kcat_glc LB lb_idx pcLactis_Model;
