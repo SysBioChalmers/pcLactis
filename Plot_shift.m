@@ -433,12 +433,12 @@ set(gcf,'position',[600 0 270 110]);
 set(gca,'position',[0.25 0.28 0.7 0.7]);
 
 figure('Name','9');
-plot(mu_list,total_inactive_enzyme,'-o','LineWidth',0.75);
-% ylim([0 0.2]);
-xlim([0 0.75]);
-set(gca,'FontSize',10,'FontName','Helvetica');
+plot(mu_list,total_inactive_enzyme,'k-o','LineWidth',0.75,'MarkerSize',10);
+ylim([0 0.05]);
+xlim([0.1 0.7]);
+set(gca,'FontSize',12,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
-ylabel(['Inactive enzymes',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','Helvetica');
+ylabel(['Unused proteome',char(13,10)','(g/gCDW)'],'FontSize',14,'FontName','Helvetica');
 set(gcf,'position',[900 100 270 170]);
 set(gca,'position',[0.25 0.28 0.7 0.5]);
 
