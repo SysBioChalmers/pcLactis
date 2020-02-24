@@ -57,173 +57,126 @@ kcatlist_tmp(kcatlist_tmp < quantile(kcatlist_tmp,0.1,1)) = quantile(kcatlist_tm
 % remove one of ADH isozymes llmg_0955
 enzymelist = enzymelist_tmp(~ismember(enzymelist_tmp,'M_ALCD2x_1_rvs_Enzyme_c'));
 kcatlist = kcatlist_tmp(~ismember(enzymelist_tmp,'M_ALCD2x_1_rvs_Enzyme_c'));
-clear num txt;
+clear num txt enzymelist_tmp kcatlist_tmp;
 
 % Glycolysis + mixed acid fermentation
-rxns_tmp = rxnlist_1;
-flux_tmp = fluxlist_1;
-protcost_1 = zeros(length(rxns_tmp),1);
-for i = 1:length(rxns_tmp)
-    rxnid = rxns_tmp{i};
-    ezmid = strcat(rxnid(3:end),'_');
-    flux = flux_tmp(i);
-    if ismember({rxnid},{'R_M_GLCpts'})
-        kcat_tmp = kcat_glc * 3600;%/h
-        mw_tmp = Info_enzyme.MW(ismember(Info_enzyme.ID,'M_GLCpts_2_Enzyme_c'));
-        protcost_tmp = mw_tmp/kcat_tmp;
-    else
-        if any(contains(enzymelist,ezmid))
-            enzymes_tmp = enzymelist(contains(enzymelist,ezmid));
-            kcats_tmp = kcatlist(contains(enzymelist,ezmid));
-            if flux < 0
-                idx_tmp = contains(enzymes_tmp,'_rvs');
-            else
-                idx_tmp = ~contains(enzymes_tmp,'_rvs');
-            end
-            enzymes_tmptmp = enzymes_tmp(idx_tmp);
-            kcats_tmptmp = kcats_tmp(idx_tmp);
-            [~, b] = ismember(enzymes_tmptmp,Info_enzyme.ID);
-            mws_tmp = Info_enzyme.MW(b);
-            pcs_tmp = mws_tmp./kcats_tmptmp;
-            protcost_tmp = min(pcs_tmp);
-        else
-            protcost_tmp = 0;
-        end
-    end
-    protcost_1(i) = protcost_tmp; %gprotein/gCDW per flux(mol/gCDW/h)
-end
-totprotcost_1 = sum(protcost_1.*abs(fluxlist_1))/1000; %gprotein/gCDW per flux(mmol/gCDW/h) of glucose
+[protcost_1,totprotcost_1] = CalculateProteinCost(rxnlist_1,fluxlist_1,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_1 = yatp_1/totprotcost_1; %mmolATP/gProtein/h
 
 % Glycolysis + lactic acid fermentation
-rxns_tmp = rxnlist_2;
-flux_tmp = fluxlist_2;
-protcost_2 = zeros(length(rxns_tmp),1);
-for i = 1:length(rxns_tmp)
-    rxnid = rxns_tmp{i};
-    ezmid = strcat(rxnid(3:end),'_');
-    flux = flux_tmp(i);
-    if ismember({rxnid},{'R_M_GLCpts'})
-        kcat_tmp = kcat_glc * 3600;%/h
-        mw_tmp = Info_enzyme.MW(ismember(Info_enzyme.ID,'M_GLCpts_2_Enzyme_c'));
-        protcost_tmp = mw_tmp/kcat_tmp;
-    else
-        if any(contains(enzymelist,ezmid))
-            enzymes_tmp = enzymelist(contains(enzymelist,ezmid));
-            kcats_tmp = kcatlist(contains(enzymelist,ezmid));
-            if flux < 0
-                idx_tmp = contains(enzymes_tmp,'_rvs');
-            else
-                idx_tmp = ~contains(enzymes_tmp,'_rvs');
-            end
-            enzymes_tmptmp = enzymes_tmp(idx_tmp);
-            kcats_tmptmp = kcats_tmp(idx_tmp);
-            [~, b] = ismember(enzymes_tmptmp,Info_enzyme.ID);
-            mws_tmp = Info_enzyme.MW(b);
-            pcs_tmp = mws_tmp./kcats_tmptmp;
-            protcost_tmp = min(pcs_tmp);
-        else
-            protcost_tmp = 0;
-        end
-    end
-    protcost_2(i) = protcost_tmp; %gprotein/gCDW per flux(mol/gCDW/h)
-end
-totprotcost_2 = sum(protcost_2.*abs(fluxlist_2))/1000; %gprotein/gCDW per flux(mmol/gCDW/h) of glucose
+[protcost_2,totprotcost_2] = CalculateProteinCost(rxnlist_2,fluxlist_2,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_2 = yatp_2/totprotcost_2; %mmolATP/gProtein/h
 
 % Arginine catabolism
-rxns_tmp = rxnlist_3;
-flux_tmp = fluxlist_3;
-protcost_3 = zeros(length(rxns_tmp),1);
-for i = 1:length(rxns_tmp)
-    rxnid = rxns_tmp{i};
-    ezmid = strcat(rxnid(3:end),'_');
-    flux = flux_tmp(i);
-    if ismember({rxnid},{'R_M_GLCpts'})
-        kcat_tmp = kcat_glc * 3600;%/h
-        mw_tmp = Info_enzyme.MW(ismember(Info_enzyme.ID,'M_GLCpts_2_Enzyme_c'));
-        protcost_tmp = mw_tmp/kcat_tmp;
-    else
-        if any(contains(enzymelist,ezmid))
-            enzymes_tmp = enzymelist(contains(enzymelist,ezmid));
-            kcats_tmp = kcatlist(contains(enzymelist,ezmid));
-            if flux < 0
-                idx_tmp = contains(enzymes_tmp,'_rvs');
-            else
-                idx_tmp = ~contains(enzymes_tmp,'_rvs');
-            end
-            enzymes_tmptmp = enzymes_tmp(idx_tmp);
-            kcats_tmptmp = kcats_tmp(idx_tmp);
-            [~, b] = ismember(enzymes_tmptmp,Info_enzyme.ID);
-            mws_tmp = Info_enzyme.MW(b);
-            pcs_tmp = mws_tmp./kcats_tmptmp;
-            protcost_tmp = min(pcs_tmp);
-        else
-            protcost_tmp = 0;
-        end
-    end
-    protcost_3(i) = protcost_tmp; %gprotein/gCDW per flux(mol/gCDW/h)
-end
-totprotcost_3 = sum(protcost_3.*abs(fluxlist_3))/1000; %gprotein/gCDW per flux(mmol/gCDW/h) of arginine
+[protcost_3,totprotcost_3] = CalculateProteinCost(rxnlist_3,fluxlist_3,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_3 = yatp_3/totprotcost_3; %mmolATP/gProtein/h
 
-clear b enzymelist enzymelist_tmp enzymes_tmp enzymes_tmptmp;
-clear ezmid flux flux_tmp i idx_tmp kcat_glc kcat_tmp kcatlist kcatlist_tmp;
-clear kcats_tmp kcats_tmptmp mw_tmp mws_tmp pcs_tmp protcost_tmp rxnid;
-clear rxns_tmp;
 
 %% Small model simulation
-mu_list = 0.1:0.025:0.725;
 
-flux = [];
-rel_flux = [];
+% Estimate ATP consumption for growth, which is the sum of ATP for GAM,
+% R_M_PROTS_LLA_v3, R_M_RNAS_LLA, and R_M_DNAS_LLA. The others can be
+% neglected. 
+GAM_MModel = 33.783;
+newGAM = GAM_MModel + 18.0895 + 0.1316 + 0.10138;
+NGAM_MModel = 3.72;
+
+% Estimate proteome allocation to the three pathways.
+tot_rxns = unique([rxnlist_1;rxnlist_2;rxnlist_3]);
+tot_genes = cell(0,1);
+for i = 1:length(tot_rxns)
+    z = model.grRules{ismember(model.rxns,tot_rxns(i))};
+    if ~isempty(z)
+        z = strrep(z,'(',''); z = strrep(z,')','');
+        z = strrep(z,'or',' '); z = strrep(z,'and',' ');
+        z = strtrim(z);
+        z = strsplit(z);%split multiple genes
+    end
+    tot_genes = [tot_genes;z'];
+end
+tot_genes = unique(tot_genes);
+clear tot_rxns i z;
+
+tot_proteome = 0.046;
+
+
+% Estimate upper limit on arg uptake. The small model does not account for
+% biomass formation, so arginine is only used to produce ATP.
+argUB = 1.6568 - 0.1764; % total arg consumption minus arg composition in biomass.
+
+% Simulations
+mu_list = 0.01:0.01:0.8;
+
+flux = zeros(3,length(mu_list));
+rel_flux = zeros(2,length(mu_list));
+unused_prot = zeros(1,length(mu_list));
 
 for i = 1:length(mu_list)
     mu = mu_list(i);
 
     A = [-yatp_1 -yatp_2 -yatp_3;totprotcost_1 totprotcost_2 totprotcost_3];
     
-    b = [-80.44*mu+1.64 0.06];
+    b = [-newGAM*mu-NGAM_MModel tot_proteome];
 
     Aeq = [];
     beq = [];
 
     lb = [0 0 0];
-    ub = [100 100 1.6568*mu];
+    ub = [100 100 argUB*mu];
 
     f = [1 1 0];
 
     x = linprog(f,A,b,Aeq,beq,lb,ub);
     
-    flux = [flux x];
-    rel_flux = [rel_flux [x(1)/(x(1)+x(2));x(2)/(x(1)+x(2))]];
-    
+    flux(:,i) = x;
+    rel_flux(:,i) = [x(1)/(x(1)+x(2));x(2)/(x(1)+x(2))];
+    used_prot = totprotcost_1*x(1)+totprotcost_2*x(2)+totprotcost_3*x(3);
+    unused_prot(i) = tot_proteome - round(used_prot,6);
 end
 
-clear i mu A b Aeq beq lb ub f x factor;
+clear i mu A b Aeq beq lb ub f x factor used_prot;
+
+%% Plot
+color_ma = [55,126,184]/255;
+color_la = [228,26,28]/255;
+color_arg = [152,78,163]/255;
+
 
 figure('Name','1');
+box on;
 hold on;
-plot(mu_list,rel_flux(1,:),'-o','LineWidth',1.5,'Color',[55,126,184]/256,'MarkerSize',8,'MarkerEdgeColor',[55,126,184]/256,'MarkerFaceColor',[55,126,184]/256);
-plot(mu_list,rel_flux(2,:),'-o','LineWidth',1.5,'Color',[228,26,28]/256,'MarkerSize',8,'MarkerEdgeColor',[228,26,28]/256,'MarkerFaceColor',[228,26,28]/256);
-ylabel('Fraction in total glucose carbon','FontSize',12,'FontName','Helvetica');
-
-set(gca,'FontSize',10,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',12,'FontName','Helvetica');
-legend({'Mixed acid','Lactate'},'FontSize',12,'FontName','Helvetica','location','west');
-set(gcf,'position',[0 0 335 300]);
-set(gca,'position',[0.11 0.11 0.75 0.8]);
+plot(mu_list,rel_flux(1,:),'-','LineWidth',1.5,'Color',color_ma);
+plot(mu_list,rel_flux(2,:),'-','LineWidth',1.5,'Color',color_la);
+ylabel('Glucose fraction','FontSize',7,'FontName','Helvetica');
+xlim([0 0.8]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
+legend({'Mixed acid','Lactic acid'},'FontSize',7,'FontName','Helvetica','location','west');
+set(gcf,'position',[0 600 160 100]);
+set(gca,'position',[0.17 0.33 0.35 0.35]);
 
 figure('Name','2');
-plot(mu_list,flux(3,:),'-o','LineWidth',1.5,'Color',[77,175,74]/256,'MarkerSize',8,'MarkerEdgeColor',[77,175,74]/256,'MarkerFaceColor',[77,175,74]/256);
-set(gca,'FontSize',10,'FontName','Helvetica');
-ylabel('q(mmol/gCDW/h)','FontSize',12,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',12,'FontName','Helvetica');
-legend({'Arginine'},'FontSize',12,'FontName','Helvetica','location','nw');
-set(gcf,'position',[0 0 335 300]);
-set(gca,'position',[0.12 0.11 0.75 0.8]);
+box on;
+plot(mu_list,flux(3,:),'-','LineWidth',1.5,'Color',color_arg);
+ylim([0 1.2]);
+xlim([0 0.8]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+ylabel('Arginine uptake','FontSize',7,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
+% legend({'Arginine'},'FontSize',6,'FontName','Helvetica','location','nw');
+set(gcf,'position',[0 400 160 100]);
+set(gca,'position',[0.17 0.33 0.35 0.35]);
 
+figure('Name','3');
+box on;
+plot(mu_list,unused_prot,'-','LineWidth',1.5,'Color','k');
 
+xlim([0 0.8]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+ylabel('Inactive proteome','FontSize',7,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[0 200 160 100]);
+set(gca,'position',[0.17 0.33 0.35 0.35]);
 
 
 
