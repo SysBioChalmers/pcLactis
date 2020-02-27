@@ -105,7 +105,7 @@ tot_proteome = 0.046;
 argUB = 1.6568 - 0.1764; % total arg consumption minus arg composition in biomass.
 
 % Simulations
-mu_list = 0.01:0.01:0.8;
+mu_list = 0.01:0.01:0.82;
 
 flux = zeros(3,length(mu_list));
 rel_flux = zeros(2,length(mu_list));
@@ -136,6 +136,91 @@ end
 
 clear i mu A b Aeq beq lb ub f x factor used_prot;
 
+%% Sensitivity analysis
+
+increasefactor = 0.01;
+
+% 1. reference
+res_ref = zeros(4,length(flux)); %[X;Y;Z;ref_mu]
+
+A = [totprotcost_1 totprotcost_2 totprotcost_3];
+b = tot_proteome;
+Aeq = [];
+beq = [];
+f = [-yatp_1 -yatp_2 -yatp_3];
+for i = 1:length(flux)
+    lb = flux(:,i)';
+    ub = flux(:,i)';
+    [x, fval] = linprog(f,A,b,Aeq,beq,lb,ub);
+    res_ref(1:3,i) = x;
+    res_ref(4,i) = -(fval+NGAM_MModel)/newGAM;
+end
+
+
+% 2. increase bound of arg uptake
+res_arg = zeros(5,length(res_ref)); %[ref_arg;new_arg;ref_mu;new_mu;qs]
+
+f = [-yatp_1 -yatp_2 -yatp_3];
+for i = 1:length(res_ref)
+    A = [1 1 0;totprotcost_1 totprotcost_2 totprotcost_3];
+    b = [sum(res_ref(1:2,i)) tot_proteome];
+    Aeq = [];
+    beq = [];
+	lb = [0 0 0];
+    ub = [100 100 argUB*res_ref(4,i)*(1+increasefactor)];
+    [x, fval] = linprog(f,A,b,Aeq,beq,lb,ub);
+    res_arg(1,i) = argUB*res_ref(4,i);
+    res_arg(2,i) = argUB*res_ref(4,i)*(1+increasefactor);
+    res_arg(4,i) = -(fval+NGAM_MModel)/newGAM;
+    res_arg(5,i) = x(1)+x(2);
+end
+res_arg(3,:) = res_ref(4,:);
+sensitivity_arg = (res_arg(4,:)-res_arg(3,:))./(res_arg(2,:)-res_arg(1,:));
+sensitivity_arg = round(sensitivity_arg,6);
+
+% 3. increase bound of glucose uptake, similar to increase glucose
+% transporter.
+res_glc = zeros(5,length(res_ref)); %[ref_glc;new_glc;ref_mu;new_mu;qs]
+
+f = [-yatp_1 -yatp_2 -yatp_3];
+for i = 1:length(res_ref)
+    A = [1 1 0;totprotcost_1 totprotcost_2 totprotcost_3];
+    b = [sum(res_ref(1:2,i))*(1+increasefactor) tot_proteome];
+    Aeq = [];
+    beq = [];
+	lb = [0 0 0];
+    ub = [100 100 argUB*res_ref(4,i)];
+    [x, fval] = linprog(f,A,b,Aeq,beq,lb,ub);
+    res_glc(1,i) = sum(res_ref(1:2,i));
+    res_glc(2,i) = sum(res_ref(1:2,i))*(1+increasefactor);
+    res_glc(4,i) = -(fval+NGAM_MModel)/newGAM;
+    res_glc(5,i) = sum(res_ref(1:2,i));
+end
+res_glc(3,:) = res_ref(4,:);
+sensitivity_glc = (res_glc(4,:)-res_glc(3,:))./(res_glc(2,:)-res_glc(1,:));
+sensitivity_glc = round(sensitivity_glc,6);
+
+% 4. increase constraint on proteome
+res_proteome = zeros(5,length(res_ref)); %[ref_proteome;new_proteome;ref_mu;new_mu;qs]
+
+f = [-yatp_1 -yatp_2 -yatp_3];
+for i = 1:length(res_ref)
+    A = [1 1 0;totprotcost_1 totprotcost_2 totprotcost_3];
+    b = [sum(res_ref(1:2,i)) tot_proteome*(1+increasefactor)];
+    Aeq = [];
+    beq = [];
+	lb = [0 0 0];
+    ub = [100 100 argUB*res_ref(4,i)];
+    [x, fval] = linprog(f,A,b,Aeq,beq,lb,ub);
+    res_proteome(1,i) = tot_proteome;
+    res_proteome(2,i) = tot_proteome*(1+increasefactor);
+    res_proteome(4,i) = -(fval+NGAM_MModel)/newGAM;
+    res_proteome(5,i) = x(1)+x(2);
+end
+res_proteome(3,:) = res_ref(4,:);
+sensitivity_proteome = (res_proteome(4,:)-res_proteome(3,:))./(res_proteome(2,:)-res_proteome(1,:));
+sensitivity_proteome = round(sensitivity_proteome,6);
+
 %% Plot
 color_ma = [55,126,184]/255;
 color_la = [228,26,28]/255;
@@ -143,46 +228,74 @@ color_arg = [152,78,163]/255;
 
 
 figure('Name','1');
+subplot(8,1,1);
 box on;
 hold on;
-plot(mu_list,rel_flux(1,:),'-','LineWidth',1.5,'Color',color_ma);
-plot(mu_list,rel_flux(2,:),'-','LineWidth',1.5,'Color',color_la);
-ylabel('Glucose fraction','FontSize',7,'FontName','Helvetica');
-xlim([0 0.8]);
+plot(sum(flux(1:2,:)),yatp_1*flux(1,:)+yatp_2*flux(2,:)+yatp_3*flux(3,:),'-','LineWidth',1.5,'Color',[247,129,191]/255);
+ylim([0 49]);
+xlim([0 24]);
 set(gca,'FontSize',6,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
-legend({'Mixed acid','Lactic acid'},'FontSize',7,'FontName','Helvetica','location','west');
-set(gcf,'position',[0 600 160 100]);
-set(gca,'position',[0.17 0.33 0.35 0.35]);
+title('ATP production','FontSize',7,'FontName','Helvetica');
 
-figure('Name','2');
+subplot(8,1,2);
 box on;
-plot(mu_list,flux(3,:),'-','LineWidth',1.5,'Color',color_arg);
+hold on;
+plot(sum(flux(1:2,:)),flux(1,:),'-','LineWidth',1.5,'Color',color_ma);
+ylim([0 7]);
+xlim([0 24]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('Mixed acid flux','FontSize',7,'FontName','Helvetica');
+
+subplot(8,1,3);
+box on;
+hold on;
+plot(sum(flux(1:2,:)),flux(2,:),'-','LineWidth',1.5,'Color',color_la);
+ylim([0 25]);
+xlim([0 24]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('Lactic acid flux','FontSize',7,'FontName','Helvetica');
+
+subplot(8,1,4);
+box on;
+plot(sum(flux(1:2,:)),flux(3,:),'-','LineWidth',1.5,'Color',color_arg);
 ylim([0 1.2]);
-xlim([0 0.8]);
+xlim([0 24]);
 set(gca,'FontSize',6,'FontName','Helvetica');
-ylabel('Arginine uptake','FontSize',7,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
-% legend({'Arginine'},'FontSize',6,'FontName','Helvetica','location','nw');
-set(gcf,'position',[0 400 160 100]);
-set(gca,'position',[0.17 0.33 0.35 0.35]);
+title('Arginine uptake','FontSize',7,'FontName','Helvetica');
 
-figure('Name','3');
+subplot(8,1,5);
 box on;
-plot(mu_list,unused_prot,'-','LineWidth',1.5,'Color','k');
-
-xlim([0 0.8]);
+plot(sum(flux(1:2,:)),unused_prot,'-','LineWidth',1.5,'Color','k');
+xlim([0 24]);
 set(gca,'FontSize',6,'FontName','Helvetica');
-ylabel('Inactive proteome','FontSize',7,'FontName','Helvetica');
-xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica');
-set(gcf,'position',[0 200 160 100]);
-set(gca,'position',[0.17 0.33 0.35 0.35]);
+title('Inactive proteome','FontSize',7,'FontName','Helvetica');
+
+subplot(8,1,6);
+box on;
+plot(res_arg(5,:),sensitivity_arg,'-','LineWidth',1.5,'Color','k');
+xlim([0 24]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('Sensitivity of Arg uptake','FontSize',7,'FontName','Helvetica');
+
+subplot(8,1,7);
+box on;
+plot(res_glc(5,:),sensitivity_glc,'-','LineWidth',1.5,'Color','k');
+xlim([0 24]);
+ylim([0 0.07]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('Sensitivity of glucose uptake','FontSize',7,'FontName','Helvetica');
+
+subplot(8,1,8);
+box on;
+plot(res_proteome(5,:),sensitivity_proteome,'-','LineWidth',1.5,'Color','k');
+xlim([0 24]);
+ylim([0 4.5]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+title('Sensitivity of proteome','FontSize',7,'FontName','Helvetica');
+xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');
 
 
-
-
-
-
+set(gcf,'position',[400 200 125 600]);
 
 
 

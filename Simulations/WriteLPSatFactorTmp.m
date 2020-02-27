@@ -771,7 +771,10 @@ fprintf(fptr,'Ctotprot: %s = %.15f\n',eq,mu*f);
 % 	end
 % end
 
-Transporters = {'M_GLCpts_1_Enzyme_c';'M_GLCpts_2_Enzyme_c';'M_GLCpermease_fwd_Enzyme_c'};
+Transporters = {'M_GLCpts_1_Enzyme_c';
+           'M_GLCpts_2_Enzyme_c';
+           'M_GLCt2_fwd_Enzyme_c';
+           'M_GLCt2_rvs_Enzyme_c'};
 
 for i = 1:length(Transporters)
 	comp_name = Transporters{i};

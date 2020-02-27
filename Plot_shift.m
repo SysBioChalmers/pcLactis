@@ -272,6 +272,34 @@ end
 
 set(gcf,'position',[0 0 820 700]);
 
+figure('Name','aa_biomass vs aa_uptake');
+for i = 1:length(Exchange_AAs)
+    rxnid = Exchange_AAs{i};
+    aaid = rxnid(8:10);
+    flux_tmp = -flux_res(strcmp(model.rxns,rxnid),:);
+    flux_tRNA = CalculateAAtRNAFlux(model,flux_res,aaid);
+    subplot(4,5,i);
+    hold on;
+    box on;
+    scatter(flux_tRNA,flux_tmp,50,mu2,'filled','LineWidth',0.75);
+    colormap copper;
+    x = [-5,5]; y = [-5,5];
+    plot(x,y,':','LineWidth',1.5,'Color','k');
+    colorbar;
+    xlim([min([flux_tRNA,flux_tmp]) max([flux_tRNA,flux_tmp])]);
+    ylim([min([flux_tRNA,flux_tmp]) max([flux_tRNA,flux_tmp])]);
+    set(gca,'FontSize',12,'FontName','Helvetica');
+    ylabel('Uptake flux','FontSize',14,'FontName','Helvetica');
+    xlabel('tRNA charging flux','FontSize',14,'FontName','Helvetica');
+    title(aaid,'FontSize',14,'FontName','Helvetica');
+end
+
+set(gcf,'position',[0 100 1200 600]);
+
+
+
+
+
 %% Protein constraints
 [~, excel_input, ~] = xlsread('Allocation.xlsx');
 load('Info_enzyme.mat');

@@ -9,6 +9,7 @@ reduced_cost = increase_mu./increase_aa;
 scaled_reduced_cost = reduced_cost.*result_rcAA.data(3,:)./result_rcAA.data(1,:);
 % scaled_reduced_cost = reduced_cost;
 scaled_reduced_cost(isnan(scaled_reduced_cost)) = 0;
+% scaled_reduced_cost(scaled_reduced_cost == inf) = 0;
 
 aaidlist = result_rcAA.column(1:20);
 aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);
