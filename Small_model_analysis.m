@@ -106,11 +106,8 @@ argUB = 1.6568 - 0.1764; % total arg consumption minus arg composition in biomas
 
 % Simulations
 mu_list = 0.01:0.01:0.82;
-
 flux = zeros(3,length(mu_list));
-rel_flux = zeros(2,length(mu_list));
 unused_prot = zeros(1,length(mu_list));
-
 for i = 1:length(mu_list)
     mu = mu_list(i);
 
@@ -129,7 +126,6 @@ for i = 1:length(mu_list)
     x = linprog(f,A,b,Aeq,beq,lb,ub);
     
     flux(:,i) = x;
-    rel_flux(:,i) = [x(1)/(x(1)+x(2));x(2)/(x(1)+x(2))];
     used_prot = totprotcost_1*x(1)+totprotcost_2*x(2)+totprotcost_3*x(3);
     unused_prot(i) = tot_proteome - round(used_prot,6);
 end
@@ -298,7 +294,36 @@ xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');
 set(gcf,'position',[400 200 125 600]);
 
 
+% 4. increase constraint on proteome
+increasefactor = 0.1;
+flux_increasedProt = zeros(3,length(mu_list));
 
+f = [-yatp_1 -yatp_2 -yatp_3];
+for i = 1:length(res_ref)
+    A = [1 1 0;totprotcost_1 totprotcost_2 totprotcost_3];
+    b = [sum(res_ref(1:2,i)) tot_proteome*(1+increasefactor)];
+    Aeq = [];
+    beq = [];
+	lb = [0 0 0];
+    ub = [100 100 argUB*res_ref(4,i)];
+    [x, fval] = linprog(f,A,b,Aeq,beq,lb,ub);
+    flux_increasedProt(:,i) = x;
+end
+
+figure('Name','2');
+box on;
+hold on;
+plot(sum(flux(1:2,:)),flux(1,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_ma);
+plot(sum(flux(1:2,:)),flux(2,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_la);
+plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(1,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_ma);
+plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(2,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_la);
+ylim([0 1]);
+xlim([0 24]);
+set(gca,'FontSize',6,'FontName','Helvetica');
+xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');
+ylabel('Fraction of glucose flux','FontSize',7,'FontName','Helvetica');
+set(gcf,'position',[200 600 350 120]);
+set(gca,'position',[0.1 0.2 0.68 0.78]);
 
 
 

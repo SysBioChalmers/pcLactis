@@ -1,8 +1,8 @@
-load('Sglc2_fluxes_with_sf.mat');
-flux_res = fluxes_simulated_with_sf;
+% load('Sglc2_fluxes_with_sf.mat');
+% flux_res = fluxes_simulated_with_sf;
 
-% load('Sglc2_fluxes_without_sf.mat');
-% flux_res = fluxes_simulated_without_sf;
+load('Sglc2_fluxes_without_sf.mat');
+flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
@@ -249,12 +249,14 @@ for i = 1:length(Exchange_AAs)
     rxnid = Exchange_AAs{i};
     aaid = rxnid(8:10);
     flux_tmp = -flux_res(strcmp(model.rxns,rxnid),:);
+    flux_tRNA = CalculateAAtRNAFlux(model,flux_res,aaid);
     m = -LBfactor_AAs(i);
     
     subplot(4,5,i);
     hold on;
     box on;
     plot(mu2,flux_tmp,'-','LineWidth',0.75,'Color',[247,104,161]/255);
+    plot(mu2,flux_tRNA,'-','LineWidth',0.75,'Color','k');
     x = [0,1]; y = [0,m];
     plot(x,y,':','LineWidth',1.5,'Color','k');
     

@@ -415,9 +415,9 @@ clear Functional_protein FUtRNA Metabolic_Matrix...
 % biomass dilution reaction represents the rest of the cell materials as
 % well as the unmodeled protein.
 
-Model_Matrix = AddBiomassDilutionRxn(Model_Matrix,0.4,40);
+Model_Matrix = AddBiomassDilutionRxn(Model_Matrix,0.4,36);
 % 0.4 is f_unmodeled, unmodeled protein proportion (g/g total protein).
-% 40 is GAM.
+% 36 is GAM.
 
 %% modelling: Convert ME-Matrix to COBRA model.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
