@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+NGAM = 3; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -27,7 +27,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
+f_transporter = 0.0083;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -72,10 +72,10 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
 % load glucose concentration of reference state
-load('Sglc2_result_with_sf.mat');
-selected_points = [1;5;9;13];
-glc_conc_list = glc_conc_with_sf(selected_points,:);
-clear glc_conc_with_sf;
+load('Sglc_result.mat');
+selected_points = [1;9;17;21;25];
+glc_conc_list = glc_conc_without_sf(selected_points,:);
+clear glc_conc_without_sf;
 
 AA_factor = 0.01; % increase = reference value * AA_factor 
 
@@ -101,17 +101,6 @@ aa_list = {'ala'
            'tyr'
            'val'};
 
-% obtain the global saturation factor
-load('Egsf2_result.mat');
-x = global_saturation_factor_list(:,1);
-y = global_saturation_factor_list(:,2);
-% x = x(y ~= 1);
-% y = y(y ~= 1);
-x = x(~isnan(y));
-y = y(~isnan(y));
-sf_coeff = x\y;
-clear x y;
-
 fluxes_rcAA = zeros(length(model.rxns),length(selected_points)*length(aa_list));
 fluxes_ref = zeros(length(model.rxns),length(selected_points));
 result_rcAA.row = {'mu_ref';'mu';'aa_ref';'aa_bound';'aa_real'};
@@ -134,10 +123,7 @@ for i = 1:length(selected_points)
         disp(['Ref: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
         model_ref = changeRxnBounds(model_ref,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
-        factor_k = sf_coeff * mu_mid;
-        if factor_k > 1
-            factor_k = 1;
-        end
+        factor_k = 1;
         fileName = WriteLPSatFactor(model_ref,mu_mid,f,osenseStr,rxnID,factor_k,...
                                     f_transporter,kcat_glc,factor_glc,...
                                     Info_enzyme,...
@@ -167,10 +153,7 @@ for i = 1:length(selected_points)
     model_tmp = model;
     model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,q_AAs_ref,'l');
     
-    factor_k = sf_coeff * mu_ref;
-    if factor_k > 1
-        factor_k = 1;
-    end
+    factor_k = 1;
     
     disp(['Calculating Ref(new) for Glucose concentration = ' num2str(glc_conc) ' and mu = ' num2str(mu_ref)]);
     model_tmptmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_ref,'b');
@@ -194,10 +177,7 @@ for i = 1:length(selected_points)
     q_AAs_ref_new = solME_full_ref(idx_tmp);
     q_AAs_ref_new(q_AAs_ref_new > 0) = 0;
     
-    factor_k = sf_coeff * mu_ref_new;
-    if factor_k > 1
-        factor_k = 1;
-    end
+    factor_k = 1;
     
     % Reduced cost analysis for each AA
     for j = 1:length(aa_list)

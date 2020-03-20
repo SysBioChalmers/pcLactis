@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36; %ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+NGAM = 3; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -27,7 +27,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 factor_k = 1;%global saturation factor
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
+f_transporter = 0.0083;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -72,7 +72,11 @@ for i = 1:length(mu_list)
     mu = mu_list(i);
     
     model_tmp = changeRxnBounds(model,'R_biomass_dilution',mu,'b');
-
+    
+    % Set bounds for glucose transporter.
+    glcT = f_transporter * 0.46 * mu / 1.0500867e2; % 1.0500867e2 is MW of glucose transporter in g/mmol
+    model_tmp = changeRxnBounds(model_tmp,'R_dilution_M_GLCpts_2_Enzyme',glcT*0.999999,'b');
+    
     % Set bounds for some exchange reactions.
     idx = find(contains(header,num2str(mu)));
     replicate = length(idx)/2;
@@ -114,9 +118,62 @@ cd Results/;
 save('Emwe_fluxes.mat','fluxes_global_saturation_factor_unchanged');
 cd ../;
 
-clear ans command exchange_raw f f_transporter f_unmodeled factor_k Exchange_reactions;
-clear fileName fileName_out GAM header i idx j kcat_glc LB lb_idx pcLactis_Model;
-clear model_tmp mu mu_list NGAM osenseStr replicate rxnID solME_status UB ub_idx;
-clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome Info_tRNA solME_full;
+flux_res = fluxes_global_saturation_factor_unchanged;
+[~, excel_input, ~] = xlsread('Allocation.xlsx');
+[~, n] = size(flux_res);
+
+unmodeled_weight = 0.46 * f_unmodeled;
+
+allocation_value = zeros(5,n);
+total_proteome = zeros(1,n);
+total_RNA = zeros(1,n);
+total_rProtein = zeros(1,n);
+total_inactive_enzyme = zeros(1,n);
+mu_list = zeros(1,n);
+total_Ribo = zeros(1,n);
+q_glc = zeros(1,n);
+total_rRNA = zeros(1,n);
+total_tRNA = zeros(1,n);
+total_mRNA = zeros(1,n);
+
+for i = 1:n
+    
+    disp([num2str(i) '/' num2str(n)]);
+    
+    solME_full = flux_res(:,i);
+    
+    mu = solME_full(strcmp(model.rxns,'R_biomass_dilution'));
+    mu_list(1,i) = mu;
+    q_glc(1,i) = abs(solME_full(strcmp(model.rxns,'R_M_EX_glc__D_e'),:));
+    
+    [pathway, absvalue] = CalculateProteinAllocation(model,solME_full,Info_enzyme,excel_input);
+    allocation_value(:,i) = absvalue;
+    
+    [Protein,RNA,rProtein,rRNA,tRNA,mRNA] = CalculateProteinAndRNA(model,solME_full,...
+                                                             Info_enzyme,...
+                                                             Info_ribosome,...
+                                                             Info_tRNA,...
+                                                             Info_mRNA);
+    total_proteome(1,i) = Protein;
+    total_RNA(1,i) = RNA;
+    total_rProtein(1,i) = rProtein;
+    total_Ribo(1,i) = rProtein + rRNA;
+    
+    [~,~,f_enzyme_inact,~] = CheckInactiveEnzyme(model,solME_full,factor_k);
+    total_inactive_enzyme(1,i) = f_enzyme_inact;
+    total_rRNA(1,i) = rRNA;
+    total_tRNA(1,i) = tRNA;
+    total_mRNA(1,i) = mRNA;
+end
+allocation_pathway = [pathway;'Ribosomal protein';'Inactive enzyme'];
+allocation_value = [allocation_value;total_rProtein;total_inactive_enzyme];
+
+allocation_pathway = [allocation_pathway;'Other modeled protein'];
+allocation_value = [allocation_value;total_proteome-sum(allocation_value)-unmodeled_weight];
+
+allocation_pathway = [allocation_pathway;'Unmodeled protein'];
+allocation_value = [allocation_value;unmodeled_weight*ones(1,n)];
+
+allocation_percentage = allocation_value./total_proteome;
 
 toc;

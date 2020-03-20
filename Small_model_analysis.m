@@ -42,11 +42,12 @@ model_3 = changeRxnBounds(model_3,'R_M_EX_h2o_e',-1000,'l');
 model_3 = changeRxnBounds(model_3,'R_M_ARGt2r',0,'b');
 model_3 = changeRxnBounds(model_3,'R_M_ARGabc',0,'b');
 model_3 = changeRxnBounds(model_3,'R_M_EX_h_e',-1000,'l');
+
 sol_3 = optimizeCbModel(model_3,'max','one');
 rxnlist_3 = model_3.rxns(sol_3.x ~= 0);
 fluxlist_3 = sol_3.x(sol_3.x ~= 0);
 yatp_3 = sol_3.x(ismember(model_3.rxns,'R_M_ATPM')) / -sol_3.x(ismember(model_3.rxns,'R_M_EX_arg__L_e'));
-clear model_3 sol_3;
+% clear model_3 sol_3;
 
 %% Minimal protein cost for each rxn and pathway
 load('Info_enzyme.mat');
@@ -71,6 +72,9 @@ protein_efficiency_2 = yatp_2/totprotcost_2; %mmolATP/gProtein/h
 [protcost_3,totprotcost_3] = CalculateProteinCost(rxnlist_3,fluxlist_3,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_3 = yatp_3/totprotcost_3; %mmolATP/gProtein/h
 
+totprotcost_1 = 1*totprotcost_1;
+totprotcost_2 = 1*totprotcost_2;
+totprotcost_3 = 1*totprotcost_3;
 
 %% Small model simulation
 
@@ -105,7 +109,7 @@ tot_proteome = 0.046;
 argUB = 1.6568 - 0.1764; % total arg consumption minus arg composition in biomass.
 
 % Simulations
-mu_list = 0.01:0.01:0.82;
+mu_list = 0.01:0.01:0.71;
 flux = zeros(3,length(mu_list));
 unused_prot = zeros(1,length(mu_list));
 for i = 1:length(mu_list)
@@ -173,6 +177,7 @@ end
 res_arg(3,:) = res_ref(4,:);
 sensitivity_arg = (res_arg(4,:)-res_arg(3,:))./(res_arg(2,:)-res_arg(1,:));
 sensitivity_arg = round(sensitivity_arg,6);
+sensitivity_arg = sensitivity_arg.*round((res_arg(1,:)./res_arg(3,:)),6);
 
 % 3. increase bound of glucose uptake, similar to increase glucose
 % transporter.
@@ -195,6 +200,7 @@ end
 res_glc(3,:) = res_ref(4,:);
 sensitivity_glc = (res_glc(4,:)-res_glc(3,:))./(res_glc(2,:)-res_glc(1,:));
 sensitivity_glc = round(sensitivity_glc,6);
+sensitivity_glc = sensitivity_glc.*round((res_glc(1,:)./res_glc(3,:)),6);
 
 % 4. increase constraint on proteome
 res_proteome = zeros(5,length(res_ref)); %[ref_proteome;new_proteome;ref_mu;new_mu;qs]
@@ -216,6 +222,7 @@ end
 res_proteome(3,:) = res_ref(4,:);
 sensitivity_proteome = (res_proteome(4,:)-res_proteome(3,:))./(res_proteome(2,:)-res_proteome(1,:));
 sensitivity_proteome = round(sensitivity_proteome,6);
+sensitivity_proteome = sensitivity_proteome.*round((res_proteome(1,:)./res_proteome(3,:)),6);
 
 %% Plot
 color_ma = [55,126,184]/255;
@@ -237,7 +244,7 @@ subplot(8,1,2);
 box on;
 hold on;
 plot(sum(flux(1:2,:)),flux(1,:),'-','LineWidth',1.5,'Color',color_ma);
-ylim([0 7]);
+ylim([0 12]);
 xlim([0 24]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Mixed acid flux','FontSize',7,'FontName','Helvetica');
@@ -277,7 +284,7 @@ subplot(8,1,7);
 box on;
 plot(res_glc(5,:),sensitivity_glc,'-','LineWidth',1.5,'Color','k');
 xlim([0 24]);
-ylim([0 0.07]);
+% ylim([0 0.07]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Sensitivity of glucose uptake','FontSize',7,'FontName','Helvetica');
 
@@ -285,7 +292,7 @@ subplot(8,1,8);
 box on;
 plot(res_proteome(5,:),sensitivity_proteome,'-','LineWidth',1.5,'Color','k');
 xlim([0 24]);
-ylim([0 4.5]);
+% ylim([0 4.5]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Sensitivity of proteome','FontSize',7,'FontName','Helvetica');
 xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');

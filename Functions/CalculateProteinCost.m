@@ -12,6 +12,8 @@ for i = 1:length(rxnslist)
         kcat_tmp = kcat_glc * 3600;%/h
         mw_tmp = Info_enzyme.MW(ismember(Info_enzyme.ID,'M_GLCpts_2_Enzyme_c'));
         protcost_tmp = mw_tmp/kcat_tmp;
+    elseif ismember({rxnid},{'R_M_ATPS3r'})
+        protcost_tmp = 0;
     else
         if any(contains(enzymelist,ezmid))
             enzymes_tmp = enzymelist(contains(enzymelist,ezmid));

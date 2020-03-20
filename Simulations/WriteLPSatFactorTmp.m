@@ -805,9 +805,9 @@ fprintf(fptr,'Bounds\n');
 
 for i = 1:length(model.rxns)
 	if model.ub(i) >= 100
-        fprintf(fptr,'%f <= X%d <= +infinity\n',model.lb(i),i);
+        fprintf(fptr,'%.15f <= X%d <= +infinity\n',model.lb(i),i);
     else
-        fprintf(fptr,'%f <= X%d <= %f\n',model.lb(i),i,model.ub(i));
+        fprintf(fptr,'%.15f <= X%d <= %.15f\n',model.lb(i),i,model.ub(i));
 	end
 end
 

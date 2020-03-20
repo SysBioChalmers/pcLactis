@@ -34,7 +34,8 @@ model = changeRxnBounds(model,'R_M_biomass_LLA_atpm',0,'b');
 
 %% Loop for calculating fluxes at dilution rate of 0.15 0.3 0.5 and 0.6.
 
-[~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds_GAM_NGAM');
+% [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds_GAM_NGAM');
+[~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','Exp_bounds');
 
 Exchange_reactions = exchange_raw(2:end,1);
 header = exchange_raw(1,1:21);
@@ -221,7 +222,8 @@ for i = 1:length(cmp_pcLactis.EnzymeID_pc)
     ratio_factor = [Ratio030015_Factor Ratio050015_Factor Ratio060015_Factor];
     cmp_pcLactis.factor_ratio = [cmp_pcLactis.factor_ratio;ratio_factor];
     
-    R_tmp = corrcoef([0.15 0.3 0.5 0.6],[1 ratio_factor]);
+%     R_tmp = corrcoef([0.15 0.3 0.5 0.6],[1 ratio_factor]);
+    R_tmp = corrcoef([0.15 0.3 0.5],[1 ratio_factor(1:2)]);
     R = R_tmp(1,2);
     cmp_pcLactis.corr_coef = [cmp_pcLactis.corr_coef;R];
 end
@@ -288,9 +290,9 @@ for i = 1:length(sat_factor.EnzymeID_pc)
     sat_factor.k = [sat_factor.k;coef_tmp];
 end
 
-% cd Simulations/;
-% save('sat_factor.mat','sat_factor');
-% cd ../;
+cd Simulations/;
+save('sat_factor.mat','sat_factor');
+cd ../;
 
 %% Figure distribution of all correlationss
 

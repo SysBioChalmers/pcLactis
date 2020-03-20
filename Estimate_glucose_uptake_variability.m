@@ -2,7 +2,7 @@
 % Calculate UB and LB of the glucose uptake rate for each glucose
 % concentration.
 
-% Timing: ~ 400 s
+% Timing: ~ 1700 s
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -13,8 +13,9 @@ load('pcLactis_Model.mat');
 model = pcLactis_Model;
 
 %% Parameters.
+rxnID = 'R_M_EX_glc__D_e';
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+NGAM = 3; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -23,18 +24,8 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.009;%fraction of glucose transporter in total proteome
-
-% obtain the global saturation factor
-load('Egsf2_result.mat');
-x = global_saturation_factor_list(:,1);
-y = global_saturation_factor_list(:,2);
-% x = x(y ~= 1);
-% y = y(y ~= 1);
-x = x(~isnan(y));
-y = y(~isnan(y));
-sf_coeff = x\y;
-clear x y;
+f_transporter = 0.0083;%fraction of glucose transporter in total proteome
+factor_k = 1;
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -78,27 +69,21 @@ model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
-load('Sglc2_result_with_sf.mat');
+load('Sglc_result.mat');
 
-D_list = glc_conc_with_sf(:,1);%unit: /h
-glc_conc_list = glc_conc_with_sf(:,2)*1.000001;%unit: uM
+D_list = glc_conc_without_sf(:,1);%unit: /h
+glc_conc_list = glc_conc_without_sf(:,2)*1.000001;%unit: uM
 
 fluxes_simulated = zeros(length(model.rxns),2*length(D_list));
 
 for i = 1:length(D_list)
     
     D = D_list(i);
-	factor_k = sf_coeff * D;
-    if factor_k > 1
-        factor_k = 1;
-    end
 	model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
 	model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
     
 	glc_conc = glc_conc_list(i);
     factor_glc = glc_conc / (glc_conc + Km);
-    
-    rxnID = 'R_M_EX_glc__D_e'; 
     
     % Minimize glucose uptake rate
     osenseStr = 'Maximize';

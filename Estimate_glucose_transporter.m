@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 11000 s
+% Timing: ~ 17000 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.
@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36; %ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+NGAM = 3; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -71,8 +71,8 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main simulations.
 
-f_transporter_range = [0.001:0.001:0.01,0.1,0.2];
-% f_transporter_range = 0.5;
+% f_transporter_range = [0.001:0.001:0.01,0.1,0.2];
+f_transporter_range = 0.5;
 res = zeros(length(f_transporter_range),9);
 
 for i = 1:length(f_transporter_range)
@@ -81,7 +81,7 @@ for i = 1:length(f_transporter_range)
     mu_low = 0;
     mu_high = 0.8;
     
-    while mu_high-mu_low > 0.000000001
+    while mu_high-mu_low > 0.000001
         mu_mid = (mu_low+mu_high)/2;
         disp(['f_transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
         model = changeRxnBounds(model,'R_biomass_dilution',mu_mid,'b');
@@ -96,7 +96,7 @@ for i = 1:length(f_transporter_range)
                            Info_tRNA);
 
 %         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-20 -o1e-20 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-6 --real:fpopttol=1e-6 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);

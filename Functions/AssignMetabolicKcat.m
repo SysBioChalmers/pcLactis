@@ -162,6 +162,15 @@ for i = 1:length(kcat_process)
     end
 end
 cd ../;
+
+% Manually update kcats
+[valuelist, b, ~] = xlsread('Manual_kcat.xlsx');
+title = b(1,:);
+enzymelist = b(2:end,ismember(title,'Enzyme'));
+for i = 1:length(enzymelist)
+    RxnGPR.kcat(ismember(RxnGPR.newGPR,enzymelist(i))) = valuelist(i) * 3600;
+end
+
 %export to excel file
 kcat_xlsx(:,1) = RxnGPR.Rxn;
 kcat_xlsx(:,2) = RxnGPR.newGPR;
