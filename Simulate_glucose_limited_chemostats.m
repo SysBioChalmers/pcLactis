@@ -71,7 +71,7 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 %% Main part.
 
 D_list = 0.1:0.025:0.675;%unit: /h
-D_list = [D_list,0.6837];
+D_list = [D_list,0.68,0.685];
 % without saturation factor
 factor_k = 1;%global saturation factor
 fluxes_simulated_without_sf = zeros(length(model.rxns),length(D_list));

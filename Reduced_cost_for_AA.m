@@ -28,6 +28,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
 f_transporter = 0.0083;%fraction of glucose transporter in total proteome
+factor_k = 1;
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -123,7 +124,6 @@ for i = 1:length(selected_points)
         disp(['Ref: Glucose concentration = ' num2str(glc_conc) ' uM; mu = ' num2str(mu_mid)]);
         model_ref = changeRxnBounds(model_ref,'R_biomass_dilution',mu_mid,'b');
         model_ref = changeRxnBounds(model_ref,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
-        factor_k = 1;
         fileName = WriteLPSatFactor(model_ref,mu_mid,f,osenseStr,rxnID,factor_k,...
                                     f_transporter,kcat_glc,factor_glc,...
                                     Info_enzyme,...
@@ -152,9 +152,6 @@ for i = 1:length(selected_points)
     % Estimate reference state using the new AA uptakes and growth rate
     model_tmp = model;
     model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,q_AAs_ref,'l');
-    
-    factor_k = 1;
-    
     disp(['Calculating Ref(new) for Glucose concentration = ' num2str(glc_conc) ' and mu = ' num2str(mu_ref)]);
     model_tmptmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_ref,'b');
     fileName = WriteLPSatFactorTmp(model_tmptmp,mu_ref,f,osenseStr,rxnID,factor_k,...
@@ -176,9 +173,6 @@ for i = 1:length(selected_points)
     [~, idx_tmp] = ismember(Exchange_AAs,model_ref.rxns);
     q_AAs_ref_new = solME_full_ref(idx_tmp);
     q_AAs_ref_new(q_AAs_ref_new > 0) = 0;
-    
-    factor_k = 1;
-    
     % Reduced cost analysis for each AA
     for j = 1:length(aa_list)
         model_tmp = model;

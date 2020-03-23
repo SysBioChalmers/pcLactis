@@ -1,5 +1,6 @@
 
 load('Sglc_fluxes');
+% load('Sglc_fluxes_test.mat');
 flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');

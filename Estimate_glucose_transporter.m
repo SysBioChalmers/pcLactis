@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 17000 s
+% Timing: ~ 11000 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.

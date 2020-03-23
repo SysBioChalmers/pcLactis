@@ -1,12 +1,8 @@
 %% Sensitivity analysis for glucose transporter.
 
-% Timing: ~ 73000 s
-
-% With the saturation saturation factor are performed.
+% Timing: ~ 43600 s
 
 % Simulated results will be saved in the folder 'Results'.
-
-% Figures can be obtained by running the codes starting from line .
 
 tic;
 load('pcLactis_Model.mat');
@@ -19,10 +15,10 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 2; %(mmol/gCDW/h)
+NGAM = 3; %(mmol/gCDW/h)
 
 f_unmodeled_ref = 0.4;
-f_transporter_ref = 0.009;
+f_transporter_ref = 0.0083;
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -74,25 +70,21 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 %% Main part.
 precision = 1e-9;
 org_min_mu = 0;
-org_max_mu = 2;
+org_max_mu = 1;
+factor_k = 1;
+
+% load glucose concentration of reference state
+load('Sglc_result.mat');
+selected_points = [1:2:23,25,26];
+glc_list = glc_conc_without_sf(selected_points,2);
+clear glc_conc_without_sf selected_points;
 
 % glc_list = [2 4 6 8 10 20 40 60 80 100 200 1000 10000 100000 1000000];%unit: uM
 % glucose_transporter_list = f_transporter_ref*(1:0.01:1.05);
-glc_list = [2 5 10 20 50 100 1000 10000 100000];%unit: uM
-glucose_transporter_list = f_transporter_ref*(1:0.1:1.5);
-res_gt = zeros(length(glucose_transporter_list),4,length(glc_list));
+% glc_list = [2 5 10 20 50 100 1000 10000];%unit: uM
+glucose_transporter_list = f_transporter_ref*[1,1.01];
+res_gt = zeros(length(glucose_transporter_list),length(glc_list));
 fluxes_gt = zeros(length(model.rxns),length(glucose_transporter_list)*length(glc_list));
-
-% obtain the global saturation factor
-load('Egsf2_result.mat');
-x = global_saturation_factor_list(:,1);
-y = global_saturation_factor_list(:,2);
-% x = x(y ~= 1);
-% y = y(y ~= 1);
-x = x(~isnan(y));
-y = y(~isnan(y));
-sf_coeff = x\y;
-clear x y;
 
 for i = 1:length(glc_list)
     glc_conc = glc_list(i);
@@ -114,10 +106,6 @@ for i = 1:length(glc_list)
             disp(['Glucose concentration = ' num2str(glc_conc) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
             model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
-            factor_k = sf_coeff * mu_mid;
-            if factor_k > 1
-                factor_k = 1;
-            end
             fileName = WriteLPSatFactor(model_tmp,mu_mid,f,osenseStr,rxnID,factor_k,...
                                         f_transporter,kcat_glc,factor_glc,...
                                         Info_enzyme,...
@@ -125,7 +113,7 @@ for i = 1:length(glc_list)
                                         Info_protein,...
                                         Info_ribosome,...
                                         Info_tRNA);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -137,10 +125,7 @@ for i = 1:length(glc_list)
             end
         end
         mu = flux_tmp(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
-        glc = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
-        arg = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        res_gt(k,:,i) = [f_transporter mu mu/(glc*180/1000) arg*174/1000/mu];
-                                          %g_CDW/g_glucose  g_arginine/g_CDW
+        res_gt(k,i) = mu;
         fluxes_gt(:,(i-1)*length(glucose_transporter_list)+k) = flux_tmp;
         mu_ref = mu;
 	end
@@ -160,11 +145,7 @@ for i = 1:length(glc_list)
             mu_mid = (mu_low+mu_high)/2;
             disp(['Glucose concentration = ' num2str(glc_conc) '; glucose transporter = ' num2str(f_transporter) '; mu = ' num2str(mu_mid)]);
             model_tmp = changeRxnBounds(model_tmp,'R_biomass_dilution',mu_mid,'b');
-            model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_mid,'l');
-            factor_k = sf_coeff * mu_mid;
-            if factor_k > 1
-                factor_k = 1;
-            end
+            model_tmp = changeRxnBounds(model_tmp,Exchange_AAs,LBfactor_AAs*mu_ref,'l');
             fileName = WriteLPSatFactorTmp(model_tmp,mu_mid,f,osenseStr,rxnID,factor_k,...
                                            f_transporter,kcat_glc,factor_glc,...
                                            Info_enzyme,...
@@ -172,8 +153,8 @@ for i = 1:length(glc_list)
                                            Info_protein,...
                                            Info_ribosome,...
                                            Info_tRNA,...
-                                           mu_mid);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+                                           mu_ref);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmp);
@@ -185,10 +166,7 @@ for i = 1:length(glc_list)
             end
         end
         mu = flux_tmp(strcmp(model_tmp.rxns,'R_biomass_dilution'),1);
-        glc = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_glc__D_e'),1);
-        arg = -flux_tmp(strcmp(model_tmp.rxns,'R_M_EX_arg__L_e'),1);
-        res_gt(k,:,i) = [f_transporter mu mu/(glc*180/1000) arg*174/1000/mu];
-                                          %g_CDW/g_glucose  g_arginine/g_CDW
+        res_gt(k,i) = mu;
         fluxes_gt(:,(i-1)*length(glucose_transporter_list)+k) = flux_tmp;
 	end
 end
@@ -198,5 +176,4 @@ save('Sagt_result.mat','res_gt');
 save('Sagt_fluxes.mat','fluxes_gt');
 cd ../;
 
-clear;
 toc;
