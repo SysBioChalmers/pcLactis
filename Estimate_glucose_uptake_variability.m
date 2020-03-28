@@ -6,7 +6,6 @@
 
 % Simulated results will be saved in the folder 'Results'.
 
-% Figures can be obtained by running the codes starting from line 149.
 
 tic;
 load('pcLactis_Model.mat');

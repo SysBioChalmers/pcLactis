@@ -72,9 +72,8 @@ protein_efficiency_2 = yatp_2/totprotcost_2; %mmolATP/gProtein/h
 [protcost_3,totprotcost_3] = CalculateProteinCost(rxnlist_3,fluxlist_3,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_3 = yatp_3/totprotcost_3; %mmolATP/gProtein/h
 
-totprotcost_1 = 1*totprotcost_1;
-totprotcost_2 = 1*totprotcost_2;
-totprotcost_3 = 1*totprotcost_3;
+
+value = yatp_3-totprotcost_3/(totprotcost_1-totprotcost_2);
 
 %% Small model simulation
 
@@ -101,7 +100,7 @@ end
 tot_genes = unique(tot_genes);
 clear tot_rxns i z;
 
-tot_proteome = 0.046;
+tot_proteome = 0.46*0.1;
 
 
 % Estimate upper limit on arg uptake. The small model does not account for
@@ -109,7 +108,7 @@ tot_proteome = 0.046;
 argUB = 1.6568 - 0.1764; % total arg consumption minus arg composition in biomass.
 
 % Simulations
-mu_list = 0.01:0.01:0.71;
+mu_list = 0.01:0.01:0.72;
 flux = zeros(3,length(mu_list));
 unused_prot = zeros(1,length(mu_list));
 for i = 1:length(mu_list)
@@ -236,7 +235,7 @@ box on;
 hold on;
 plot(sum(flux(1:2,:)),yatp_1*flux(1,:)+yatp_2*flux(2,:)+yatp_3*flux(3,:),'-','LineWidth',1.5,'Color',[247,129,191]/255);
 ylim([0 49]);
-xlim([0 24]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('ATP production','FontSize',7,'FontName','Helvetica');
 
@@ -244,8 +243,8 @@ subplot(8,1,2);
 box on;
 hold on;
 plot(sum(flux(1:2,:)),flux(1,:),'-','LineWidth',1.5,'Color',color_ma);
-ylim([0 12]);
-xlim([0 24]);
+ylim([0 8]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Mixed acid flux','FontSize',7,'FontName','Helvetica');
 
@@ -254,7 +253,7 @@ box on;
 hold on;
 plot(sum(flux(1:2,:)),flux(2,:),'-','LineWidth',1.5,'Color',color_la);
 ylim([0 25]);
-xlim([0 24]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Lactic acid flux','FontSize',7,'FontName','Helvetica');
 
@@ -262,28 +261,28 @@ subplot(8,1,4);
 box on;
 plot(sum(flux(1:2,:)),flux(3,:),'-','LineWidth',1.5,'Color',color_arg);
 ylim([0 1.2]);
-xlim([0 24]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Arginine uptake','FontSize',7,'FontName','Helvetica');
 
 subplot(8,1,5);
 box on;
 plot(sum(flux(1:2,:)),unused_prot,'-','LineWidth',1.5,'Color','k');
-xlim([0 24]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Inactive proteome','FontSize',7,'FontName','Helvetica');
 
 subplot(8,1,6);
 box on;
 plot(res_arg(5,:),sensitivity_arg,'-','LineWidth',1.5,'Color','k');
-xlim([0 24]);
+xlim([0 22]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Sensitivity of Arg uptake','FontSize',7,'FontName','Helvetica');
 
 subplot(8,1,7);
 box on;
 plot(res_glc(5,:),sensitivity_glc,'-','LineWidth',1.5,'Color','k');
-xlim([0 24]);
+xlim([0 22]);
 % ylim([0 0.07]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Sensitivity of glucose uptake','FontSize',7,'FontName','Helvetica');
@@ -291,7 +290,7 @@ title('Sensitivity of glucose uptake','FontSize',7,'FontName','Helvetica');
 subplot(8,1,8);
 box on;
 plot(res_proteome(5,:),sensitivity_proteome,'-','LineWidth',1.5,'Color','k');
-xlim([0 24]);
+xlim([0 22]);
 % ylim([0 4.5]);
 set(gca,'FontSize',6,'FontName','Helvetica');
 title('Sensitivity of proteome','FontSize',7,'FontName','Helvetica');
@@ -317,20 +316,20 @@ for i = 1:length(res_ref)
     flux_increasedProt(:,i) = x;
 end
 
-figure('Name','2');
-box on;
-hold on;
-plot(sum(flux(1:2,:)),flux(1,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_ma);
-plot(sum(flux(1:2,:)),flux(2,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_la);
-plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(1,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_ma);
-plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(2,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_la);
-ylim([0 1]);
-xlim([0 24]);
-set(gca,'FontSize',6,'FontName','Helvetica');
-xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');
-ylabel('Fraction of glucose flux','FontSize',7,'FontName','Helvetica');
-set(gcf,'position',[200 600 350 120]);
-set(gca,'position',[0.1 0.2 0.68 0.78]);
+% figure('Name','2');
+% box on;
+% hold on;
+% plot(sum(flux(1:2,:)),flux(1,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_ma);
+% plot(sum(flux(1:2,:)),flux(2,:)./sum(flux(1:2,:)),'-','LineWidth',1,'Color',color_la);
+% plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(1,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_ma);
+% plot(sum(flux_increasedProt(1:2,:)),flux_increasedProt(2,:)./sum(flux_increasedProt(1:2,:)),'--','LineWidth',1,'Color',color_la);
+% ylim([0 1]);
+% xlim([0 24]);
+% set(gca,'FontSize',6,'FontName','Helvetica');
+% xlabel('Glucose uptake (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica');
+% ylabel('Fraction of glucose flux','FontSize',7,'FontName','Helvetica');
+% set(gcf,'position',[200 600 350 120]);
+% set(gca,'position',[0.1 0.2 0.68 0.78]);
 
 
 

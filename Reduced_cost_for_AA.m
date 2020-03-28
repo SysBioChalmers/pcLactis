@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 120000 s
+% Timing: ~ 160000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Keep unchanged uptake rates for other AAs as reference;
@@ -74,7 +74,7 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 %% Main part.
 % load glucose concentration of reference state
 load('Sglc_result.mat');
-selected_points = [1;9;17;21;25];
+selected_points = [1,9,17,21,26];
 glc_conc_list = glc_conc_without_sf(selected_points,:);
 clear glc_conc_without_sf;
 
@@ -131,7 +131,7 @@ for i = 1:length(selected_points)
                                     Info_protein,...
                                     Info_ribosome,...
                                     Info_tRNA);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_ref);
@@ -162,7 +162,7 @@ for i = 1:length(selected_points)
                                     Info_ribosome,...
                                     Info_tRNA,...
                                     mu_ref);
-    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+    command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
     fileName_out = 'Simulation.lp.out';
     [~,~,solME_full] = ReadSoplexResult(fileName_out,model_tmptmp);
@@ -200,7 +200,7 @@ for i = 1:length(selected_points)
                                             Info_ribosome,...
                                             Info_tRNA,...
                                             mu_ref_new);
-            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+            command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');
             fileName_out = 'Simulation.lp.out';
             [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model_tmptmp);

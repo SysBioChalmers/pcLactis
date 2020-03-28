@@ -1,24 +1,36 @@
 % Data import
 load('RcAA_result.mat');
-[aF, bF, ~] = xlsread('AA_data.xlsx','Flux');
-[aC, bC, ~] = xlsread('AA_data.xlsx','Conc');
+load('Sglc_fluxes');
+% load('Sglc_fluxes_test.mat');
+flux_res = fluxes_simulated_without_sf;
+
+load('pcLactis_Model.mat');
+model = pcLactis_Model;
 
 %% Plot reduced cost analysis
+
 increase_mu = result_rcAA.data(2,:)-result_rcAA.data(1,:);
 increase_mu(increase_mu < 0) = 0;
 increase_aa = result_rcAA.data(5,:)-result_rcAA.data(3,:);
 increase_aa(increase_aa < 0) = 0;
 reduced_cost = increase_mu./increase_aa;
 scaled_reduced_cost = reduced_cost.*result_rcAA.data(3,:)./result_rcAA.data(1,:);
-% scaled_reduced_cost = reduced_cost;
+
+tf_aa = result_rcAA.data(5,:)-result_rcAA.data(4,:);
+tf_aa(abs(tf_aa)<1e-12) = 0;
+scaled_reduced_cost(tf_aa ~= 0) = 0;
 scaled_reduced_cost(isnan(scaled_reduced_cost)) = 0;
 % scaled_reduced_cost(scaled_reduced_cost == inf) = 0;
 
 aaidlist = result_rcAA.column(1:20);
 aaidlist = cellfun(@(x) x(5:end),aaidlist,'UniformOutput',false);
 
+mulist = result_rcAA.column;
+mulist = cellfun(@(x) x(1:strfind(x,'_')-1),mulist,'UniformOutput',false);
+mulist = unique(mulist);
+
 minclr = [255,255,255]/255;
-maxclr = [165,15,21]/255;
+maxclr = [197,27,138]/255;
 tmp1 = linspace(minclr(1),maxclr(1),129)';
 tmp2 = linspace(minclr(2),maxclr(2),129)';
 tmp3 = linspace(minclr(3),maxclr(3),129)';
@@ -28,61 +40,61 @@ figure('Name','1');
 data = [scaled_reduced_cost(1:20);
         scaled_reduced_cost(21:40);
         scaled_reduced_cost(41:60);
-        scaled_reduced_cost(61:80)];
-h = heatmap(aaidlist,{'refmu0.1','refmu0.3','refmu0.5','refmu0.7'},data,'Colormap',clrmap,'ColorMethod','count','CellLabelColor','none');
-
+        scaled_reduced_cost(61:80);
+        scaled_reduced_cost(81:100)];
+h = heatmap(mulist,aaidlist,data','Colormap',clrmap,'ColorMethod','count','CellLabelColor','none');
+h.XLabel = 'Growth rate (/h)';
+title('Scaled reduced cost');
 set(h,'FontSize',7,'FontName','Helvetica');
-set(gcf,'position',[200 300 350 60]);
-set(gca,'position',[0.18 0.3 0.68 0.68]);
+h.FontColor = 'k';
+set(gcf,'position',[400 300 160 320]);
+set(gca,'position',[0.13 0.13 0.35 0.6]);
 
-%% Plot measured data
 
-flux = zeros(8,length(aaidlist));
-conc = zeros(8,length(aaidlist));
+%% Simulated AA
+[~, ~, aa_raw] = xlsread('Exchange_reaction_setting.xlsx','AA_factors');
+Exchange_AAs = aa_raw(2:end,1);
+LBfactor_AAs = cell2mat(aa_raw(2:end,2));
+clear aa_raw;
 
-for i = 1:length(aaidlist)
-    aa_tmp = aaidlist{i};
-    if any(contains(bF(1,:),upper(aa_tmp)))
-        flux(:,i) = aF(:,contains(bF(1,:),upper(aa_tmp)));
-    else
-        flux(:,i) = NaN;
-    end
-    
-    if any(contains(bC(1,:),upper(aa_tmp)))
-        conc(:,i) = aC(:,contains(bC(1,:),upper(aa_tmp)));
-    else
-        conc(:,i) = NaN;
-    end
-end
+[~, ~, aa_data] = xlsread('Exchange_reaction_setting.xlsx','chemostat_data_2');
+aa_list = aa_data(1,2:end);
+aa_value = cell2mat(aa_data(2:end,2:end));
+mu_exp = cell2mat(aa_data(2:end,1));
+clear aa_data;
+
+mu2 = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
 
 figure('Name','2');
-h = heatmap(conc,'Colormap',clrmap,'ColorMethod','count','CellLabelColor','none');
-h.XDisplayLabels = aaidlist;
-h.Title = 'Concentration (mM)';
-set(h,'FontSize',7,'FontName','Helvetica');
-set(gcf,'position',[700 300 350 130]);
-set(gca,'position',[0.18 0.3 0.68 0.6]);
+for i = 1:length(Exchange_AAs)
+    rxnid = Exchange_AAs{i};
+    aaid = rxnid(8:10);
+    flux_tmp = -flux_res(strcmp(model.rxns,rxnid),:);
+    flux_tRNA = CalculateAAtRNAFlux(model,flux_res,aaid);
+    m = -LBfactor_AAs(i);
+    
+    subplot(4,5,i);
+    hold on;
+    box on;
+    plot(mu2,flux_tmp,'-','LineWidth',0.5,'Color',maxclr);
+    plot(mu2,flux_tRNA,'-','LineWidth',0.5,'Color','k');
+    x = [0,1]; y = [0,m];
+    plot(x,y,':','LineWidth',1.5,'Color','k');
+    
+    if contains(aaid,aa_list)
+        aa_exp = -aa_value(:,contains(aa_list,aaid));
+        scatter(mu_exp,aa_exp,15,'o','filled',...
+            'LineWidth',1,'MarkerEdgeColor',[1 1 1],...
+            'MarkerFaceColor',maxclr,...
+            'MarkerEdgeAlpha',0,...
+            'MarkerFaceAlpha',0.5);
+    end
+    
+    xlim([0.1 0.7]);
+    set(gca,'FontSize',6,'FontName','Helvetica');
+%     ylabel('Uptake flux','FontSize',14,'FontName','Helvetica');
+%     xlabel('Growth rate (/h)','FontSize',14,'FontName','Helvetica');
+    title(aaid,'FontSize',7,'FontName','Helvetica','Color','k');
+end
 
-figure('Name','3');
-h = heatmap(flux,'Colormap',clrmap,'ColorMethod','count','CellLabelColor','none');
-h.XDisplayLabels = aaidlist;
-h.Title = 'Flux (mmol/gCDW/h)';
-set(h,'FontSize',7,'FontName','Helvetica');
-set(gcf,'position',[700 500 350 130]);
-set(gca,'position',[0.18 0.3 0.68 0.6]);
-
-% figure('Name','4');
-% hold on;
-% data_ccpa = flux(1:4,:);
-% data_wt = flux(5:8,:);
-% error_ccpa = std(data_ccpa,1,1);
-% error_wt = std(data_wt,1,1);
-% 
-% b = bar(categorical(aaidlist),[mean(data_ccpa);mean(data_wt)]');
-% errorbar([mean(data_ccpa);mean(data_wt)]',[error_ccpa;error_wt]','k','Marker','none','LineStyle','none','LineWidth',0.5,'CapSize',10);
-% 
-% boxplot(data_ccpa)
-
-
-
-
+set(gcf,'position',[0 0 350 260]);
