@@ -158,8 +158,8 @@ clear AA_sequence NA_sequence;
 % collected kcats have been stored in the file 'k_parameter.xlsx', so this 
 % code can be skipped.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID);
-clear RxnGPR;
+% [RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID);
+% clear RxnGPR;
 %%%%%%% Paste the produced file 'kcat_M.xls' to 'k_parameter.xlsx'. %%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear raw_metID;
