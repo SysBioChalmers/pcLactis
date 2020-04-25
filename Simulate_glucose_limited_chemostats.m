@@ -11,12 +11,11 @@ model = pcLactis_Model;
 %% Optimization setting.
 
 rxnID = 'R_dummy_assumed_Monomer';
-% rxnID = 'R_M_3MBALDt_rvs_Enzyme';
 osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36; %ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -25,7 +24,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.0083;%fraction of glucose transporter in total proteome
+f_transporter = 0.0082;%fraction of glucose transporter in total proteome
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -70,8 +69,9 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main part.
 
-D_list = 0.1:0.025:0.675;%unit: /h
-D_list = [D_list,0.68,0.685];
+D_list = 0.1:0.025:0.7;%unit: /h
+% D_list = 0.5;%unit: /h
+% D_list = 0.25:0.025:0.35;%unit: /h
 % without saturation factor
 factor_k = 1;%global saturation factor
 fluxes_simulated_without_sf = zeros(length(model.rxns),length(D_list));
@@ -98,7 +98,7 @@ for i = 1:length(D_list)
                                     Info_ribosome,...
                                     Info_tRNA);
 
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-17 -o1e-17 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);

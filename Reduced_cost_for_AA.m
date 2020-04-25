@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 160000 s
+% Timing: ~ 120000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Keep unchanged uptake rates for other AAs as reference;
@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -27,7 +27,7 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 
 kcat_glc = 180;%kcat value of glucose transporter
 Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
-f_transporter = 0.0083;%fraction of glucose transporter in total proteome
+f_transporter = 0.0082;%fraction of glucose transporter in total proteome
 factor_k = 1;
 
 %% Data import.
@@ -74,7 +74,8 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 %% Main part.
 % load glucose concentration of reference state
 load('Sglc_result.mat');
-selected_points = [1,9,17,21,26];
+% selected_points = [1,9,17,21,26];
+selected_points = 1:8:25;
 glc_conc_list = glc_conc_without_sf(selected_points,:);
 clear glc_conc_without_sf;
 

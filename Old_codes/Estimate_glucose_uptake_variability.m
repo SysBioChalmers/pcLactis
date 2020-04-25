@@ -1,17 +1,18 @@
+%% FVA for glucose uptake rate 
+% Calculate UB and LB of the glucose uptake rate for each glucose
+% concentration.
+
+% Timing: ~ 1700 s
+
+% Simulated results will be saved in the folder 'Results'.
+
+
+tic;
 load('pcLactis_Model.mat');
 model = pcLactis_Model;
 
-%% Optimization setting.
-
-rxnID = 'R_M_EX_glc__D_e';
-% rxnID = 'R_ribosome_70S';
-% rxnID = 'R_dummy_assumed_Monomer';
-
-osenseStr = 'Maximize';
-% osenseStr = 'Minimize';
-
-
 %% Parameters.
+rxnID = 'R_M_EX_glc__D_e';
 GAM = 36;%ATP coefficient in the new biomass equation.
 NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
@@ -21,7 +22,9 @@ model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
 [model,f] = ChangeUnmodeledProtein(model,f_unmodeled);
 
 kcat_glc = 180;%kcat value of glucose transporter
-f_transporter = 1;%no constraint on glucose transporter
+Km = 21;%Km of glucose transporter, unit: uM (PMID: 30630406)
+f_transporter = 0.0082;%fraction of glucose transporter in total proteome
+factor_k = 1;
 
 %% Data import.
 load('Info_enzyme.mat');
@@ -61,48 +64,78 @@ model = changeRxnBounds(model,'R_M_GLCt2_fwd',0,'b');
 % Block one of ADH isozymes llmg_0955
 model = changeRxnBounds(model,'R_M_ALCD2x_1_rvs',0,'b');
 
+% Block pyruvate oxidase
+model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
+
 %% Main part.
+load('Sglc_result.mat');
 
-% model = changeRxnBounds(model,'R_M_EX_glc__D_e',-23.0749,'b');
+D_list = glc_conc_without_sf(:,1);%unit: /h
+glc_conc_list = glc_conc_without_sf(:,2)*1.000001;%unit: uM
 
-D_list = 0.7;%unit: /h
-
-% without saturation factor
-factor_k = 1;%global saturation factor
-fluxes_simulated_without_sf = zeros(length(model.rxns),length(D_list));
+fluxes_simulated = zeros(length(model.rxns),2*length(D_list));
 
 for i = 1:length(D_list)
     
     D = D_list(i);
-    disp(['Without sf: D = ' num2str(D)]);
 	model = changeRxnBounds(model,'R_biomass_dilution',D,'b');
 	model = changeRxnBounds(model,Exchange_AAs,LBfactor_AAs*D,'l');
+    
+	glc_conc = glc_conc_list(i);
+    factor_glc = glc_conc / (glc_conc + Km);
+    
+    % Minimize glucose uptake rate
+    osenseStr = 'Maximize';
+    disp(['D = ' num2str(D) '; Minimizing glucose uptake']);
+    
 	fileName = WriteLPSatFactor(model,D,f,osenseStr,rxnID,factor_k,...
-                                f_transporter,kcat_glc,factor_k,...
+                                f_transporter,kcat_glc,factor_glc,...
                                 Info_enzyme,...
                                 Info_mRNA,...
                                 Info_protein,...
                                 Info_ribosome,...
                                 Info_tRNA);
-    tic;           
-	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
+                   
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-17 -o1e-17 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
 	system(command,'-echo');
 	fileName_out = 'Simulation.lp.out';
 	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
-    toc;
     if strcmp(solME_status,'optimal')
-        fluxes_simulated_without_sf(:,i) = solME_full;
+        fluxes_simulated(:,2*i-1) = solME_full;
     else
-        fluxes_simulated_without_sf(:,i) = zeros(length(model.rxns),1);
+        fluxes_simulated(:,2*i-1) = zeros(length(model.rxns),1);
+    end
+    
+    % Maximize glucose uptake rate 
+    osenseStr = 'Minimize';
+    disp(['D = ' num2str(D) '; Maximizing glucose uptake']);
+    
+	fileName = WriteLPSatFactor(model,D,f,osenseStr,rxnID,factor_k,...
+                                f_transporter,kcat_glc,factor_glc,...
+                                Info_enzyme,...
+                                Info_mRNA,...
+                                Info_protein,...
+                                Info_ribosome,...
+                                Info_tRNA);
+                   
+	command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-17 -o1e-17 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+	system(command,'-echo');
+	fileName_out = 'Simulation.lp.out';
+	[~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
+    
+    if strcmp(solME_status,'optimal')
+        fluxes_simulated(:,2*i) = solME_full;
+    else
+        fluxes_simulated(:,2*i) = zeros(length(model.rxns),1);
     end
 end
-[~,a1,b1] = CheckInactiveEnzyme(model,fluxes_simulated_without_sf(:,4));
 
-    [Protein,RNA,rProtein,rRNA,tRNA,mRNA] = CalculateProteinAndRNA(model,fluxes_simulated_without_sf,...
-                                                             Info_enzyme,...
-                                                             Info_ribosome,...
-                                                             Info_tRNA,...
-                                                             Info_mRNA);
+cd Results/;
+save('Eguv_fluxes.mat','fluxes_simulated');
+cd ../;
 
-z_glc = -fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_glc__D_e'),:);
-z_arg = -fluxes_simulated_without_sf(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
+clear;
+
+toc;
+
+

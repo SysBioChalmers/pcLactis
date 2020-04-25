@@ -158,7 +158,7 @@ box on;
 plot(mu,total_inactive_enzyme,'-','Marker','.','MarkerSize',10,'LineWidth',0.75,'Color',color_inactE);
 fill([[0.5 0.6] [0.6 0.5]],[[1 1] [0 0]],'k','linestyle','none','FaceAlpha',0.2);
 xlim([0.48 0.62]);
-ylim([0 0.012]);
+ylim([0 0.01]);
 set(gca, 'XColor','k');
 set(gca, 'YColor','k');
 set(gca,'FontSize',6,'FontName','Helvetica');

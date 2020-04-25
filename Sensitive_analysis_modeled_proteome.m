@@ -1,6 +1,6 @@
 %% Sensitivity analysis for total modeled proteome.
 
-% Timing: ~ 42000 s
+% Timing: ~ 39000 s
 
 % Simulated results will be saved in the folder 'Results'.
 
@@ -15,10 +15,10 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36;%ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 
 f_unmodeled_ref = 0.4;
-f_transporter_ref = 0.0083;
+f_transporter_ref = 0.0082;
 
 model = ChangeATPinBiomass(model,GAM);
 model = changeRxnBounds(model,'R_M_ATPM',NGAM,'b');
@@ -75,7 +75,8 @@ factor_k = 1;
 
 % load glucose concentration of reference state
 load('Sglc_result.mat');
-selected_points = [1:2:23,25,26];
+% selected_points = [1:2:23,25,26];
+selected_points = 1:2:25;
 glc_list = glc_conc_without_sf(selected_points,2);
 clear glc_conc_without_sf selected_points;
 

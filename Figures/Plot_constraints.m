@@ -1,14 +1,14 @@
 %% Data for modeled proteome and glucose transporter
 
 f_unmodeled_ref = 0.4;
-f_transporter_ref = 0.0083;
+f_transporter_ref = 0.0082;
 factor = 1.01;
 modeled_protein_list = (1-f_unmodeled_ref)*[1,factor];
 glucose_transporter_list = f_transporter_ref*[1,factor];
 clear factor;
 
 load('Sglc_result.mat');
-selected_points = [1:2:23,25,26];
+selected_points = 1:2:25;
 mu_list = glc_conc_without_sf(selected_points,1);
 mu_tmp = mat2str(mu_list);
 mu_tmp = mu_tmp(2:end-1);

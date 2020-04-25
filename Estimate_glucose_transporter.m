@@ -18,7 +18,7 @@ osenseStr = 'Maximize';
 
 %% Parameters.
 GAM = 36; %ATP coefficient in the new biomass equation.
-NGAM = 3; %(mmol/gCDW/h)
+NGAM = 2; %(mmol/gCDW/h)
 f_unmodeled = 0.4; %proportion of unmodeled protein in total protein (g/g)
 
 model = ChangeATPinBiomass(model,GAM);
@@ -71,8 +71,8 @@ model = changeRxnBounds(model,'R_M_PYROX_1',0,'b');
 
 %% Main simulations.
 
-f_transporter_range = [0.001:0.001:0.01,0.1,0.2];
-% f_transporter_range = 0.5;
+% f_transporter_range = [0.001:0.001:0.01,0.1,0.2];
+f_transporter_range = 0.5;
 res = zeros(length(f_transporter_range),9);
 
 for i = 1:length(f_transporter_range)
