@@ -1,6 +1,5 @@
 
 load('Sglc_fluxes');
-% load('Sglc_fluxes_test.mat');
 flux_res = fluxes_simulated_without_sf;
 
 load('pcLactis_Model.mat');
@@ -21,38 +20,34 @@ exp_mu = cell2mat(exp_raw(2,14:18));
 
 exp_arg = 1*cell2mat(exp_raw(9,14:18));
 exp_orn = cell2mat(exp_raw(8,14:18));
-exp_nh4 = cell2mat(exp_raw(10,14:18));
 exp_citr = cell2mat(exp_raw(11,14:18));
 sd_orn = cell2mat(exp_raw(8,19:23));
 sd_arg = cell2mat(exp_raw(9,19:23));
-sd_nh4 = cell2mat(exp_raw(10,19:23));
 sd_citr = cell2mat(exp_raw(11,19:23));
 
 mu = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
 orn = flux_res(strcmp(model.rxns,'R_M_EX_orn_e'),:);
-nh4 = flux_res(strcmp(model.rxns,'R_M_EX_nh4_e'),:);
 arg = flux_res(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
 citr = flux_res(strcmp(model.rxns,'R_M_EX_citr__L_e'),:);
 
 
-color_arg = [231,41,138]/255;
-color_orn = [27,158,119]/255;
-color_nh4 = [217,95,2]/255;
-color_citr = [117,112,179]/255;
+color_arg = [247,144,61]/255;
+color_orn = [77,133,189]/255;
+color_citr = [89,169,90]/255;
 
-figure('Name','1');
+figure('Name','2');
 
 hold on;
 box on;
 
 scatter(exp_mu,exp_arg,10,'o','LineWidth',1,'MarkerEdgeColor',color_arg);
 scatter(exp_mu,exp_orn,10,'o','LineWidth',1,'MarkerEdgeColor',color_orn);
-scatter(exp_mu,exp_nh4,10,'o','LineWidth',1,'MarkerEdgeColor',color_nh4);
+% scatter(exp_mu,exp_nh4,10,'o','LineWidth',1,'MarkerEdgeColor',color_nh4);
 scatter(exp_mu,exp_citr,10,'o','LineWidth',1,'MarkerEdgeColor',color_citr);
 
 plot(mu,arg,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_arg);
 plot(mu,orn,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_orn);
-plot(mu,nh4,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_nh4);
+% plot(mu,nh4,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_nh4);
 plot(mu,citr,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_citr);
 
 xlim([0.1 0.7]);
@@ -62,11 +57,11 @@ set(gca, 'YColor','k');
 set(gca,'FontSize',6,'FontName','Helvetica');
 xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica','Color','k');
 ylabel('Exchange flux (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica','Color','k');
-legend({'Arginine','Ornithine','Ammonium','﻿Citrulline',...
-    'Arginine','Ornithine','Ammonium','﻿Citrulline'},'FontSize',6,'FontName','Helvetica','location','se');
+legend({'Arginine','Ornithine','Citrulline',...
+    'Arginine','Ornithine','Citrulline'},'FontSize',6,'FontName','Helvetica','location','se');
 title('Arginine catabolism','FontSize',7,'FontName','Helvetica','Color','k');
 
-set(gcf,'position',[200 400 300 200]);
+set(gcf,'position',[200 400 300 130]);
 set(gca,'position',[0.15 0.2 0.4 0.7]);
 
 
@@ -134,9 +129,9 @@ allocation_value = [allocation_value;unmodeled_weight*ones(1,n)];
 allocation_percentage = allocation_value./total_proteome;
 
 % Figures
-figure('Name','2');
+figure('Name','1');
 hold on;
-b = bar(transpose(allocation_percentage),'stacked');
+b = bar(transpose(allocation_percentage*100),'stacked');
 b(1).FaceColor = [228,26,28]/256;
 b(2).FaceColor = [55,126,184]/256;
 b(3).FaceColor = [255,255,51]/256;
@@ -150,15 +145,53 @@ b(9).FaceColor = [153,153,153]/256;
 
 legend(allocation_pathway,'FontSize',6,'FontName','Helvetica','location','se');
 legend('boxoff');
-ylim([0 1]);
+ylim([0 100]);
 xticks(1:1:length(mu_list));
 xticklabels(cellfun(@(x) num2str(x),num2cell(mu_list),'UniformOutput',false));
 xtickangle(90);
 xlabel('Growth rate (/h)','FontSize',6,'FontName','Helvetica');
-ylabel('Proteome fraction','FontSize',6,'FontName','Helvetica');
+ylabel('Proteome fraction (%)','FontSize',6,'FontName','Helvetica');
 set(gca,'FontSize',6,'FontName','Helvetica');
-set(gcf,'position',[200 100 420 200]);
+set(gcf,'position',[200 100 420 220]);
 set(gca,'position',[0.1 0.2 0.5 0.7]);
+
+clear flux_res fluxes_simulated_without_sf mu arg;
+
+figure('Name','3');
+load('Sglc5358_fluxes.mat');
+color_lac = [228,26,28]/255;
+flux_res = fluxes_simulated_without_sf;
+mu = flux_res(strcmp(model.rxns,'R_biomass_dilution'),:);
+arg = -flux_res(strcmp(model.rxns,'R_M_EX_arg__L_e'),:);
+lac = flux_res(strcmp(model.rxns,'R_M_EX_lac__L_e'),:);
+
+hold on;
+box on;
+
+plot(mu,arg,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_arg);
+plot(mu,lac,'-','Marker','.','MarkerSize',5,'LineWidth',0.75,'Color',color_lac);
+
+xlim([0.535 0.575]);
+set(gca, 'XColor','k');
+set(gca, 'YColor','k');
+set(gca,'FontSize',6,'FontName','Helvetica');
+xlabel('Growth rate (/h)','FontSize',7,'FontName','Helvetica','Color','k');
+ylabel('Flux (mmol/gCDW/h)','FontSize',7,'FontName','Helvetica','Color','k');
+legend({'Arginine uptake','Lactate production'},'FontSize',6,'FontName','Helvetica','location','se');
+
+set(gcf,'position',[400 400 300 80]);
+set(gca,'position',[0.15 0.25 0.4 0.7]);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
