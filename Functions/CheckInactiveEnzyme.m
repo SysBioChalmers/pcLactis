@@ -11,7 +11,6 @@ function [tf,enzyme_inact,f_enzyme_inact,f_inact_part] = CheckInactiveEnzyme(mod
 %                         biomass (g/g).
 %         f_inact_part, inactive mass of inactive enzymes in biomass (g/g).
 
-load('sat_factor.mat');
 key_transporters = {'M_ALAt2r_1_fwd_Enzyme_c',...%ala in
                         'M_ALAt2r_2_fwd_Enzyme_c',...%ala in
                         'M_ARGt2r_Enzyme_c',...%arg in
@@ -65,9 +64,9 @@ key_transporters = {'M_ALAt2r_1_fwd_Enzyme_c',...%ala in
 
 load('Info_enzyme.mat');
 
-[~, ~, k_raw_m] = xlsread('k_parameter.xlsx','M');
-m_enzyme = k_raw_m(2:end,1);
-m_kcat = cell2mat(k_raw_m(2:end,2));
+load('kcat_M.mat');
+m_enzyme = kcat_M.gpr;
+m_kcat = kcat_M.kcat;
 
 mu = sol_full(strcmp(model.rxns,'R_biomass_dilution'));
 
@@ -126,10 +125,8 @@ for i = 1:length(reversiblerxnlist)
         if kcat < quantile(m_kcat,0.1,1)
             kcat = quantile(m_kcat,0.1,1);
         end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if ismember(enzyme_id,key_transporters) || ismember(enzyme_id,sat_factor.poor_Enzyme)
+        if ismember(enzyme_id,key_transporters)
             factor_k_tmp = 1;
-        elseif ismember(enzyme_id,sat_factor.EnzymeID_pc)
-            factor_k_tmp = factor_k;
         else
             factor_k_tmp = factor_k;
         end
@@ -172,10 +169,8 @@ for i = 1:length(enzyme_dil_nonzero_fluxes_rxns)
         if kcat < quantile(m_kcat,0.1,1)
             kcat = quantile(m_kcat,0.1,1);
         end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if ismember(enzyme_id,key_transporters) || ismember(enzyme_id,sat_factor.poor_Enzyme)
+        if ismember(enzyme_id,key_transporters)
             factor_k_tmp = 1;
-        elseif ismember(enzyme_id,sat_factor.EnzymeID_pc)
-            factor_k_tmp = factor_k;
         else
             factor_k_tmp = factor_k;
         end

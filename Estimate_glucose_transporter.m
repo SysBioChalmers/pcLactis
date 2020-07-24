@@ -1,6 +1,6 @@
 %% Estimate fraction of glucose transporter in total proteome
 
-% Timing: ~ 11000 s
+% Timing: ~ 900 s
 
 % By changing the fraction of glucose transporter in total proteome, we can
 % study how glucose transporter affects the maximal growth rate.
@@ -33,7 +33,6 @@ load('Info_enzyme.mat');
 load('Info_mRNA.mat');
 load('Info_protein.mat');
 load('Info_ribosome.mat');
-load('Info_tRNA.mat');
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','MaxMu');
 [~, ~, aa_raw] = xlsread('Exchange_reaction_setting.xlsx','AA_factors');
 
@@ -92,11 +91,10 @@ for i = 1:length(f_transporter_range)
                            Info_enzyme,...
                            Info_mRNA,...
                            Info_protein,...
-                           Info_ribosome,...
-                           Info_tRNA);
+                           Info_ribosome);
 
 %         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-15 -o1e-15 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 %s > %s.out %s',fileName,fileName);
-        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-18 -o1e-18 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
+        command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-20 -o1e-20 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
         [~,solME_status,solME_full] = ReadSoplexResult(fileName_out,model);
@@ -132,7 +130,7 @@ clear ac ans command eth Exchange_AAs f f_transporter f_transporter_range;
 clear f_unmodeled factor_k fileName fileName_out form GAM glc osenseStr;
 clear glc_transporter_weight i kcat_glc lac LBfactor_AAs pcLactis_Model mu rxnID;
 clear mu_high mu_low mu_mid NGAM solME_full solME_status;
-clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome Info_tRNA;
+clear Info_enzyme Info_mRNA Info_protein Info_protein Info_ribosome;
 
 cd Results/;
 save('Egt_result.mat','res');

@@ -58,7 +58,7 @@ end
 
 % Import to Excel file.
 M_Model = Matrix2CBModel(M_Matrix_original);
-writeCbModel(M_Model,'xls','M_model_Original.xls');
+% writeCbModel(M_Model,'xls','M_model_Original.xls');
 
 % Add reversibility information to M_Model.
 M_Model.rev = [];

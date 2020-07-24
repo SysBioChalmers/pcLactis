@@ -34,9 +34,6 @@ k.trna = 4.1*mu/(0.55+mu); %amino acid molecules/tRNA molecule/s
 k.mrna = 1.45*mu/(0.55+mu); %protein molecules/TU molecule/s
 k.ribo = 38.8*mu/(0.55+mu); %amino acid molecules/ribosome molecule/s
 
-% k.cplx_mrnadeg = 100*1591*1.43*mu; %nucleotide molecules/complex molecule/s
-% k.protease = 100*350*1.43*mu; %amino acid molecules/complex molecule/s
-
 k.cplx_mrnadeg = 100*1591; %nucleotide molecules/complex molecule/s
 k.protease = 100*350; %amino acid molecules/complex molecule/s
 

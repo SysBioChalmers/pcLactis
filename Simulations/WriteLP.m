@@ -4,8 +4,7 @@ function fileName = WriteLP(model,mu,f,osenseStr,rxnID,factor_k,...
                             Info_enzyme,...
                             Info_mRNA,...
                             Info_protein,...
-                            Info_ribosome,...
-                            Info_tRNA)
+                            Info_ribosome)
 % f_transporter is proportion of glucose transporter in total proteome (Upper bound)
 
 fileName = sprintf('Simulation.lp');
@@ -49,11 +48,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2) Coupling metabolic reactions and enzymes.
 
-[~, ~, k_raw_m] = xlsread('k_parameter.xlsx','M');
-[~, ~, k_raw_e] = xlsread('k_parameter.xlsx','E');
+load('kcat_M.mat');
+m_enzyme = kcat_M.gpr;
+m_kcat = kcat_M.kcat;
 
-m_enzyme = k_raw_m(2:end,1);
-m_kcat = cell2mat(k_raw_m(2:end,2));
+[~, ~, k_raw_e] = xlsread('kcat_E.xlsx','E');
 e_enzyme = k_raw_e(2:end,1);
 e_kcat = cell2mat(k_raw_e(2:end,2));
 

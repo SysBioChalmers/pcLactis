@@ -33,7 +33,8 @@ RNAP_sf = 'RNAP_sf_Enzyme_c';
 
 RxnID = 'R_RNAP_sf_Enzyme';
 Compo = {alpha;beta;beta_prime;omega;delta;sigma_factor;RNAP_sf};
-Coeff = [-2;-1;-1;-1;-1;-1;1];
+
+Coeff = [-1;-1;-1;-1;-1;-1;1]; % note that alpha is already a dimer!!!
 Rev = 0;
 Subproc = 'Enzyme formation';
 Catalyst = '';

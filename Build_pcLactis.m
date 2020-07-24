@@ -19,9 +19,9 @@ tic;
 %      and exchange rxns.
 %   5. Change GAM to 34 according to 'Estimate_ATP_M_Model.m'.
 
-[num_rxn, txt_rxn, ~] = xlsread('M_model_201908.xlsx','reactions');
-[num_matrix, txt_matrix, ~] = xlsread('M_model_201908.xlsx','network_react');
-[~, ~, raw_metID] = xlsread('M_model_201908.xlsx','metabolites');
+[num_rxn, txt_rxn, ~] = xlsread('M_model.xlsx','reactions');
+[num_matrix, txt_matrix, ~] = xlsread('M_model.xlsx','network_react');
+[~, ~, raw_metID] = xlsread('M_model.xlsx','metabolites');
 
 %% M modelling: Convert CBMpy to COBRA matrix.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,15 +154,14 @@ clear AA_sequence NA_sequence;
 
 % Assign kcat.
 % The metabolic kcats can be collected and assigned using GECKO method. Run
-% the code below, then will get kcats for all the metabolic enzymes. The
-% collected kcats have been stored in the file 'k_parameter.xlsx', so this 
-% code can be skipped.
+% the code below, then will get kcats for all the metabolic enzymes.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID);
-% clear RxnGPR;
-%%%%%%% Paste the produced file 'kcat_M.xls' to 'k_parameter.xlsx'. %%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clear raw_metID;
+[RxnGPR,kcats] = AssignMetabolicKcat(RxnGPR,Metabolic_Matrix,raw_metID);
+%save mat file
+kcat_M.gpr = RxnGPR.newGPR;
+kcat_M.kcat = RxnGPR.kcat;
+save('kcat_M.mat','kcat_M');
+clear RxnGPR raw_metID;
 
 %% modelling: Transcription.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

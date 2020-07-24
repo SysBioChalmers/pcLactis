@@ -31,7 +31,6 @@ load('Info_enzyme.mat');
 load('Info_mRNA.mat');
 load('Info_protein.mat');
 load('Info_ribosome.mat');
-load('Info_tRNA.mat');
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','MaxMu');
 [~, ~, aa_raw] = xlsread('Exchange_reaction_setting.xlsx','AA_factors');
 
@@ -95,8 +94,7 @@ for i = 1:length(D_list)
                                     Info_enzyme,...
                                     Info_mRNA,...
                                     Info_protein,...
-                                    Info_ribosome,...
-                                    Info_tRNA);
+                                    Info_ribosome);
 
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-17 -o1e-17 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');

@@ -1,5 +1,5 @@
 %% Reduced cost for AA uptake
-% Timing: ~ 120000 s
+% Timing: ~ 115000 s
 
 % Use relative increase, i.e., 1% of the reference value;
 % Keep unchanged uptake rates for other AAs as reference;
@@ -35,7 +35,6 @@ load('Info_enzyme.mat');
 load('Info_mRNA.mat');
 load('Info_protein.mat');
 load('Info_ribosome.mat');
-load('Info_tRNA.mat');
 [~, ~, exchange_raw] = xlsread('Exchange_reaction_setting.xlsx','MaxMu');
 [~, ~, aa_raw] = xlsread('Exchange_reaction_setting.xlsx','AA_factors');
 
@@ -130,8 +129,7 @@ for i = 1:length(selected_points)
                                     Info_enzyme,...
                                     Info_mRNA,...
                                     Info_protein,...
-                                    Info_ribosome,...
-                                    Info_tRNA);
+                                    Info_ribosome);
         command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
         system(command,'-echo');
         fileName_out = 'Simulation.lp.out';
@@ -161,7 +159,6 @@ for i = 1:length(selected_points)
                                     Info_mRNA,...
                                     Info_protein,...
                                     Info_ribosome,...
-                                    Info_tRNA,...
                                     mu_ref);
     command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
     system(command,'-echo');
@@ -199,7 +196,6 @@ for i = 1:length(selected_points)
                                             Info_mRNA,...
                                             Info_protein,...
                                             Info_ribosome,...
-                                            Info_tRNA,...
                                             mu_ref_new);
             command = sprintf('/Users/cheyu/build/bin/soplex -s0 -g5 -t300 -f1e-12 -o1e-12 -x -q -c --int:readmode=1 --int:solvemode=2 --int:checkmode=2 --real:fpfeastol=1e-3 --real:fpopttol=1e-3 %s > %s.out %s',fileName,fileName);
             system(command,'-echo');

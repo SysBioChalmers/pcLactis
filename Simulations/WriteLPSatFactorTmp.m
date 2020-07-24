@@ -4,17 +4,9 @@
 
 % This is a new version of the WriteLP function. In this new function, the
 % specific saturation factor of glucose transporter will be changed alone, 
-% which is based on glucose concentration. The saturation factors of most 
-% of the other enzymes are determined based on proteomics data if they 
-% change linearly with growth rate. For the enzymes showing poor 
-% correlation of saturation factor and growth rate (R < 0.8), stored in 
-% sat_factor.mat, their saturation factors are assumed to be always 1. At 
-% last, the saturation factors of the transporters of the unlimited 
-% compounds in the medium are always set to be 1.
-
-% Note that the unknown enzymes can be assumed to be unchanged or changed
-% with growth rate. Line 151 152 182 183.
-
+% which is based on glucose concentration. The saturation factors of the 
+% transporters of the unlimited compounds in the medium are always set to 
+% be 1.
 
 function fileName = WriteLPSatFactorTmp(model,mu,f,osenseStr,rxnID,factor_k,...
                                         f_transporter,kcat_glc,factor_glc,...
@@ -22,7 +14,6 @@ function fileName = WriteLPSatFactorTmp(model,mu,f,osenseStr,rxnID,factor_k,...
                                         Info_mRNA,...
                                         Info_protein,...
                                         Info_ribosome,...
-                                        Info_tRNA,...
                                         mu4parameter)
 % f_transporter is proportion of glucose transporter in total proteome (Upper bound)
 
@@ -67,15 +58,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2) Coupling metabolic reactions and enzymes.
 
-[~, ~, k_raw_m] = xlsread('k_parameter.xlsx','M');
-[~, ~, k_raw_e] = xlsread('k_parameter.xlsx','E');
+load('kcat_M.mat');
+m_enzyme = kcat_M.gpr;
+m_kcat = kcat_M.kcat;
 
-m_enzyme = k_raw_m(2:end,1);
-m_kcat = cell2mat(k_raw_m(2:end,2));
+[~, ~, k_raw_e] = xlsread('kcat_E.xlsx','E');
 e_enzyme = k_raw_e(2:end,1);
 e_kcat = cell2mat(k_raw_e(2:end,2));
-
-load('sat_factor.mat');
 
 for i = 1:length(m_enzyme)
     enzyme = m_enzyme{i};
@@ -145,15 +134,12 @@ for i = 1:length(m_enzyme)
                         'M_ZNabc_Enzyme_c',...%zn2 in
                         };
 
-	if ismember(enzyme,key_transporters) || ismember(enzyme,sat_factor.poor_Enzyme)
+	if ismember(enzyme,key_transporters)
         factor_k_tmp = 1;
 	elseif strcmp(enzyme,'M_GLCpts_1_Enzyme_c') || strcmp(enzyme,'M_GLCpts_2_Enzyme_c') || strcmp(enzyme,'M_GLCt2_fwd_Enzyme_c')
         factor_k_tmp = factor_glc;
-    elseif ismember(enzyme,sat_factor.EnzymeID_pc)
-        factor_k_tmp = factor_k;
     else
-        factor_k_tmp = factor_k; %%%%%%%% The others to be changed
-%         factor_k_tmp = 1; %%%%%%%% The others to be 1
+        factor_k_tmp = factor_k;
 	end
     if factor_k_tmp < 0
         factor_k_tmp = 0.01;
@@ -604,121 +590,6 @@ fprintf(fptr,'Cribodil: X%d - %.15f X%d = 0\n',...
 
 dil_rxns = model.rxns(contains(model.rxns,'R_dilution'));
 
-% %Sum of total protein and RNA.
-% for i = 1:length(dil_rxns)
-%     rxn_id = dil_rxns{i};
-%     comp_name = strrep(rxn_id,'R_dilution_','');
-%     idx = find(strcmp(model.rxns,rxn_id));
-%     
-%     if mod(i,200) == 0
-%         sep = newline;
-% 	else
-%         sep = '';
-%     end
-%     
-%     if strcmp(comp_name,'ribosome_70S')
-%         MW = Info_ribosome.MW_protein + Info_ribosome.MW_RNA;
-%         coeff = MW/1000;
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%         
-%     elseif contains(comp_name,'_Enzyme')
-%         MW = Info_enzyme.MW(contains(Info_enzyme.ID,comp_name));
-%         coeff = MW/1000;
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%     
-% 	elseif contains(comp_name,'generic_tRNA_')
-%         trna_name = strrep(comp_name,'generic_','');
-%         ge_trna_list = model.rxns(contains(model.rxns,'R_Generic_RNA_'));
-%         trna_list = ge_trna_list(contains(ge_trna_list,trna_name));
-%         trna_list = cellfun(@(x) strrep(x,'R_Generic_RNA_',''),...
-%                                  trna_list,'UniformOutput',false);
-%         trna_list = cellfun(@(x) x(1:min(strfind(x,trna_name))-2),...
-%                                  trna_list,'UniformOutput',false);
-%         MW_list = Info_tRNA.MW(ismember(Info_tRNA.ID,trna_list));
-%         MW = mean(MW_list);
-%         coeff = MW/1000;
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%         
-%     elseif contains(comp_name,'mRNA_TU')
-%         tu_name = strrep(comp_name,'mRNA_','');
-%         MW = Info_mRNA.MW(strcmp(Info_mRNA.ID,tu_name));
-%         coeff = MW/1000;       
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%     end
-% end
-% 
-% fprintf(fptr,'CprotRNA: %s = %.15f\n',eq,mu*f);
-% 
-% %Total RNA constraint
-% dil_rxns = dil_rxns(~contains(dil_rxns,'_Enzyme'));
-% 
-% for i = 1:length(dil_rxns)
-%     rxn_id = dil_rxns{i};
-%     comp_name = strrep(rxn_id,'R_dilution_','');
-%     idx = find(strcmp(model.rxns,rxn_id));
-%     
-%     if mod(i,200) == 0
-%         sep = newline;
-% 	else
-%         sep = '';
-%     end
-%     
-%     if strcmp(comp_name,'ribosome_70S')
-%         MW = Info_ribosome.MW_RNA;
-%         coeff = MW/1000;
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%     
-% 	elseif contains(comp_name,'generic_tRNA_')
-%         trna_name = strrep(comp_name,'generic_','');
-%         ge_trna_list = model.rxns(contains(model.rxns,'R_Generic_RNA_'));
-%         trna_list = ge_trna_list(contains(ge_trna_list,trna_name));
-%         trna_list = cellfun(@(x) strrep(x,'R_Generic_RNA_',''),...
-%                                  trna_list,'UniformOutput',false);
-%         trna_list = cellfun(@(x) x(1:min(strfind(x,trna_name))-2),...
-%                                  trna_list,'UniformOutput',false);
-%         MW_list = Info_tRNA.MW(ismember(Info_tRNA.ID,trna_list));
-%         MW = mean(MW_list);
-%         coeff = MW/1000;
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%         
-%     elseif contains(comp_name,'mRNA_TU')
-%         tu_name = strrep(comp_name,'mRNA_','');
-%         MW = Info_mRNA.MW(strcmp(Info_mRNA.ID,tu_name));
-%         coeff = MW/1000;       
-%         if i == 1
-%             eq = sprintf('%.15f X%d',coeff,idx);
-%         else
-%             eq = sprintf('%s + %.15f X%d%c',eq,coeff,idx,sep);
-%         end
-%     end
-% end
-% 
-% fprintf(fptr,'CtotRNA: %s = %.15f\n',eq,mu*0.56*(mu+1.25)/(mu+12.51));
-
 %Total protein constraint
 for i = 1:length(dil_rxns)
     rxn_id = dil_rxns{i};
@@ -756,20 +627,6 @@ fprintf(fptr,'Ctotprot: %s = %.15f\n',eq,mu*f);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 13) Constraint of membrane proteins (transporters).
-
-% Transporters = {};
-% idx = cellfun(@(x) isequal({'Metabolism'},x),model.subSystems,'UniformOutput',false);
-% M_rxns_idx = find(cell2mat(idx));
-% for i = 1:length(M_rxns_idx)
-%     rxnidx = M_rxns_idx(i);
-% 	metlist = model.mets(model.S(:,rxnidx) ~= 0);
-% 	if find(cell2mat(cellfun(@(x) strcmp(x(length(x)-1:end),'_e'),metlist,'UniformOutput',false)),1) > 0
-%         enzyme_id = model.grRules{rxnidx};
-%         if ~isempty(enzyme_id)
-%             Transporters = [Transporters;{enzyme_id}];
-%         end
-% 	end
-% end
 
 Transporters = {'M_GLCpts_1_Enzyme_c';
            'M_GLCpts_2_Enzyme_c';
