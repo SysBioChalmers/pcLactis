@@ -20,8 +20,8 @@ model_1 = changeObjective(model,'R_M_ATPM',1);
 model_1 = changeRxnBounds(model_1,'R_M_EX_glc__D_e',-1,'b');
 model_1 = changeRxnBounds(model_1,'R_M_EX_h2o_e',-1000,'l');
 sol_1 = optimizeCbModel(model_1,'max','one');
-rxnlist_1 = model_1.rxns(sol_1.x ~= 0);
-fluxlist_1 = sol_1.x(sol_1.x ~= 0);
+rxnlist_1 = model_1.rxns(abs(sol_1.x) > 1e-5);
+fluxlist_1 = sol_1.x(abs(sol_1.x) > 1e-5);
 yatp_1 = sol_1.x(ismember(model_1.rxns,'R_M_ATPM')) / -sol_1.x(ismember(model_1.rxns,'R_M_EX_glc__D_e'));
 clear model_1 sol_1;
 
@@ -30,8 +30,8 @@ model_2 = changeObjective(model,'R_M_EX_lac__L_e',1);
 model_2 = changeRxnBounds(model_2,'R_M_EX_glc__D_e',-1,'b');
 model_2 = changeRxnBounds(model_2,'R_M_ATPM',2,'b');
 sol_2 = optimizeCbModel(model_2,'max','one');
-rxnlist_2 = model_2.rxns(sol_2.x ~= 0);
-fluxlist_2 = sol_2.x(sol_2.x ~= 0);
+rxnlist_2 = model_2.rxns(abs(sol_2.x) > 1e-5);
+fluxlist_2 = sol_2.x(abs(sol_2.x) > 1e-5);
 yatp_2 = sol_2.x(ismember(model_2.rxns,'R_M_ATPM')) / -sol_2.x(ismember(model_2.rxns,'R_M_EX_glc__D_e'));
 clear model_2 sol_2;
 
@@ -44,8 +44,8 @@ model_3 = changeRxnBounds(model_3,'R_M_ARGabc',0,'b');
 model_3 = changeRxnBounds(model_3,'R_M_EX_h_e',-1000,'l');
 
 sol_3 = optimizeCbModel(model_3,'max','one');
-rxnlist_3 = model_3.rxns(sol_3.x ~= 0);
-fluxlist_3 = sol_3.x(sol_3.x ~= 0);
+rxnlist_3 = model_3.rxns(abs(sol_3.x) > 1e-5);
+fluxlist_3 = sol_3.x(abs(sol_3.x) > 1e-5);
 yatp_3 = sol_3.x(ismember(model_3.rxns,'R_M_ATPM')) / -sol_3.x(ismember(model_3.rxns,'R_M_EX_arg__L_e'));
 % clear model_3 sol_3;
 
@@ -74,9 +74,7 @@ protein_efficiency_2 = yatp_2/totprotcost_2; %mmolATP/gProtein/h
 [protcost_3,totprotcost_3] = CalculateProteinCost(rxnlist_3,fluxlist_3,Info_enzyme,kcat_glc,enzymelist,kcatlist);
 protein_efficiency_3 = yatp_3/totprotcost_3; %mmolATP/gProtein/h
 
-totprotcost_3 = totprotcost_3;
-
-value = yatp_3-totprotcost_3/(totprotcost_1-totprotcost_2);
+% value = yatp_3-totprotcost_3/(totprotcost_1-totprotcost_2);
 
 %% Small model simulation
 
