@@ -626,7 +626,7 @@ fprintf(fptr,'Ctotprot: %s = %.15f\n',eq,mu*f);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 13) Constraint of membrane proteins (transporters).
+% 13) Constraint of membrane proteins (glucose transporters).
 
 Transporters = {'M_GLCpts_1_Enzyme_c';
            'M_GLCpts_2_Enzyme_c';
